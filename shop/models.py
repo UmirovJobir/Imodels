@@ -4,7 +4,7 @@ from tinymce import models as tinymce_models
 
 
 class Category(models.Model):
-    name   = models.JSONField()
+    name   = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='parent_category', null=True, blank=True)
     
     class Meta:
