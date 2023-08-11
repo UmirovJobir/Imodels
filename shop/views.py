@@ -1,10 +1,19 @@
 from django.shortcuts import render
 from django.utils import translation
 
-from rest_framework.generics import ListAPIView
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from .models import Product, Category
-from .serializers import ProductSerializer, CategorySerializer
+from .models import (
+    Category,
+    Product
+)
+from .serializers import (
+    CategorySerializer,
+    SubCategorySerializer,
+    ProductSerializer,
+)
 
 
 def get_query_by_heard(self, queryset):
@@ -18,16 +27,31 @@ class CategoryView(ListAPIView):
     serializer_class = CategorySerializer
 
     def get_queryset(self):
-        queryset = Category.objects.all()
+        queryset = Category.objects.filter(parent__isnull=True)
+        return get_query_by_heard(self, queryset)
+
+    
+class SubCategoryView(ListAPIView):
+    serializer_class = SubCategorySerializer
+
+    def get_queryset(self):
+        queryset = Category.objects.filter(parent__isnull=False)
         return get_query_by_heard(self, queryset)
     
 
 class ProductView(ListAPIView):
     serializer_class = ProductSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_fields = ['category']
+    search_fields = ['title']
 
-    def get_queryset(self):
-        queryset = Product.objects.all()
+    def get_queryset(self, *args, **kwargs):
+        queryset = Product.objects.all().select_related('category')
         return get_query_by_heard(self, queryset)
+
+
+
+
 
 
 

@@ -5,11 +5,11 @@ from tinymce import models as tinymce_models
 
 class Category(models.Model):
     name   = models.CharField(max_length=100)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='parent_category', null=True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subcategories', null=True, blank=True)
     
     class Meta:
-        verbose_name='Category'
-        verbose_name_plural='Categories'
+        verbose_name='Категория'
+        verbose_name_plural='Категории'
     
     def __str__(self) -> str:
         return f"(Category_pk:{self.pk}, name:{self.name})"
@@ -24,10 +24,14 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f"(Product_pk:{self.pk}, title:{self.title})"
     
+    class Meta:
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
+
 
 class ProductImage(models.Model):
-    image   = models.ImageField()
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product')
+    image   = models.ImageField(upload_to='products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
 
     def __str__(self) -> str:
-        return f"(ProductImage_pk:{self.pk}, product:{self.product})"
+        return f"(ProductImage_pk:{self.pk}, product:{self.product.title})"
