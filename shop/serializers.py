@@ -3,7 +3,15 @@ from .models import (
     Category,
     Product,
     ProductImage,
+    ProductVideo,
 )
+
+
+class ProductVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVideo
+        fields = ['id', 'title', 'video', 'description']
+
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,13 +19,18 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image']
 
 
-class ProductSerializer(serializers.ModelSerializer):
+class ProductListSerializer(serializers.ModelSerializer):
+    preview_image = serializers.SerializerMethodField('get_product_preview_image')
     product_images = ProductImageSerializer(many=True)
+    product_video = ProductVideoSerializer()
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'title', 'description', 'price', 'product_images']
+        fields = ['id', 'category', 'title', 'description', 'price', 'preview_image', 'product_images', 'product_video']
     
+    def get_product_preview_image(self, obj):
+        return obj.product_images.first().image.url
+
 
 class SubCategorySerializer(serializers.ModelSerializer):
     count = serializers.SerializerMethodField('get_product_count')

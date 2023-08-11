@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'tinymce', #package
     'debug_toolbar',
     'django_filters',
+    'django_cleanup',
     'rest_framework',
 
     'shop', #app
@@ -150,11 +151,11 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 LANGUAGES = (
     ('uz', _('Lotin')),
-    ('kk', _('Cyrillic')),
     ('ru', _('Russian')),
-
-
+    ('en', _('English')),
+    # ('kk', _('Cyrillic')),
 )
 
+
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
-MODELTRANSLATION_LANGUAGES = ('uz','kk','ru')
+MODELTRANSLATION_LANGUAGES = ('uz','en','ru')

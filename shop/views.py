@@ -12,7 +12,7 @@ from .models import (
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
-    ProductSerializer,
+    ProductListSerializer,
 )
 
 
@@ -40,7 +40,7 @@ class SubCategoryView(ListAPIView):
     
 
 class ProductView(ListAPIView):
-    serializer_class = ProductSerializer
+    serializer_class = ProductListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_fields = ['category']
     search_fields = ['title']
