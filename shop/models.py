@@ -30,9 +30,9 @@ class Category(models.Model):
 
 class Product(models.Model):
     title         = models.TextField(max_length=300)
-    price         = models.DecimalField(decimal_places=2, max_digits=10, blank=True)
     description   = tinymce_models.HTMLField()
     category      = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
+    price         = models.DecimalField(decimal_places=2, max_digits=10, blank=True)
 
     def __str__(self) -> str:
         return f"(Product_pk:{self.pk}, title:{self.title})"
