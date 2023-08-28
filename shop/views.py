@@ -30,14 +30,14 @@ class CategoryView(ListAPIView):
         queryset = Category.objects.filter(parent__isnull=True)
         return get_query_by_heard(self, queryset)
 
-    
+
 class SubCategoryView(ListAPIView):
     serializer_class = SubCategorySerializer
 
     def get_queryset(self):
         queryset = Category.objects.filter(parent__isnull=False)
         return get_query_by_heard(self, queryset)
-    
+
 
 class ProductView(ListAPIView):
     serializer_class = ProductListSerializer

@@ -2,11 +2,6 @@ from django.db import models
 from tinymce import models as tinymce_models
 
 
-def preview_image_directory_path(instance: "ProductImage", filename: str) -> str:
-    return "product_images/preview_images/product_{pk}__previewimage__{filename}".format(
-        pk=instance.product.pk,
-        filename=filename
-    )
 
 def product_image_directory_path(instance: "ProductImage", filename: str) -> str:
     return "product_images/product_{pk}__{filename}".format(
@@ -15,7 +10,7 @@ def product_image_directory_path(instance: "ProductImage", filename: str) -> str
     )
 
 def product_video_directory_path(instance: "ProductVideo", filename: str) -> str:
-    return "product_video/product_{pk}__video__{filename}".format(
+    return "product_video/product_{pk}__{filename}".format(
         pk=instance.product.pk,
         filename=filename
     )
@@ -36,7 +31,6 @@ class Category(models.Model):
 class Product(models.Model):
     title         = models.TextField(max_length=300)
     price         = models.DecimalField(decimal_places=2, max_digits=10, blank=True)
-    preview_image = models.ImageField(upload_to=preview_image_directory_path)
     description   = tinymce_models.HTMLField()
     category      = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
 
@@ -66,17 +60,25 @@ class ProductVideo(models.Model):
         return f"(ProductVideo_pk:{self.pk}, product:{self.product.title})"
 
 
-class AdditionalDescription(models.Model):
+class ExtraDescription(models.Model):
     title = models.TextField(max_length=500)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_description')
 
     def __str__(self) -> str:
-        return f"(AdditionalDescription_pk:{self.pk}, product:{self.product.title})"
+        return f"(ExtraDescription_pk:{self.pk}, product:{self.product.title})"
 
 
 class Description(models.Model):
     text = models.TextField()
-    additional_desc = models.ForeignKey(AdditionalDescription, on_delete=models.CASCADE, related_name='additional_description')
+    extradescription = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription')
 
     def __str__(self) -> str:
-        return f"(Description_pk:{self.pk}, description:{self.additional_desc.title})"
+        return f"(Description_pk:{self.pk}, description:{self.extradescription.title})"
+    
+
+class ExtraDescImage(models.Model):
+    image   = models.ImageField(upload_to=product_image_directory_path)
+    extra_desc = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription_images')
+
+    def __str__(self) -> str:
+        return f"(ExtraDescImage_pk:{self.pk}, extra_desc:{self.extra_desc.title})"

@@ -5,7 +5,7 @@ from .models import (
     Product,
     ProductImage,
     ProductVideo,
-    AdditionalDescription,
+    ExtraDescription,
     Description,
 )
 
@@ -13,17 +13,17 @@ class DescriptionInline(admin.StackedInline):
     model = Description
     extra = 0
 
-@admin.register(AdditionalDescription)
+@admin.register(ExtraDescription)
 class AdditionalDescriptionAdmin(admin.ModelAdmin):
     list_display = ['id', 'title_short', 'product_name']
     list_display_links = ['id', 'title_short']
     raw_id_fields = ['product']
     inlines = [DescriptionInline]
 
-    def product_name(self, obj: AdditionalDescription) -> str:
+    def product_name(self, obj: ExtraDescription) -> str:
         return f"ID: {obj.product.id}, Title: {obj.product.title}"
 
-    def title_short(self, obj: AdditionalDescription) -> str:
+    def title_short(self, obj: ExtraDescription) -> str:
         if len(obj.title) < 48:
             return obj.title
         else:
