@@ -1,5 +1,5 @@
 from modeltranslation.translator import register, TranslationOptions
-from .models import Category, Product
+from .models import Category, Product, Description, ExtraDescription
 
 
 @register(Category)

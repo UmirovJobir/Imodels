@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'nested_admin',
     'tinymce', #package
     'debug_toolbar',
     'django_filters',

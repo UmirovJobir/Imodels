@@ -2,7 +2,6 @@ from django.db import models
 from tinymce import models as tinymce_models
 
 
-
 def product_image_directory_path(instance: "ProductImage", filename: str) -> str:
     return "product_images/product_{pk}__{filename}".format(
         pk=instance.product.pk,
@@ -11,6 +10,18 @@ def product_image_directory_path(instance: "ProductImage", filename: str) -> str
 
 def product_video_directory_path(instance: "ProductVideo", filename: str) -> str:
     return "product_video/product_{pk}__{filename}".format(
+        pk=instance.product.pk,
+        filename=filename
+    )
+
+def product_extradesc_image_directory_path(instance: "ExtraDescription", filename: str) -> str:
+    return "product_extradesc/product_{pk}__{filename}".format(
+        pk=instance.extra_desc.pk,
+        filename=filename
+    )
+
+def product_feature_image_directory_path(instance: "ProductFeature", filename: str) -> str:
+    return "product_feature/product_{pk}__{filename}".format(
         pk=instance.product.pk,
         filename=filename
     )
@@ -69,7 +80,7 @@ class ExtraDescription(models.Model):
 
 
 class Description(models.Model):
-    text = models.TextField()
+    text = tinymce_models.HTMLField()
     extradescription = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription')
 
     def __str__(self) -> str:
@@ -77,8 +88,26 @@ class Description(models.Model):
     
 
 class ExtraDescImage(models.Model):
-    image   = models.ImageField(upload_to=product_image_directory_path)
+    image = models.ImageField(upload_to=product_extradesc_image_directory_path)
     extra_desc = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription_images')
 
     def __str__(self) -> str:
         return f"(ExtraDescImage_pk:{self.pk}, extra_desc:{self.extra_desc.title})"
+
+
+class ProductFeature(models.Model):
+    image   = models.ImageField(upload_to=product_feature_image_directory_path)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_feature_images')
+
+    def __str__(self) -> str:
+        return f"(ProductFeatureImage_pk:{self.pk}, product:{self.product.title})"
+
+
+class ProductFeatureOption(models.Model):
+    feature = models.CharField(max_length=300)
+    product = models.ForeignKey(ProductFeature, on_delete=models.CASCADE, related_name='features')
+
+    def __str__(self) -> str:
+        return f"(ProductFeature_pk:{self.pk}, feature:{self.feature})"
+
+
