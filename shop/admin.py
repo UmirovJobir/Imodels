@@ -1,5 +1,8 @@
 import nested_admin
+from django import forms
+from django.db import models
 from django.contrib import admin
+from tinymce.widgets import TinyMCE
 from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
 from .admin_filters import CategoryFilter
 from .admin_inlines import (
@@ -13,7 +16,19 @@ from .admin_inlines import (
 from .models import (
     Category,
     Product,
+    Blog,
 )
+
+@admin.register(Blog)
+class BlogAdmin(TranslationAdmin):
+    list_display = ['id', 'title', 'description_short']
+    list_display_links = ['id', 'title']
+
+    def description_short(self, obj: Blog) -> str:
+        if len(obj.text) < 48:
+            return obj.text
+        else:
+            return obj.text[:48] + "..."
 
 
 
@@ -31,9 +46,21 @@ class CategoryAdmin(TranslationAdmin):
         }),
     ]
 
+# class ProductForm(forms.ModelForm):
+#     class Meta:
+#         model = Product
+#         fields = '__all__'
+#         widgets = {
+#             'description': forms.Textarea(attrs={'cols': 130, 'rows': 20})
+#                    }
+
 
 @admin.register(Product)
 class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': TinyMCE(attrs={'cols': 130, 'rows': 20})},
+    }
+
     list_display = ['id', 'title', 'category_name', 'description_short', 'price']
     list_display_links = ['id', 'title']
     raw_id_fields = ['category']
@@ -44,6 +71,7 @@ class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
             "classes":("collapse"),
         }),
     ]
+    
 
     
     def category_name(self, obj: Product) -> str:

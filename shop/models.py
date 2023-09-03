@@ -2,6 +2,12 @@ from django.db import models
 from tinymce import models as tinymce_models
 
 
+def blog_image_directory_path(instance: "Blog", filename: str) -> str:
+    return "blog_images/blog_{pk}__{filename}".format(
+        pk=instance.pk,
+        filename=filename
+    )
+
 def product_image_directory_path(instance: "ProductImage", filename: str) -> str:
     return "product_images/product_{pk}__{filename}".format(
         pk=instance.product.pk,
@@ -40,7 +46,7 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    title         = models.TextField(max_length=300)
+    title         = models.CharField(max_length=300)
     description   = tinymce_models.HTMLField()
     category      = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
     price         = models.DecimalField(decimal_places=2, max_digits=10, blank=True)
@@ -62,7 +68,7 @@ class ProductImage(models.Model):
 
 
 class ProductVideo(models.Model):
-    title = models.TextField(max_length=500)
+    title = models.CharField(max_length=500)
     description = tinymce_models.HTMLField()
     video = models.FileField(upload_to=product_video_directory_path)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
@@ -72,7 +78,7 @@ class ProductVideo(models.Model):
 
 
 class ExtraDescription(models.Model):
-    title = models.TextField(max_length=500)
+    title = models.CharField(max_length=500)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_description')
 
     def __str__(self) -> str:
@@ -110,4 +116,14 @@ class ProductFeatureOption(models.Model):
     def __str__(self) -> str:
         return f"(ProductFeature_pk:{self.pk}, feature:{self.feature})"
 
+
+
+class Blog(models.Model):
+    preview_image = models.ImageField()
+    title = models.CharField(max_length=500)
+    text = tinymce_models.HTMLField()
+
+    class Meta:
+        verbose_name = 'Блог'
+        verbose_name_plural = 'Блоги'
 

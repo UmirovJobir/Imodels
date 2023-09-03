@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,13 @@
     <title>Document</title>
 </head>
 <body>
+    <style>
+        .inline-block {
+            display: inline-block;
+        }
+        h2 { font-family: Arial; }
+        p { font-family: Arial; }
+    </style>
     <div class="container">
         <div class="row">
             <div class="col-8 mx-auto mt-5">
@@ -14,7 +22,20 @@
                 {% for product in products %}
                     <h2 class="mb-5">{{ product.title }}</h2>
                     <div class="description">
-                        {{ product.description|safe }}
+                        <p>{{ product.description_uz|safe }}</p>
+                    </div>
+                    <div class="photo">
+                        {% for photo in product.product_images.all %}
+                            <div class="inline-block">
+                                <img src="{{ photo.image.url }}" alt="this is photo" width="200">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="video">
+                        <h2 class="mb-5">{{ product.product_video.title }}</h2>
+                        <video width="540" controls>
+                            <source src="{{ product.product_video.video.url }}" type="video/mp4">
+                        </video>
                     </div>
                 {% endfor %}
             </div>

@@ -1,4 +1,6 @@
 import nested_admin
+from django.db import models
+from tinymce.widgets import TinyMCE
 from modeltranslation.admin import TranslationTabularInline
 from .models import (
     Category,
@@ -39,7 +41,7 @@ class ProductFeatureInline(nested_admin.NestedStackedInline):
     inlines = [ProductFeatureOptionsInline]
 
 
-class DescriptionInline(nested_admin.NestedStackedInline):
+class DescriptionInline(nested_admin.NestedTabularInline, TranslationTabularInline):
     extra = 0
     model = Description
 
@@ -49,7 +51,7 @@ class ExtraDescImageInline(nested_admin.NestedStackedInline):
     model = ExtraDescImage
 
 
-class ExtraDescriptionInline(nested_admin.NestedStackedInline):
+class ExtraDescriptionInline(nested_admin.NestedTabularInline, TranslationTabularInline):
     extra = 0
     model = ExtraDescription
     inlines = [ExtraDescImageInline, DescriptionInline]
