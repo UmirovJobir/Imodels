@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.utils import translation
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
+from .pagination import CustomPageNumberPagination
 from .models import (
     Category,
     Product,
@@ -25,9 +26,7 @@ from django.http import JsonResponse
 
 @csrf_exempt
 def upload_image(request):
-    print(request.build_absolute_uri())
     if request.method == "POST":
-        print('aaa')
         file_obj = request.FILES['file']
         file_name_suffix = file_obj.name.split(".")[-1]
         if file_name_suffix not in ["jpg", "png", "gif", "jpeg", ]:
@@ -90,6 +89,7 @@ class SubCategoryView(ListAPIView):
 
 
 class ProductView(ListAPIView):
+    pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_fields = ['category']
@@ -101,6 +101,7 @@ class ProductView(ListAPIView):
 
 
 class BlogView(ListAPIView):
+    pagination_class = CustomPageNumberPagination
     serializer_class = BlogSerializer
 
     def get_queryset(self, *args, **kwargs):

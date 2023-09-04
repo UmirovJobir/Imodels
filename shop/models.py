@@ -119,7 +119,7 @@ class ProductFeatureOption(models.Model):
 
 
 class Blog(models.Model):
-    preview_image = models.ImageField()
+    preview_image = models.ImageField(upload_to=blog_image_directory_path)
     title = models.CharField(max_length=500)
     text = tinymce_models.HTMLField()
 

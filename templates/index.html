@@ -1,10 +1,12 @@
 
+{% load static %} 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="{% static 'js/uploader.js' %}"></script>
 </head>
 <body>
     <style>
@@ -14,13 +16,14 @@
         h2 { font-family: Arial; }
         p { font-family: Arial; }
     </style>
+    <img src="{% static 'image/test.jpeg' %}" alt="Logo">
     <div class="container">
         <div class="row">
             <div class="col-8 mx-auto mt-5">
                 <h1 class="mb-5">Products</h1>
 
                 {% for product in products %}
-                    <h2 class="mb-5">{{ product.title }}</h2>
+                    <h2 class="mb-5">{{ product.title_uz }}</h2>
                     <div class="description">
                         <p>{{ product.description_uz|safe }}</p>
                     </div>

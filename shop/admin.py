@@ -28,6 +28,9 @@ class BlogAdmin(TranslationAdmin):
             return obj.text
         else:
             return obj.text[:48] + "..."
+    
+    class Media:
+        js = ('js/uploader.js',)
 
 
 @admin.register(Category)
@@ -59,7 +62,7 @@ class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
     fieldsets = [
         ("Продукт", {
             "fields": ["title", "description", "category", "price"],
-            "classes": ["wide", "collapse"],
+            "classes": ["wide"],
         }),
     ]
     
