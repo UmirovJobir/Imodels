@@ -1,7 +1,7 @@
-import nested_admin
+from nested_admin import NestedStackedInline, NestedTabularInline
+from django import forms
 from django.db import models
-from tinymce.widgets import TinyMCE
-from modeltranslation.admin import TranslationTabularInline
+from modeltranslation.admin import TranslationStackedInline, TranslationTabularInline
 from .models import (
     Category,
     ProductImage,
@@ -20,41 +20,56 @@ class CategoryInline(TranslationTabularInline):
     verbose_name_plural = "Подкатегории"
 
 
-class ProductVideoInline(nested_admin.NestedStackedInline):
+class ProductVideoInline(NestedStackedInline, TranslationStackedInline):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+    }
     extra = 0
     model = ProductVideo
+    classes = ['collapse']
 
 
-class ProductImageInline(nested_admin.NestedStackedInline):
+class ProductImageInline(NestedStackedInline):
     extra = 0
     model = ProductImage
+    classes = ['collapse']
 
 
-class ProductFeatureOptionsInline(nested_admin.NestedStackedInline):
+class ProductFeatureOptionsInline(NestedStackedInline):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+    }
     extra = 0
     model = ProductFeatureOption
 
 
-class ProductFeatureInline(nested_admin.NestedStackedInline):
+class ProductFeatureInline(NestedStackedInline):
     extra = 0
     model = ProductFeature
     inlines = [ProductFeatureOptionsInline]
+    classes = ['collapse']
 
 
-class DescriptionInline(nested_admin.NestedTabularInline, TranslationTabularInline):
+
+class DescriptionInline(NestedTabularInline, TranslationTabularInline):
     extra = 0
     model = Description
 
 
-class ExtraDescImageInline(nested_admin.NestedStackedInline):
+class ExtraDescImageInline(NestedStackedInline):
     extra = 0
     model = ExtraDescImage
 
 
-class ExtraDescriptionInline(nested_admin.NestedTabularInline, TranslationTabularInline):
+class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+    }
     extra = 0
     model = ExtraDescription
     inlines = [ExtraDescImageInline, DescriptionInline]
+    classes = ['collapse']
+
 
 
 

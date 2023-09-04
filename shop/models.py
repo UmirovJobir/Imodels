@@ -68,8 +68,8 @@ class ProductImage(models.Model):
 
 
 class ProductVideo(models.Model):
-    title = models.CharField(max_length=500)
-    description = tinymce_models.HTMLField()
+    title = models.CharField(max_length=500, null=True, blank=True)
+    description = tinymce_models.HTMLField(null=True, blank=True)
     video = models.FileField(upload_to=product_video_directory_path)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
 
@@ -103,7 +103,7 @@ class ExtraDescImage(models.Model):
 
 class ProductFeature(models.Model):
     image   = models.ImageField(upload_to=product_feature_image_directory_path)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_feature_images')
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_features')
 
     def __str__(self) -> str:
         return f"(ProductFeatureImage_pk:{self.pk}, product:{self.product.title})"

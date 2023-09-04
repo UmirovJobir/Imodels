@@ -14,7 +14,7 @@ from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
     ProductListSerializer,
-    BlogSerializer
+    BlogSerializer,
 )
 import os
 from django.views.decorators.csrf import csrf_exempt

@@ -2,6 +2,7 @@ from modeltranslation.translator import register, TranslationOptions
 from .models import (
     Category,
     Product,
+    ProductVideo,
     ExtraDescription,
     Description,
     Blog
@@ -15,6 +16,11 @@ class CategoryTranslationOptions(TranslationOptions):
 
 @register(Product)
 class ProductTranslationOptions(TranslationOptions):
+    fields = ['title', 'description']
+
+
+@register(ProductVideo)
+class ProductVideoTranslationOptions(TranslationOptions):
     fields = ['title', 'description']
 
 

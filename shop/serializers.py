@@ -7,8 +7,9 @@ from .models import (
     ExtraDescription,
     Description,
     ExtraDescImage,
+    ProductFeature,
+    ProductFeatureOption,
     Blog,
-
 )
 
 
@@ -32,6 +33,19 @@ class ExtraDescriptionSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'extradescription', 'extradescription_images']
 
 
+class ProductFeatureOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductFeatureOption
+        fields = ['feature']
+
+class ProductFeatureSerializer(serializers.ModelSerializer):
+   features = ProductFeatureOptionSerializer(many=True)
+
+   class Meta:
+        model = ProductFeature
+        fields = ['id', 'image', 'features']
+
+
 class ProductVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVideo
@@ -45,13 +59,14 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    product_features = ProductFeatureSerializer()
     product_description = ExtraDescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'title', 'description', 'price', 'product_images', 'product_video', 'product_description']
+        fields = ['id', 'category', 'title', 'description', 'price', 'product_images', 'product_video', 'product_description', 'product_features']
 
 
 class SubCategorySerializer(serializers.ModelSerializer):

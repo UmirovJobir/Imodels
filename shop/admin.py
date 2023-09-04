@@ -9,7 +9,6 @@ from .admin_inlines import (
     CategoryInline,
     ProductImageInline,
     ProductVideoInline,
-    ExtraDescImageInline,
     ExtraDescriptionInline,
     ProductFeatureInline,
 )
@@ -31,7 +30,6 @@ class BlogAdmin(TranslationAdmin):
             return obj.text[:48] + "..."
 
 
-
 @admin.register(Category)
 class CategoryAdmin(TranslationAdmin):
     list_display = ['id', 'name', 'parent']
@@ -46,19 +44,12 @@ class CategoryAdmin(TranslationAdmin):
         }),
     ]
 
-# class ProductForm(forms.ModelForm):
-#     class Meta:
-#         model = Product
-#         fields = '__all__'
-#         widgets = {
-#             'description': forms.Textarea(attrs={'cols': 130, 'rows': 20})
-#                    }
-
 
 @admin.register(Product)
 class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': TinyMCE(attrs={'cols': 130, 'rows': 20})},
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
     list_display = ['id', 'title', 'category_name', 'description_short', 'price']
@@ -67,12 +58,10 @@ class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
     inlines = [ProductImageInline, ProductVideoInline, ExtraDescriptionInline, ProductFeatureInline]
     fieldsets = [
         ("Продукт", {
-            "fields": ("title", "description", "category", "price"),
-            "classes":("collapse"),
+            "fields": ["title", "description", "category", "price"],
+            "classes": ["wide", "collapse"],
         }),
     ]
-    
-
     
     def category_name(self, obj: Product) -> str:
         return obj.category.name
