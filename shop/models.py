@@ -1,5 +1,6 @@
 from django.db import models
 from tinymce import models as tinymce_models
+from .validators import validate_phone_length
 
 
 def blog_image_directory_path(instance: "Blog", filename: str) -> str:
@@ -117,7 +118,6 @@ class ProductFeatureOption(models.Model):
         return f"(ProductFeature_pk:{self.pk}, feature:{self.feature})"
 
 
-
 class Blog(models.Model):
     preview_image = models.ImageField(upload_to=blog_image_directory_path)
     title = models.CharField(max_length=500)
@@ -127,3 +127,13 @@ class Blog(models.Model):
         verbose_name = 'Блог'
         verbose_name_plural = 'Блоги'
 
+
+class ContactRequest(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(null=True, blank=True)
+    phone_number = models.CharField(max_length=8, validators=[validate_phone_length])
+    message = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Просьба связаться'
+        verbose_name_plural = 'Просьбы связаться'

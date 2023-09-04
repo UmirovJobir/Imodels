@@ -109,6 +109,8 @@ class BlogView(ListAPIView):
         return get_query_by_heard(self, queryset)
 
 
+# class Contact
+
 
 def index(request):
     products = Product.objects.all()

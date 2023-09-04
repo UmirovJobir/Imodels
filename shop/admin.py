@@ -16,7 +16,12 @@ from .models import (
     Category,
     Product,
     Blog,
+    ContactRequest,
 )
+
+@admin.register(ContactRequest)
+class ContactRequestAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'email', 'phone_number', 'message']
 
 @admin.register(Blog)
 class BlogAdmin(TranslationAdmin):
