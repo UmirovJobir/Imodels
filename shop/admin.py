@@ -5,14 +5,15 @@ from django.contrib import admin
 from tinymce.widgets import TinyMCE
 from nested_admin import NestedModelAdmin
 from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
-from .admin_filters import CategoryFilter
+from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
     CategoryInline,
     ProductImageInline,
     ProductVideoInline,
     ExtraDescriptionInline,
     ProductFeatureInline,
-    ConfiguratorProductInline
+    ConfiguratorProductInline,
+    ConfiguratorInline
 )
 from .models import (
     Category,
@@ -74,7 +75,14 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
     list_display = ['id', 'title', 'category_name', 'description_short', 'price']
     list_display_links = ['id', 'title']
     raw_id_fields = ['category']
-    inlines = [ProductImageInline, ProductVideoInline, ExtraDescriptionInline, ProductFeatureInline]
+    list_filter = [ProductFilter]
+    inlines = [
+        ProductImageInline,
+        ProductVideoInline,
+        ExtraDescriptionInline,
+        ProductFeatureInline,
+        ConfiguratorInline
+    ]
     fieldsets = [
         ("Продукт", {
             "fields": ["title", "description", "category", "price"],
@@ -96,4 +104,6 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
 class ConfiguratorAdmin(NestedModelAdmin):
     list_display = ['id', 'title']
     list_display_links = ['id', 'title']
+    raw_id_fields = ['product']
     inlines = [ConfiguratorProductInline]
+

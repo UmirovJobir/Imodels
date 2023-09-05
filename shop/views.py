@@ -1,8 +1,15 @@
+import os
+from django.conf import settings
+from django.utils import timezone
 from django.shortcuts import render
 from django.utils import translation
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import filters
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
@@ -25,11 +32,6 @@ from .serializers import (
     ContactRequestSerializer,
     ConfiguratorSerializer,
 )
-import os
-from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
-from django.conf import settings
-from django.http import JsonResponse
 
 
 @csrf_exempt
@@ -96,12 +98,20 @@ class SubCategoryView(ListAPIView):
         return get_query_by_heard(self, queryset)
 
 
-class ProductView(ListAPIView):
+class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     filterset_fields = ['category']
     search_fields = ['title']
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = Product.objects.all().select_related('category')
+        return get_query_by_heard(self, queryset)
+
+
+class ProductRetrieveAPIView(RetrieveAPIView):
+    serializer_class = ProductListSerializer
 
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all().select_related('category')
@@ -122,9 +132,11 @@ class ContactRequestCreateView(CreateAPIView):
     serializer_class = ContactRequestSerializer
 
 
-class ConfiguratorListView(ListAPIView):
-    queryset = Configurator.objects.all()
-    serializer_class = ConfiguratorSerializer
+class ConfiguratorAPIView(APIView):
+    def get(self, request, pk):
+        configurators = Configurator.objects.filter(product=pk)
+        serializer = ConfiguratorSerializer(configurators, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 def index(request):

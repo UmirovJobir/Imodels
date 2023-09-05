@@ -11,6 +11,7 @@ from .models import (
     ExtraDescription,
     ProductFeature,
     ProductFeatureOption,
+    Configurator,
     ConfiguratorProduct
 )
 
@@ -74,5 +75,10 @@ class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
 class ConfiguratorProductInline(NestedStackedInline):
     extra = 0
     model = ConfiguratorProduct
-    # classes = ['collapse']
 
+
+class ConfiguratorInline(NestedStackedInline):
+    extra = 0
+    model = Configurator
+    inlines = [ConfiguratorProductInline]
+    classes = ['collapse']
