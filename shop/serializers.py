@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.request import Request
 from .models import (
     Category,
     Product,
@@ -10,6 +11,9 @@ from .models import (
     ProductFeature,
     ProductFeatureOption,
     Blog,
+    ContactRequest,
+    Configurator,
+    ConfiguratorProduct
 )
 
 
@@ -96,3 +100,44 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ['id', 'preview_image', 'title', 'text']
+
+
+class ContactRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactRequest
+        fields = ['id', 'name', 'email', 'phone_number', 'message']
+
+
+class ConfiguratorProductSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer()
+
+    class Meta:
+        model = ConfiguratorProduct
+        fields = ['product']
+
+
+class ConfiguratorProductSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_first_image')
+
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'price', 'image']
+    
+    def get_first_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+
+
+class ConfiguratorSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField('get_products')
+    
+    class Meta:
+        model = Configurator
+        fields = ['id', 'title', 'products']
+
+    def get_products(self, obj):
+        products = ConfiguratorProductSerializer(
+                            [conf_product.product for conf_product in obj.products.all()], 
+                            many=True, context={'request': self.context['request']})
+        return products.data
+
+

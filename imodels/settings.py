@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'tinymce', #packages
     'nested_admin',
-    'tinymce', #package
     'debug_toolbar',
     'django_filters',
     'django_cleanup',
@@ -126,7 +126,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -157,8 +156,10 @@ LANGUAGES = (
     # ('kk', _('Cyrillic')),
 )
 
-MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
-MODELTRANSLATION_LANGUAGES = ('uz','en','ru')
+LANGUAGE_CODE = 'ru'
+
+# MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
+# MODELTRANSLATION_LANGUAGES = ('uz','en','ru')
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB

@@ -3,19 +3,27 @@ from django.utils import translation
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    CreateAPIView,
+    RetrieveAPIView,
+)
 
 from .pagination import CustomPageNumberPagination
 from .models import (
     Category,
     Product,
-    Blog
+    Blog,
+    ContactRequest,
+    Configurator
 )
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
     ProductListSerializer,
     BlogSerializer,
+    ContactRequestSerializer,
+    ConfiguratorSerializer,
 )
 import os
 from django.views.decorators.csrf import csrf_exempt
@@ -109,7 +117,14 @@ class BlogView(ListAPIView):
         return get_query_by_heard(self, queryset)
 
 
-# class Contact
+class ContactRequestCreateView(CreateAPIView):
+    queryset = ContactRequest.objects.all()
+    serializer_class = ContactRequestSerializer
+
+
+class ConfiguratorListView(ListAPIView):
+    queryset = Configurator.objects.all()
+    serializer_class = ConfiguratorSerializer
 
 
 def index(request):

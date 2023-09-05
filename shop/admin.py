@@ -1,8 +1,9 @@
-import nested_admin
 from django import forms
 from django.db import models
 from django.contrib import admin
+
 from tinymce.widgets import TinyMCE
+from nested_admin import NestedModelAdmin
 from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
 from .admin_filters import CategoryFilter
 from .admin_inlines import (
@@ -11,17 +12,27 @@ from .admin_inlines import (
     ProductVideoInline,
     ExtraDescriptionInline,
     ProductFeatureInline,
+    ConfiguratorProductInline
 )
 from .models import (
     Category,
     Product,
     Blog,
     ContactRequest,
+    Configurator,
 )
 
 @admin.register(ContactRequest)
 class ContactRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'email', 'phone_number', 'message']
+    list_display = ['id', 'name', 'email', 'phone_number', 'message_short']
+    list_display_links = ['id', 'name']
+
+    def message_short(self, obj: ContactRequest) -> str:
+        if len(obj.message) < 48:
+            return obj.message
+        else:
+            return obj.message[:48] + "..."
+
 
 @admin.register(Blog)
 class BlogAdmin(TranslationAdmin):
@@ -54,7 +65,7 @@ class CategoryAdmin(TranslationAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
+class ProductAdmin(TranslationAdmin, NestedModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': TinyMCE(attrs={'cols': 130, 'rows': 20})},
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
@@ -81,3 +92,8 @@ class ProductAdmin(TranslationAdmin, nested_admin.NestedModelAdmin):
             return obj.description[:48] + "..."
 
 
+@admin.register(Configurator)
+class ConfiguratorAdmin(NestedModelAdmin):
+    list_display = ['id', 'title']
+    list_display_links = ['id', 'title']
+    inlines = [ConfiguratorProductInline]

@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+{% block branding %}
+    <style>
+        .rounded-image {
+            border-radius: 50%;
+
+            height: 60px;
+        }
+    </style>
+   <h1 id="site-name">
+      <a href="{% url 'admin:index' %}">
+         <img src="{% static 'img/imodels.jpg' %}" class="rounded-image"/>
+      </a>
+      Imodels adminpanel
+   </h1>
+{% endblock %}
+{% block nav-global %}{% endblock %}

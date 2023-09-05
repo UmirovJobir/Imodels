@@ -11,6 +11,7 @@ from .models import (
     ExtraDescription,
     ProductFeature,
     ProductFeatureOption,
+    ConfiguratorProduct
 )
 
 class CategoryInline(TranslationTabularInline):
@@ -50,7 +51,6 @@ class ProductFeatureInline(NestedStackedInline):
     classes = ['collapse']
 
 
-
 class DescriptionInline(NestedTabularInline, TranslationTabularInline):
     extra = 0
     model = Description
@@ -71,5 +71,8 @@ class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
     classes = ['collapse']
 
 
-
+class ConfiguratorProductInline(NestedStackedInline):
+    extra = 0
+    model = ConfiguratorProduct
+    # classes = ['collapse']
 

@@ -4,8 +4,9 @@ from .views import (
     CategoryView,
     SubCategoryView,
     BlogView,
-    index, 
-    upload_image
+    ContactRequestCreateView,
+    ConfiguratorListView,
+    index
 )
 
 
@@ -14,5 +15,7 @@ urlpatterns = [
     path('categories/', CategoryView.as_view(), name='categories'),
     path('subcategories/', SubCategoryView.as_view(), name='categories'),
     path('blog/', BlogView.as_view(), name='blog'),
+    path('contact/', ContactRequestCreateView.as_view(), name='contact'),
+    path('configurator/', ConfiguratorListView.as_view(), name='configurator'),
     path('index/', index, name='index'),
 ]
