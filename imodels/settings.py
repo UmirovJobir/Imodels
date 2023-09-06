@@ -156,7 +156,7 @@ LANGUAGES = (
     # ('kk', _('Cyrillic')),
 )
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = 'uz'
 
 # MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
 # MODELTRANSLATION_LANGUAGES = ('uz','en','ru')

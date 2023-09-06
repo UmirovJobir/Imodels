@@ -30,7 +30,7 @@ from .serializers import (
     ProductListSerializer,
     BlogSerializer,
     ContactRequestSerializer,
-    ConfiguratorSerializer,
+    ConfiguratorProductNotPriceSerializer
 )
 
 
@@ -82,6 +82,7 @@ def get_query_by_heard(self, queryset):
     return queryset
 
 
+# View related to Category
 class CategoryView(ListAPIView):
     serializer_class = CategorySerializer
 
@@ -94,10 +95,12 @@ class SubCategoryView(ListAPIView):
     serializer_class = SubCategorySerializer
 
     def get_queryset(self):
-        queryset = Category.objects.filter(parent__isnull=False)
+        print(Configurator.objects.all())
+        queryset = Category.objects.all()
         return get_query_by_heard(self, queryset)
 
 
+# View related to Product
 class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
@@ -118,6 +121,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
         return get_query_by_heard(self, queryset)
 
 
+# View related to Blog
 class BlogView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = BlogSerializer
@@ -127,16 +131,20 @@ class BlogView(ListAPIView):
         return get_query_by_heard(self, queryset)
 
 
+# View related to ContactRequest
 class ContactRequestCreateView(CreateAPIView):
     queryset = ContactRequest.objects.all()
     serializer_class = ContactRequestSerializer
 
 
+#View related to Configurator
 class ConfiguratorAPIView(APIView):
-    def get(self, request, pk):
-        configurators = Configurator.objects.filter(product=pk)
-        serializer = ConfiguratorSerializer(configurators, many=True, context={'request': request})
+    def get(self, request):
+        configurators = Configurator.objects.all()
+        products = [configurator.product for configurator in configurators]
+        serializer = ConfiguratorProductNotPriceSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)
+
 
 
 def index(request):

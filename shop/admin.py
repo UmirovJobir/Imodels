@@ -12,8 +12,8 @@ from .admin_inlines import (
     ProductVideoInline,
     ExtraDescriptionInline,
     ProductFeatureInline,
-    ConfiguratorProductInline,
-    ConfiguratorInline
+    ConfiguratorInline,
+    ConfiguratorCategoryInline
 )
 from .models import (
     Category,
@@ -85,7 +85,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
     ]
     fieldsets = [
         ("Продукт", {
-            "fields": ["title", "description", "category", "price"],
+            "fields": ["related_configurator", "title", "description", "category", "price"],
             "classes": ["wide"],
         }),
     ]
@@ -102,8 +102,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
 
 @admin.register(Configurator)
 class ConfiguratorAdmin(NestedModelAdmin):
-    list_display = ['id', 'title']
-    list_display_links = ['id', 'title']
-    raw_id_fields = ['product']
-    inlines = [ConfiguratorProductInline]
+    list_display = ['id', 'conf_title', 'conf_image']
+    list_display_links = ['id', 'conf_title']
+    # raw_id_fields = ['product']
+    inlines = [ConfiguratorCategoryInline]
 

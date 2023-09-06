@@ -12,6 +12,7 @@ from .models import (
     ProductFeature,
     ProductFeatureOption,
     Configurator,
+    ConfiguratorCategory,
     ConfiguratorProduct
 )
 
@@ -77,8 +78,15 @@ class ConfiguratorProductInline(NestedStackedInline):
     model = ConfiguratorProduct
 
 
+class ConfiguratorCategoryInline(NestedStackedInline):
+    extra = 0
+    model = ConfiguratorCategory
+    inlines = [ConfiguratorProductInline]
+
+
 class ConfiguratorInline(NestedStackedInline):
     extra = 0
     model = Configurator
-    inlines = [ConfiguratorProductInline]
+    inlines = [ConfiguratorCategoryInline]
     classes = ['collapse']
+    

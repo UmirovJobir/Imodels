@@ -3,6 +3,12 @@ from tinymce import models as tinymce_models
 from .validators import validate_phone_length
 
 
+def configurator_image_directory_path(instance: "Configurator", filename: str) -> str:
+    return "configurator_image/configurator_{pk}__{filename}".format(
+        pk=instance.pk,
+        filename=filename
+    )
+
 def blog_image_directory_path(instance: "Blog", filename: str) -> str:
     return "blog_images/blog_{pk}__{filename}".format(
         pk=instance.pk,
@@ -49,10 +55,11 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    title         = models.CharField(max_length=300)
-    description   = tinymce_models.HTMLField()
-    category      = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
-    price         = models.DecimalField(decimal_places=2, max_digits=10, blank=True)
+    related_configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
+    title = models.CharField(max_length=300)
+    description = tinymce_models.HTMLField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -162,11 +169,26 @@ class ContactRequest(models.Model):
 
 
 class Configurator(models.Model):
-    title = models.CharField(max_length=200)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='configurators')
+    conf_title = models.CharField(max_length=200)
+    conf_image = models.ImageField(upload_to=configurator_image_directory_path, null=True, blank=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='configurator')
+
+
+class ConfiguratorCategory(models.Model):
+    name = models.CharField(max_length=200)
+    configurator = models.ForeignKey(Configurator, on_delete=models.PROTECT, related_name='conf_category')
 
 
 class ConfiguratorProduct(models.Model):
-    configurator = models.ForeignKey(Configurator, on_delete=models.PROTECT, related_name='products')
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='configurator')
+    conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products')
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
  
+ 
+
+
+
+# class Cart(models.Model):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart')
+#     price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+#     quantity = models.IntegerField(default=1)
+    
