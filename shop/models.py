@@ -182,13 +182,10 @@ class ConfiguratorCategory(models.Model):
 class ConfiguratorProduct(models.Model):
     conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
- 
- 
 
 
-
-# class Cart(models.Model):
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart')
-#     price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
-#     quantity = models.IntegerField(default=1)
+class Cart(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart')
+    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+    quantity = models.IntegerField(default=1)
     
