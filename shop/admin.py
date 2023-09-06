@@ -13,7 +13,8 @@ from .admin_inlines import (
     ExtraDescriptionInline,
     ProductFeatureInline,
     ConfiguratorInline,
-    ConfiguratorCategoryInline
+    ConfiguratorCategoryInline,
+    CartItemInline,
 )
 from .models import (
     Category,
@@ -21,7 +22,16 @@ from .models import (
     Blog,
     ContactRequest,
     Configurator,
+    Cart,
 )
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ['id', 'total_price']
+    list_display_links = ['id', 'total_price']
+    inlines = [CartItemInline]
+    readonly_fields = ['total_price']
+
 
 @admin.register(ContactRequest)
 class ContactRequestAdmin(admin.ModelAdmin):
@@ -72,7 +82,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
-    list_display = ['id', 'title', 'category_name', 'description_short', 'price']
+    list_display = ['id', 'title', 'category_name', 'price'] #description_short
     list_display_links = ['id', 'title']
     raw_id_fields = ['category']
     list_filter = [ProductFilter]
@@ -94,6 +104,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         return obj.category.name
 
     def description_short(self, obj: Product) -> str:
+        print(obj.description)
         if len(obj.description) < 48:
             return obj.description
         else:

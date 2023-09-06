@@ -16,6 +16,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
 )
 
+from .filter import ProductFilter
 from .pagination import CustomPageNumberPagination
 from .models import (
     Category,
@@ -105,7 +106,7 @@ class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    filterset_fields = ['category']
+    filterset_class = ProductFilter
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):

@@ -184,8 +184,28 @@ class ConfiguratorProduct(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
 
 
-class Cart(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart')
-    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
-    quantity = models.IntegerField(default=1)
+# class Cart(models.Model):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart')
+#     quantity = models.IntegerField(default=1)
     
+
+class Cart(models.Model):
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link the cart to a user
+    products = models.ManyToManyField('Product', through='CartItem') 
+
+    @property
+    def total_price(self):
+        total = 0
+        for item in self.cartitem_set.all():
+            total += item.subtotal
+        return total
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    quantity = models.PositiveIntegerField(default=1)
+
+    @property
+    def subtotal(self):
+        return self.product.price * self.quantity

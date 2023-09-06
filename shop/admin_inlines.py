@@ -1,6 +1,7 @@
-from nested_admin import NestedStackedInline, NestedTabularInline
 from django import forms
 from django.db import models
+from django.contrib import admin
+from nested_admin import NestedStackedInline, NestedTabularInline
 from modeltranslation.admin import TranslationStackedInline, TranslationTabularInline
 from .models import (
     Category,
@@ -13,7 +14,8 @@ from .models import (
     ProductFeatureOption,
     Configurator,
     ConfiguratorCategory,
-    ConfiguratorProduct
+    ConfiguratorProduct,
+    CartItem
 )
 
 class CategoryInline(TranslationTabularInline):
@@ -89,4 +91,10 @@ class ConfiguratorInline(NestedStackedInline):
     model = Configurator
     inlines = [ConfiguratorCategoryInline]
     classes = ['collapse']
-    
+
+
+class CartItemInline(admin.TabularInline):
+    extra = 0
+    model = CartItem
+
+
