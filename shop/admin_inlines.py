@@ -35,7 +35,7 @@ class ProductVideoInline(NestedStackedInline, TranslationStackedInline):
     readonly_fields = ['video_tag']
 
 
-class ProductImageInline(NestedStackedInline):
+class ProductImageInline(NestedTabularInline):
     extra = 0
     model = ProductImage
     classes = ['collapse']
@@ -50,7 +50,7 @@ class ProductFeatureOptionsInline(NestedStackedInline):
     model = ProductFeatureOption
 
 
-class ProductFeatureInline(NestedStackedInline):
+class ProductFeatureInline(NestedTabularInline):
     extra = 0
     model = ProductFeature
     inlines = [ProductFeatureOptionsInline]
@@ -63,7 +63,7 @@ class DescriptionInline(NestedTabularInline, TranslationTabularInline):
     model = Description
 
 
-class ExtraDescImageInline(NestedStackedInline):
+class ExtraDescImageInline(NestedTabularInline):
     extra = 0
     model = ExtraDescImage
     readonly_fields = ['image_tag']
@@ -79,9 +79,10 @@ class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
     classes = ['collapse']
 
 
-class ConfiguratorProductInline(NestedStackedInline):
+class ConfiguratorProductInline(NestedTabularInline):
     extra = 0
     model = ConfiguratorProduct
+    readonly_fields = ['image_tag']
 
 
 class ConfiguratorCategoryInline(NestedStackedInline):
@@ -90,11 +91,12 @@ class ConfiguratorCategoryInline(NestedStackedInline):
     inlines = [ConfiguratorProductInline]
 
 
-class ConfiguratorInline(NestedStackedInline):
+class ConfiguratorInline(NestedTabularInline):
     extra = 0
     model = Configurator
     inlines = [ConfiguratorCategoryInline]
     classes = ['collapse']
+    readonly_fields = ['image_tag']
 
 
 class CartItemInline(admin.TabularInline):

@@ -113,8 +113,15 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
 
 @admin.register(Configurator)
 class ConfiguratorAdmin(NestedModelAdmin):
-    list_display = ['id', 'conf_title', 'conf_image']
+    list_display = ['id', 'conf_title', 'conf_image', 'image_tag']
     list_display_links = ['id', 'conf_title']
-    # raw_id_fields = ['product']
+    raw_id_fields = ['product']
+    readonly_fields = ['image_tag', 'product_image_tag']
     inlines = [ConfiguratorCategoryInline]
+
+    fieldsets = [
+        ("Configurator", {
+            "fields": ['conf_title', 'conf_image', 'image_tag', 'product', 'product_image_tag'],
+        }),
+    ]
 

@@ -195,6 +195,14 @@ class Configurator(models.Model):
     conf_image = models.ImageField(upload_to=configurator_image_directory_path, null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='configurator')
 
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.conf_image.url))
+    image_tag.short_description = 'Image'
+
+    def product_image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
+    product_image_tag.short_description = 'Product Image'
+
 
 class ConfiguratorCategory(models.Model):
     name = models.CharField(max_length=200)
@@ -204,6 +212,10 @@ class ConfiguratorCategory(models.Model):
 class ConfiguratorProduct(models.Model):
     conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
+
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
+    image_tag.short_description = 'Image'
     
 
 class Cart(models.Model):
