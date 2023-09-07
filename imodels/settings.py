@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_cleanup',
     'rest_framework',
+    'drf_spectacular',
 
     'shop', #app
 ]
@@ -185,3 +186,17 @@ TINYMCE_DEFAULT_CONFIG = {
     "images_upload_url": "/upload_image/",
     "images_upload_handler": "tinymce_image_upload_handler"
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "imodels.custom_auto_schema.CustomAutoSchema",
+}
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "My Site Project API",
+    "DESCRIPTION": "My site with shop app and custom auth",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
+

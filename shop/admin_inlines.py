@@ -32,12 +32,14 @@ class ProductVideoInline(NestedStackedInline, TranslationStackedInline):
     extra = 0
     model = ProductVideo
     classes = ['collapse']
+    readonly_fields = ['video_tag']
 
 
 class ProductImageInline(NestedStackedInline):
     extra = 0
     model = ProductImage
     classes = ['collapse']
+    readonly_fields = ['image_tag']
 
 
 class ProductFeatureOptionsInline(NestedStackedInline):
@@ -53,6 +55,7 @@ class ProductFeatureInline(NestedStackedInline):
     model = ProductFeature
     inlines = [ProductFeatureOptionsInline]
     classes = ['collapse']
+    readonly_fields = ['image_tag']
 
 
 class DescriptionInline(NestedTabularInline, TranslationTabularInline):
@@ -63,6 +66,7 @@ class DescriptionInline(NestedTabularInline, TranslationTabularInline):
 class ExtraDescImageInline(NestedStackedInline):
     extra = 0
     model = ExtraDescImage
+    readonly_fields = ['image_tag']
 
 
 class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):

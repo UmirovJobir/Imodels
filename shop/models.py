@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.html import mark_safe, format_html
 from tinymce import models as tinymce_models
 from .validators import validate_phone_length
 
@@ -69,6 +70,11 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
+    
+    def image_tag(self):
+        first_image = self.product_images.all().first().image.url
+        return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
+    image_tag.short_description = 'Image'
 
 
 class ProductImage(models.Model):
@@ -79,6 +85,10 @@ class ProductImage(models.Model):
 
     def __str__(self) -> str:
         return f"(ProductImage_pk:{self.pk}, product:{self.product.title})"
+    
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+    image_tag.short_description = 'Image'
 
 
 class ProductVideo(models.Model):
@@ -91,6 +101,10 @@ class ProductVideo(models.Model):
 
     def __str__(self) -> str:
         return f"(ProductVideo_pk:{self.pk}, product:{self.product.title})"
+    
+    def video_tag(self):
+        return '<source src="%s" type="video/mp4">'%(self.video.url)
+    video_tag.short_description = 'Video'
 
 
 class ExtraDescription(models.Model):
@@ -122,6 +136,10 @@ class ExtraDescImage(models.Model):
     def __str__(self) -> str:
         return f"(ExtraDescImage_pk:{self.pk}, extra_desc:{self.extra_desc.title})"
 
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+    image_tag.short_description = 'Image'
+
 
 class ProductFeature(models.Model):
     image   = models.ImageField(upload_to=product_feature_image_directory_path)
@@ -131,6 +149,10 @@ class ProductFeature(models.Model):
 
     def __str__(self) -> str:
         return f"(ProductFeatureImage_pk:{self.pk}, product:{self.product.title})"
+    
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+    image_tag.short_description = 'Image'
 
 
 class ProductFeatureOption(models.Model):
@@ -182,11 +204,6 @@ class ConfiguratorCategory(models.Model):
 class ConfiguratorProduct(models.Model):
     conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
-
-
-# class Cart(models.Model):
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart')
-#     quantity = models.IntegerField(default=1)
     
 
 class Cart(models.Model):

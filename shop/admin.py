@@ -82,7 +82,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
-    list_display = ['id', 'title', 'category_name', 'price'] #description_short
+    list_display = ['id', 'title', 'category_name', 'price', 'image_tag'] #description_short
     list_display_links = ['id', 'title']
     raw_id_fields = ['category']
     list_filter = [ProductFilter]

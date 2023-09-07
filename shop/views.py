@@ -15,7 +15,6 @@ from rest_framework.generics import (
     CreateAPIView,
     RetrieveAPIView,
 )
-
 from .filter import ProductFilter
 from .pagination import CustomPageNumberPagination
 from .models import (
