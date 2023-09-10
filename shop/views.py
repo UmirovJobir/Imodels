@@ -4,17 +4,19 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.utils import translation
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import filters
 from rest_framework.views import APIView
+from rest_framework import filters, status
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
     RetrieveAPIView,
 )
+from .cart import Cart
 from .filter import ProductFilter
 from .pagination import CustomPageNumberPagination
 from .models import (
@@ -146,8 +148,70 @@ class ConfiguratorAPIView(APIView):
         return Response(serializer.data)
 
 
-
 def index(request):
     products = Product.objects.all()
     return render(request, 'index.html', context={'products':products})
+
+
+class CartView(APIView):
+    def request_cart(self):
+        data_list = []
+        cart = Cart(self.request)
+        for item in cart.cart:
+            product = Product.objects.select_related('category').prefetch_related('tags').get(id=item)
+            data = {
+                "id": product.pk,
+                "category": product.category.id,
+                "price": cart.cart[item]['price'],
+                "date": product.created_at,
+                "title": product.title,
+                "description": product.description,
+                "freeDelivery": product.free_delivery,
+                "reviews": product.reviews.all().count(),
+                "rating": product.rating,
+                "tags": [{'id': teg.id,
+                          'name': teg.name,
+                          } for teg in product.tags.all()],
+                "images": [{
+                            "src": image.src.url,
+                            "alt": image.alt
+                            } for image in product.images.all()]
+            }
+
+            if cart.cart[item]['quantity'] < product.count:
+                data['count'] = cart.cart[item]['quantity']
+            else:
+                data['count'] = product.count
+                cart.cart[item]['quantity'] = product.count
+                cart.save()
+
+            data_list.append(data)
+    
+        return sorted(data_list, key=lambda x: x['id'])
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.request_cart(), status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        cart = Cart(request)
+        data = request.data
+        product = get_object_or_404(Product, id=data['id'])
+        if str(data['id']) in cart.cart:
+            cart.cart[str(data['id'])]['quantity'] += data['count']
+            cart.save()
+        else:
+            cart.add(product=product, quantity=data['count'])
+        return Response(self.request_cart(), status=status.HTTP_200_OK)
+
+    def delete(self, request):
+        cart = Cart(request)
+        req_data = request.data
+        product = get_object_or_404(Product, id=req_data['id'])
+        if cart.cart[str(req_data['id'])]['quantity'] == req_data['count'] or \
+                cart.cart[str(req_data['id'])]['quantity'] <= 1:
+            cart.remove(product)
+        else:
+            cart.cart[str(req_data['id'])]['quantity'] -= 1
+        cart.save()
+        return Response(self.request_cart(), status=status.HTTP_200_OK)
 

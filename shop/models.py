@@ -1,5 +1,7 @@
 from django.db import models
-from django.utils.html import mark_safe, format_html
+from django.utils.html import mark_safe
+from django.contrib.auth.models import User
+
 from tinymce import models as tinymce_models
 from .validators import validate_phone_length
 
@@ -232,9 +234,20 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
-    quantity = models.PositiveIntegerField(default=1)
+    
 
     @property
     def subtotal(self):
         return self.product.price * self.quantity
+    
+
+# class Order(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+#     cart = models.OneToOneField(Cart, on_delete=)
+
+
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='products')
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
+#     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+#     quantity = models.PositiveIntegerField(default=1)
