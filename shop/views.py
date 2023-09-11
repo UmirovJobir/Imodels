@@ -158,39 +158,20 @@ class CartView(APIView):
         data_list = []
         cart = Cart(self.request)
         for item in cart.cart:
-            product = Product.objects.select_related('category').prefetch_related('tags').get(id=item)
+            product = Product.objects.select_related('category', 'related_configurator').get(id=item)
             data = {
                 "id": product.pk,
-                "category": product.category.id,
-                "price": cart.cart[item]['price'],
-                "date": product.created_at,
+                "price": product.price,
                 "title": product.title,
-                "description": product.description,
-                "freeDelivery": product.free_delivery,
-                "reviews": product.reviews.all().count(),
-                "rating": product.rating,
-                "tags": [{'id': teg.id,
-                          'name': teg.name,
-                          } for teg in product.tags.all()],
-                "images": [{
-                            "src": image.src.url,
-                            "alt": image.alt
-                            } for image in product.images.all()]
+                "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
+                "count": cart.cart[item]['quantity'],
             }
-
-            if cart.cart[item]['quantity'] < product.count:
-                data['count'] = cart.cart[item]['quantity']
-            else:
-                data['count'] = product.count
-                cart.cart[item]['quantity'] = product.count
-                cart.save()
-
             data_list.append(data)
-    
         return sorted(data_list, key=lambda x: x['id'])
 
     def get(self, request, *args, **kwargs):
         return Response(self.request_cart(), status=status.HTTP_200_OK)
+
 
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
@@ -203,15 +184,18 @@ class CartView(APIView):
             cart.add(product=product, quantity=data['count'])
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
+
     def delete(self, request):
         cart = Cart(request)
-        req_data = request.data
-        product = get_object_or_404(Product, id=req_data['id'])
-        if cart.cart[str(req_data['id'])]['quantity'] == req_data['count'] or \
-                cart.cart[str(req_data['id'])]['quantity'] <= 1:
+        if str(request.data['id']) not in cart.cart.keys():
+            return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
+        
+        product = get_object_or_404(Product, id=request.data['id'])
+        if cart.cart[str(request.data['id'])]['quantity'] == request.data['count'] or \
+                cart.cart[str(request.data['id'])]['quantity'] <= 1:
             cart.remove(product)
         else:
-            cart.cart[str(req_data['id'])]['quantity'] -= 1
+            cart.cart[str(request.data['id'])]['quantity'] -= 1
         cart.save()
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
