@@ -164,7 +164,7 @@ class CartView(APIView):
                 "price": product.price,
                 "title": product.title,
                 "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
-                "count": cart.cart[item]['quantity'],
+                "quantity": cart.cart[item]['quantity'],
             }
             data_list.append(data)
         return sorted(data_list, key=lambda x: x['id'])
@@ -176,12 +176,17 @@ class CartView(APIView):
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
         data = request.data
+        print(cart.cart)
+        # print(data["configurators"])
         product = get_object_or_404(Product, id=data['id'])
         if str(data['id']) in cart.cart:
-            cart.cart[str(data['id'])]['quantity'] += data['count']
+            cart.cart[str(data['id'])]['quantity'] += data['quantity']
             cart.save()
         else:
-            cart.add(product=product, quantity=data['count'])
+            if request.data.get("configurators")==None:
+                cart.add(product=product, quantity=data['quantity'])
+            else:
+                cart.add(product=product, quantity=data['quantity'], configurators=request.data.get("configurators"))
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
@@ -191,7 +196,7 @@ class CartView(APIView):
             return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
         
         product = get_object_or_404(Product, id=request.data['id'])
-        if cart.cart[str(request.data['id'])]['quantity'] == request.data['count'] or \
+        if cart.cart[str(request.data['id'])]['quantity'] == request.data['quantity'] or \
                 cart.cart[str(request.data['id'])]['quantity'] <= 1:
             cart.remove(product)
         else:

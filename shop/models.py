@@ -196,6 +196,7 @@ class Configurator(models.Model):
     conf_title = models.CharField(max_length=200)
     conf_image = models.ImageField(upload_to=configurator_image_directory_path, null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='configurator')
+    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True, default=0)
 
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.conf_image.url))
