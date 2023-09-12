@@ -119,7 +119,7 @@ class OrderConfiguratorInline(NestedTabularInline):
     model = OrderConfigurator
     inlines = [OrderConfiguratorItemInline]
     raw_id_fields = ['configurator']
-    readonly_fields = ['image_tag', 'subtotal']
+    readonly_fields = ['image_tag', 'subtotal', 'total_price']
 
 
 class OrderItemInline(NestedTabularInline):

@@ -149,8 +149,8 @@ class ProductFeature(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self) -> str:
-        return f"(ProductFeatureImage_pk:{self.pk}, product:{self.product.title})"
+    # def __str__(self) -> str:
+    #     return f"(ProductFeatureImage_pk:{self.pk}, product:{self.product.title})"
     
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
@@ -163,8 +163,8 @@ class ProductFeatureOption(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self) -> str:
-        return f"(ProductFeature_pk:{self.pk}, feature:{self.feature})"
+    # def __str__(self) -> str:
+    #     return f"(ProductFeature_pk:{self.pk}, feature:{self.feature})"
 
 
 class Blog(models.Model):
@@ -250,6 +250,7 @@ class Order(models.Model):
     total_cost = models.DecimalField(decimal_places=2, max_digits=10)
 
     def total_price(self):
+        print([item for item in self.order_items.all()])
         return sum([item.subtotal for item in self.order_items.all()])
 
 
@@ -265,7 +266,7 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
-        return self.order_configurators.subtotal + self.subtotal
+        return self.order_configurators.total_price + self.subtotal
 
     @property
     def subtotal(self):
