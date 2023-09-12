@@ -156,18 +156,46 @@ def index(request):
 class CartView(APIView):
     def request_cart(self):
         data_list = []
+        total_cost = 0
         cart = Cart(self.request)
         for item in cart.cart:
-            product = Product.objects.select_related('category', 'related_configurator').get(id=item)
+            product = Product.objects.select_related('category', 'related_configurator').get(id=item['id'])
             data = {
                 "id": product.pk,
                 "price": product.price,
                 "title": product.title,
                 "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
-                "quantity": cart.cart[item]['quantity'],
+                "quantity": item['quantity'],
             }
+            total_cost += product.price
+            if item.get('configurators'):
+                conf_list = []
+                if product.configurator:
+                    conf = {
+                        "id": product.configurator.pk,
+                        "price": product.configurator.price,
+                        "title": product.configurator.conf_title,
+                        "image": self.request.build_absolute_uri(product.configurator.conf_image.url),
+                        "quantity":  item['quantity'],
+                    }
+                    conf_list.append(conf)
+                    total_cost += product.configurator.price
+                for configurator in item.get('configurators'):
+                    conf_product = Product.objects.select_related('category', 'related_configurator').get(id=configurator['id'])
+                    configurators = {
+                        "id": conf_product.pk,
+                        "price": conf_product.price,
+                        "title": conf_product.title,
+                        "image": self.request.build_absolute_uri(conf_product.product_images.all().first().image.url),
+                        "quantity": configurator['quantity'] * item['quantity'],
+                    }
+                    conf_list.append(configurators)
+                    total_cost += conf_product.price
+                data['configurators'] = conf_list
             data_list.append(data)
-        return sorted(data_list, key=lambda x: x['id'])
+            data_list.append({"total_cost":total_cost})
+        return data_list
+
 
     def get(self, request, *args, **kwargs):
         return Response(self.request_cart(), status=status.HTTP_200_OK)
@@ -176,31 +204,35 @@ class CartView(APIView):
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
         data = request.data
-        print(cart.cart)
-        # print(data["configurators"])
         product = get_object_or_404(Product, id=data['id'])
-        if str(data['id']) in cart.cart:
-            cart.cart[str(data['id'])]['quantity'] += data['quantity']
-            cart.save()
+        
+        if data['id'] in [item['id'] for item in cart.cart]:
+            for item in cart.cart:
+                if item['id']==data['id']:
+                    item['quantity'] += data['quantity']
         else:
             if request.data.get("configurators")==None:
                 cart.add(product=product, quantity=data['quantity'])
             else:
                 cart.add(product=product, quantity=data['quantity'], configurators=request.data.get("configurators"))
+        cart.save()
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
     def delete(self, request):
         cart = Cart(request)
-        if str(request.data['id']) not in cart.cart.keys():
+        if request.data['id'] not in [item['id'] for item in cart.cart]:
             return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
         
         product = get_object_or_404(Product, id=request.data['id'])
-        if cart.cart[str(request.data['id'])]['quantity'] == request.data['quantity'] or \
-                cart.cart[str(request.data['id'])]['quantity'] <= 1:
-            cart.remove(product)
-        else:
-            cart.cart[str(request.data['id'])]['quantity'] -= 1
-        cart.save()
+
+        for item in cart.cart:
+            if item['id']==request.data['id']:
+                if item['quantity']==request.data['quantity'] or item['quantity']==request.data['quantity'] <= 1:
+                    cart.remove(product)
+                else:
+                    item['quantity'] -= 1
+            cart.save()
         return Response(self.request_cart(), status=status.HTTP_200_OK)
+
 

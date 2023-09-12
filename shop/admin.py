@@ -15,6 +15,7 @@ from .admin_inlines import (
     ConfiguratorInline,
     ConfiguratorCategoryInline,
     CartItemInline,
+    OrderItemInline
 )
 from .models import (
     Category,
@@ -23,6 +24,7 @@ from .models import (
     ContactRequest,
     Configurator,
     Cart,
+    Order,
 )
 
 @admin.register(Cart)
@@ -125,3 +127,8 @@ class ConfiguratorAdmin(NestedModelAdmin):
         }),
     ]
 
+
+@admin.register(Order)
+class OrderAdmin(NestedModelAdmin):
+    list_display = ['id', 'name']
+    inlines = [OrderItemInline]

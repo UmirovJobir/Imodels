@@ -215,6 +215,7 @@ class ConfiguratorCategory(models.Model):
 class ConfiguratorProduct(models.Model):
     conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products')
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    
 
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
@@ -242,13 +243,24 @@ class CartItem(models.Model):
         return self.product.price * self.quantity
     
 
-# class Order(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
-#     cart = models.OneToOneField(Cart, on_delete=)
+class Order(models.Model):
+    name = models.CharField(max_length=200, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    phone = models.PositiveIntegerField(null=True, blank=True)
+    total_cost = models.DecimalField(decimal_places=2, max_digits=10)
 
 
-# class OrderItem(models.Model):
-#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='products')
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
-#     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
-#     quantity = models.PositiveIntegerField(default=1)
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    quantity = models.PositiveIntegerField(default=1)
+
+
+class OrderConfigurator(models.Model):
+    order = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='order_configurator')
+    configurator = models.ForeignKey(Configurator, on_delete=models.CASCADE)
+    configurator_product = models.ForeignKey(ConfiguratorProduct, on_delete=models.CASCADE)
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    quantity = models.PositiveIntegerField(default=1)
+

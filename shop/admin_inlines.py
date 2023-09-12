@@ -15,7 +15,9 @@ from .models import (
     Configurator,
     ConfiguratorCategory,
     ConfiguratorProduct,
-    CartItem
+    CartItem,
+    OrderItem,
+    OrderConfigurator,
 )
 
 class CategoryInline(TranslationTabularInline):
@@ -104,3 +106,12 @@ class CartItemInline(admin.TabularInline):
     model = CartItem
 
 
+class OrderConfiguratorInline(NestedStackedInline):
+    extra = 0
+    model = OrderConfigurator
+
+class OrderItemInline(NestedStackedInline):
+    extra = 0
+    model = OrderItem
+    inlines = [OrderConfiguratorInline]
+    classes = ['collapse']

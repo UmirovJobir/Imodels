@@ -59,7 +59,7 @@ class ConfiguratorSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Configurator
-        fields = ['id', 'conf_title', 'conf_image', 'conf_category']
+        fields = ['id', 'conf_title', 'conf_image', 'price', 'conf_category']
 
 
 

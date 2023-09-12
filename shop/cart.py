@@ -7,18 +7,24 @@ class Cart:
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
-            cart = self.session[settings.CART_SESSION_ID] = {}
+            cart = self.session[settings.CART_SESSION_ID] = []
         self.cart = cart
 
 
     def add(self, product, quantity=1, configurators:list=[], override_quantity=True):
-        product_id = str(product.id)
+        product_id = product.id
 
         if product_id not in self.cart:
+            data = {}
             if len(configurators)==0:
-                self.cart[product_id] = {'quantity': quantity}
+                data['id'] = product_id
+                data['quantity'] = quantity
+                self.cart.append(data)
             else:
-                self.cart[product_id] = {'quantity': quantity, "configurators": configurators}
+                data['id'] = product_id
+                data['quantity'] = quantity
+                data['configurators'] = configurators
+                self.cart.append(data)
         
         self.save()
 
@@ -27,11 +33,12 @@ class Cart:
         self.session.modified = True
 
     def remove(self, product):
-        product_id = str(product.id)
-        if product_id in self.cart:
-            del self.cart[product_id]
-            self.save()
-    
+        if product.id in [item['id'] for item in self.cart]:
+            for item in self.cart:
+                if item['id']==product.id:
+                    self.cart.remove(item)
+            self.save
+
 
     def __iter__(self):
         product_ids = self.cart.keys()
