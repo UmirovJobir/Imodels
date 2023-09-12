@@ -131,4 +131,6 @@ class ConfiguratorAdmin(NestedModelAdmin):
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
     list_display = ['id', 'name']
+    list_display_links = ['id', 'name']
+    readonly_fields = ['total_price']
     inlines = [OrderItemInline]

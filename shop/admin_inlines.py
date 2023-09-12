@@ -18,6 +18,7 @@ from .models import (
     CartItem,
     OrderItem,
     OrderConfigurator,
+    OrderConfiguratorItem,
 )
 
 class CategoryInline(TranslationTabularInline):
@@ -106,12 +107,25 @@ class CartItemInline(admin.TabularInline):
     model = CartItem
 
 
-class OrderConfiguratorInline(NestedStackedInline):
+class OrderConfiguratorItemInline(NestedTabularInline):
+    extra = 0
+    model = OrderConfiguratorItem
+    raw_id_fields = ['product']
+    readonly_fields = ['image_tag', 'subtotal']
+
+
+class OrderConfiguratorInline(NestedTabularInline):
     extra = 0
     model = OrderConfigurator
+    inlines = [OrderConfiguratorItemInline]
+    raw_id_fields = ['configurator']
+    readonly_fields = ['image_tag', 'subtotal']
 
-class OrderItemInline(NestedStackedInline):
+
+class OrderItemInline(NestedTabularInline):
     extra = 0
     model = OrderItem
     inlines = [OrderConfiguratorInline]
     classes = ['collapse']
+    raw_id_fields = ['product']
+    readonly_fields = ['image_tag', 'subtotal', 'total_price']

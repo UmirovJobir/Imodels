@@ -249,18 +249,60 @@ class Order(models.Model):
     phone = models.PositiveIntegerField(null=True, blank=True)
     total_cost = models.DecimalField(decimal_places=2, max_digits=10)
 
+    def total_price(self):
+        return sum([item.subtotal for item in self.order_items.all()])
+
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='products')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)
 
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
+    image_tag.short_description = 'Image'
+
+    @property
+    def total_price(self):
+        return self.order_configurators.subtotal + self.subtotal
+
+    @property
+    def subtotal(self):
+        return self.price * self.quantity
+
 
 class OrderConfigurator(models.Model):
-    order = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='order_configurator')
+    order = models.OneToOneField(OrderItem, on_delete=models.CASCADE, related_name='order_configurators')
     configurator = models.ForeignKey(Configurator, on_delete=models.CASCADE)
-    configurator_product = models.ForeignKey(ConfiguratorProduct, on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)
+
+
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.configurator.conf_image.url))
+    image_tag.short_description = 'Image'
+
+    @property
+    def total_price(self):
+        return sum([item.subtotal for item in self.order_conf_items.all()]) + self.subtotal
+    
+    @property
+    def subtotal(self):
+        return self.price * self.quantity
+
+
+class OrderConfiguratorItem(models.Model):
+    order_conf = models.ForeignKey(OrderConfigurator, on_delete=models.CASCADE, related_name='order_conf_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
+    image_tag.short_description = 'Image'
+
+    @property
+    def subtotal(self):
+        return self.price * self.quantity
 
