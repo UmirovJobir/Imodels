@@ -12,8 +12,9 @@ from .models import (
     ProductFeatureOption,
     Blog,
     ContactRequest,
-    Configurator,
     ConfiguratorCategory,
+    ConfiguratorProduct,
+    
 )
 
 
@@ -27,39 +28,6 @@ class ConfiguratorProductNotPriceSerializer(serializers.ModelSerializer):  #Seri
     
     def get_first_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
-
-
-class ConfiguratorProductSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField('get_first_image')
-
-    class Meta:
-        model = Product
-        fields = ['id', 'title', 'price', 'image']
-    
-    def get_first_image(self, obj):
-        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
-
-
-class ConfiguratorCategorySerializer(serializers.ModelSerializer):
-    products = serializers.SerializerMethodField('get_products')
-    
-    class Meta:
-        model = ConfiguratorCategory
-        fields = ['id', 'name', 'products']
-
-    def get_products(self, obj):
-        products = ConfiguratorProductSerializer(
-                            [conf_product.product for conf_product in obj.products.all()], 
-                            many=True, context={'request': self.context['request']})
-        return products.data
-
-
-class ConfiguratorSerializer(serializers.ModelSerializer):
-    conf_category = ConfiguratorCategorySerializer(many=True)
-    
-    class Meta:
-        model = Configurator
-        fields = ['id', 'conf_title', 'conf_image', 'price', 'conf_category']
 
 
 
@@ -112,19 +80,48 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image']
 
 
+
+class ConfiguratorProductSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_first_image')
+    class Meta:
+        model = Product
+        fields = ['id', 'title', 'price', 'image']
+    
+    def get_first_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+
+
+class ConfiguratorCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfiguratorCategory
+        fields = ['id', 'name']
+
+
+
+class Configurator(serializers.ModelSerializer):
+    product = ConfiguratorProductSerializer()
+    conf_category = ConfiguratorCategorySerializer()
+
+    class Meta:
+        model = ConfiguratorProduct
+        fields = ['conf_category', 'product']
+
+
 class ProductListSerializer(serializers.ModelSerializer):
     product_features = ProductFeatureSerializer()
     product_description = ExtraDescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
-    configurator = ConfiguratorSerializer()
+    configurators = Configurator(many=True)
 
     class Meta:
         model = Product
         fields = ['id', 'category', 'title', 'description', 
-                  'price', 'related_configurator', 'configurator', 'product_images', 'product_video', 
+                  'price', 'related_configurator', 'configurators', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
+
+
 
 
 # Serializers related to Category

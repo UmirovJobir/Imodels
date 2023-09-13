@@ -24,7 +24,6 @@ from .models import (
     Product,
     Blog,
     ContactRequest,
-    Configurator
 )
 from .serializers import (
     CategorySerializer,
@@ -32,7 +31,7 @@ from .serializers import (
     ProductListSerializer,
     BlogSerializer,
     ContactRequestSerializer,
-    ConfiguratorProductNotPriceSerializer
+    ConfiguratorProductNotPriceSerializer,
 )
 
 
@@ -111,7 +110,7 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.all().select_related('category')
+        queryset = Product.objects.filter(status="Visible").select_related('category')
         return get_query_by_heard(self, queryset)
 
 

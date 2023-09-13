@@ -58,11 +58,16 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    STATUS_CHOICES = (
+        ('Visible', 'Visible'),
+        ('Invisible', 'Invisible'),
+    )
     related_configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
-    description = tinymce_models.HTMLField()
+    description = tinymce_models.HTMLField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Visible')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -192,29 +197,18 @@ class ContactRequest(models.Model):
         verbose_name_plural = 'Просьбы связаться'
 
 
-class Configurator(models.Model):
-    conf_title = models.CharField(max_length=200)
-    conf_image = models.ImageField(upload_to=configurator_image_directory_path, null=True, blank=True)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='configurator')
-    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True, default=0)
-
-    def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.conf_image.url))
-    image_tag.short_description = 'Image'
-
-    def product_image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
-    product_image_tag.short_description = 'Product Image'
-
 
 class ConfiguratorCategory(models.Model):
     name = models.CharField(max_length=200)
-    configurator = models.ForeignKey(Configurator, on_delete=models.PROTECT, related_name='conf_category')
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class ConfiguratorProduct(models.Model):
-    conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products')
-    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='items')
+    item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='configurators')
     
 
     def image_tag(self):
@@ -275,7 +269,6 @@ class OrderItem(models.Model):
 
 class OrderConfigurator(models.Model):
     order = models.OneToOneField(OrderItem, on_delete=models.CASCADE, related_name='order_configurators')
-    configurator = models.ForeignKey(Configurator, on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)
 
@@ -306,4 +299,5 @@ class OrderConfiguratorItem(models.Model):
     @property
     def subtotal(self):
         return self.price * self.quantity
+
 
