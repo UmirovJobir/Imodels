@@ -198,15 +198,15 @@ class ContactRequest(models.Model):
 
 
 
-class ConfiguratorCategory(models.Model):
+class Type(models.Model):
     name = models.CharField(max_length=200)
 
     def __str__(self) -> str:
         return self.name
 
 
-class ConfiguratorProduct(models.Model):
-    conf_category = models.ForeignKey(ConfiguratorCategory, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
+class Item(models.Model):
+    conf_category = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='configurators')
     

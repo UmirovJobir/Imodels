@@ -12,8 +12,8 @@ from .models import (
     ExtraDescription,
     ProductFeature,
     ProductFeatureOption,
-    ConfiguratorCategory,
-    ConfiguratorProduct,
+    Type,
+    Item,
     CartItem,
     OrderItem,
     OrderConfigurator,
@@ -83,7 +83,7 @@ class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
 
 class ConfiguratorProductInline(NestedTabularInline):
     extra = 0
-    model = ConfiguratorProduct
+    model = Item
     fk_name = 'item'
     raw_id_fields = ['conf_category']
     readonly_fields = ['image_tag']

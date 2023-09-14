@@ -28,10 +28,10 @@ from .models import (
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
+    ProductDetailSerializer,
     ProductListSerializer,
     BlogSerializer,
     ContactRequestSerializer,
-    ConfiguratorProductNotPriceSerializer,
 )
 
 
@@ -115,7 +115,7 @@ class ProductListAPIView(ListAPIView):
 
 
 class ProductRetrieveAPIView(RetrieveAPIView):
-    serializer_class = ProductListSerializer
+    serializer_class = ProductDetailSerializer
 
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all().select_related('category')
@@ -154,46 +154,36 @@ def index(request):
 
 class CartView(APIView):
     def request_cart(self):
-        data_list = []
+        product_list = []
         total_cost = 0
         cart = Cart(self.request)
-        for item in cart.cart:
-            product = Product.objects.select_related('category', 'related_configurator').get(id=item['id'])
-            data = {
+
+        for cart_product in cart.cart:
+            product = Product.objects.select_related('category', 'related_configurator').get(id=cart_product['id'])
+            product_dict = {
                 "id": product.pk,
                 "price": product.price,
                 "title": product.title,
                 "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
-                "quantity": item['quantity'],
-            }
+                "quantity": cart_product['quantity']}
             total_cost += product.price
-            if item.get('configurators'):
-                conf_list = []
-                if product.configurator:
-                    conf = {
-                        "id": product.configurator.pk,
-                        "price": product.configurator.price,
-                        "title": product.configurator.conf_title,
-                        "image": self.request.build_absolute_uri(product.configurator.conf_image.url),
-                        "quantity":  item['quantity'],
-                    }
-                    conf_list.append(conf)
-                    total_cost += product.configurator.price
-                for configurator in item.get('configurators'):
-                    conf_product = Product.objects.select_related('category', 'related_configurator').get(id=configurator['id'])
+
+            if cart_product.get('configurators'):
+                item_list = []
+                for configurator in cart_product.get('configurators'):
+                    item = Product.objects.select_related('category', 'related_configurator').get(id=configurator['id'])
                     configurators = {
-                        "id": conf_product.pk,
-                        "price": conf_product.price,
-                        "title": conf_product.title,
-                        "image": self.request.build_absolute_uri(conf_product.product_images.all().first().image.url),
-                        "quantity": configurator['quantity'] * item['quantity'],
-                    }
-                    conf_list.append(configurators)
-                    total_cost += conf_product.price
-                data['configurators'] = conf_list
-            data_list.append(data)
-            data_list.append({"total_cost":total_cost})
-        return data_list
+                        "id": item.pk,
+                        "price": item.price,
+                        "title": item.title,
+                        "image": self.request.build_absolute_uri(item.product_images.all().first().image.url),
+                        "quantity": configurator['quantity'] * cart_product['quantity']}
+                    item_list.append(configurators)
+                    total_cost += item.price * configurators['quantity']
+
+                product_dict['items'] = item_list
+            product_list.append({"products": product_dict, "total_cost":total_cost})
+        return product_list
 
 
     def get(self, request, *args, **kwargs):

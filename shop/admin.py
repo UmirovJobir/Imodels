@@ -21,14 +21,14 @@ from .models import (
     Product,
     Blog,
     ContactRequest,
-    ConfiguratorCategory,
-    ConfiguratorProduct,
+    Type,
+    Item,
     Cart,
     Order,
 )
 
-admin.site.register(ConfiguratorCategory)
-admin.site.register(ConfiguratorProduct)
+admin.site.register(Type)
+admin.site.register(Item)
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):

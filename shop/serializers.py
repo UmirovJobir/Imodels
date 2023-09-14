@@ -12,23 +12,66 @@ from .models import (
     ProductFeatureOption,
     Blog,
     ContactRequest,
-    ConfiguratorCategory,
-    ConfiguratorProduct,
+    Type,
+    Item,
     
 )
 
 
-# Serializers related to Configurator
-class ConfiguratorProductNotPriceSerializer(serializers.ModelSerializer):  #Serializer for ConfiguratorListAPI to send data without price
-    image = serializers.SerializerMethodField('get_first_image')
 
+
+# Serializers related to Configurator
+class ItemSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_first_image')
     class Meta:
         model = Product
-        fields = ['id', 'title', 'image']
+        fields = ['id', 'title', 'price', 'image']
     
     def get_first_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
 
+
+class TypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Type
+        fields = ['id', 'name']
+
+
+class ConfiguratorSerializer(serializers.ModelSerializer):
+    product = ItemSerializer()
+    conf_category = TypeSerializer()
+
+    class Meta:
+        model = Item
+        fields = ['conf_category', 'product']
+
+
+# Serializers related to Category
+class SubCategorySerializer(serializers.ModelSerializer):
+    count = serializers.SerializerMethodField('get_product_count')
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'count']
+    
+    def get_product_count(self, obj):
+        count = obj.products.all().count()
+        if count==0:
+            products = [subcategory.products.all().count() for subcategory in obj.subcategories.all()]
+            count = sum(products)
+        return count
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = serializers.SerializerMethodField('get_subcategories')
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'subcategories']
+    
+    def get_subcategories(self, obj):
+        serializer = SubCategorySerializer(obj.subcategories.all(), many=True)
+        return serializer.data
 
 
 # Serializers related to Extra Description
@@ -80,39 +123,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image']
 
 
-
-class ConfiguratorProductSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField('get_first_image')
-    class Meta:
-        model = Product
-        fields = ['id', 'title', 'price', 'image']
-    
-    def get_first_image(self, obj):
-        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
-
-
-class ConfiguratorCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ConfiguratorCategory
-        fields = ['id', 'name']
-
-
-
-class Configurator(serializers.ModelSerializer):
-    product = ConfiguratorProductSerializer()
-    conf_category = ConfiguratorCategorySerializer()
-
-    class Meta:
-        model = ConfiguratorProduct
-        fields = ['conf_category', 'product']
-
-
-class ProductListSerializer(serializers.ModelSerializer):
+class ProductDetailSerializer(serializers.ModelSerializer):
     product_features = ProductFeatureSerializer()
     product_description = ExtraDescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
-    configurators = Configurator(many=True)
+    configurators = ConfiguratorSerializer(many=True)
 
     class Meta:
         model = Product
@@ -122,34 +138,15 @@ class ProductListSerializer(serializers.ModelSerializer):
                 ]
 
 
-
-
-# Serializers related to Category
-class SubCategorySerializer(serializers.ModelSerializer):
-    count = serializers.SerializerMethodField('get_product_count')
+class ProductListSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_first_image')
 
     class Meta:
-        model = Category
-        fields = ['id', 'name', 'count']
-    
-    def get_product_count(self, obj):
-        count = obj.products.all().count()
-        if count==0:
-            products = [subcategory.products.all().count() for subcategory in obj.subcategories.all()]
-            count = sum(products)
-        return count
+        model = Product
+        fields = ['id', 'category', 'title', 'price', 'image']
 
-
-class CategorySerializer(serializers.ModelSerializer):
-    subcategories = serializers.SerializerMethodField('get_subcategories')
-
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'subcategories']
-    
-    def get_subcategories(self, obj):
-        serializer = SubCategorySerializer(obj.subcategories.all(), many=True)
-        return serializer.data
+    def get_first_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
 
 
 # Serializers related to Blog
