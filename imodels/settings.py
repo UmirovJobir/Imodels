@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_cleanup',
     'rest_framework',
     'drf_spectacular',
+    'embed_video',
 
     'shop', #app
 ]
@@ -202,3 +203,8 @@ SPECTACULAR_SETTINGS = {
 
 
 CART_SESSION_ID = 'cart'
+
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.template.context_processors.request',
+)

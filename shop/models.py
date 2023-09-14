@@ -2,15 +2,10 @@ from django.db import models
 from django.utils.html import mark_safe
 from django.contrib.auth.models import User
 
+from embed_video.fields import EmbedVideoField
 from tinymce import models as tinymce_models
 from .validators import validate_phone_length
 
-
-def configurator_image_directory_path(instance: "Configurator", filename: str) -> str:
-    return "configurator_image/configurator_{pk}__{filename}".format(
-        pk=instance.pk,
-        filename=filename
-    )
 
 def blog_image_directory_path(instance: "Blog", filename: str) -> str:
     return "blog_images/blog_{pk}__{filename}".format(
@@ -20,12 +15,6 @@ def blog_image_directory_path(instance: "Blog", filename: str) -> str:
 
 def product_image_directory_path(instance: "ProductImage", filename: str) -> str:
     return "product_images/product_{pk}__{filename}".format(
-        pk=instance.product.pk,
-        filename=filename
-    )
-
-def product_video_directory_path(instance: "ProductVideo", filename: str) -> str:
-    return "product_video/product_{pk}__{filename}".format(
         pk=instance.product.pk,
         filename=filename
     )
@@ -72,7 +61,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"(Product_pk:{self.pk}, title:{self.title})"
+        return self.title
     
     class Meta:
         verbose_name = 'Продукт'
@@ -91,7 +80,7 @@ class ProductImage(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"(ProductImage_pk:{self.pk}, product:{self.product.title})"
+        return self.product.title
     
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
@@ -101,16 +90,18 @@ class ProductImage(models.Model):
 class ProductVideo(models.Model):
     title = models.CharField(max_length=500, null=True, blank=True)
     description = tinymce_models.HTMLField(null=True, blank=True)
-    video = models.FileField(upload_to=product_video_directory_path)
+    # video_link = models.CharField(max_length=800, null=True, blank=True)
+    # video_link = models.URLField(max_length=800, null=True, blank=True)
+    video_link = EmbedVideoField(null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"(ProductVideo_pk:{self.pk}, product:{self.product.title})"
+        return self.product.title
     
     def video_tag(self):
-        return '<source src="%s" type="video/mp4">'%(self.video.url)
+        return f'<iframe width="560" height="315" src="{self.video_link}" frameborder="0" allowfullscreen></iframe>'
     video_tag.short_description = 'Video'
 
 
@@ -206,7 +197,7 @@ class Type(models.Model):
 
 
 class Item(models.Model):
-    conf_category = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
+    type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='configurators')
     
@@ -214,6 +205,10 @@ class Item(models.Model):
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
     image_tag.short_description = 'Image'
+
+    def price(self):
+        return self.product.price
+
     
 
 class Cart(models.Model):

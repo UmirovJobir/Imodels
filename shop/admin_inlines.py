@@ -1,6 +1,7 @@
 from django import forms
 from django.db import models
 from django.contrib import admin
+from embed_video.admin import AdminVideoMixin
 from nested_admin import NestedStackedInline, NestedTabularInline
 from modeltranslation.admin import TranslationStackedInline, TranslationTabularInline
 from .models import (
@@ -33,8 +34,8 @@ class ProductVideoInline(NestedStackedInline, TranslationStackedInline):
     }
     extra = 0
     model = ProductVideo
-    classes = ['collapse']
-    readonly_fields = ['video_tag']
+    # classes = ['collapse']
+    # readonly_fields = ['video_tag']
 
 
 class ProductImageInline(NestedTabularInline):
@@ -81,12 +82,12 @@ class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
     classes = ['collapse']
 
 
-class ConfiguratorProductInline(NestedTabularInline):
+class ItemInline(NestedTabularInline):
     extra = 0
     model = Item
     fk_name = 'item'
-    raw_id_fields = ['conf_category']
-    readonly_fields = ['image_tag']
+    raw_id_fields = ['type', 'product']
+    readonly_fields = ['price', 'image_tag']
 
 
 # class ConfiguratorCategoryInline(NestedStackedInline):

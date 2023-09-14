@@ -12,7 +12,7 @@ from .admin_inlines import (
     ProductVideoInline,
     ExtraDescriptionInline,
     ProductFeatureInline,
-    ConfiguratorProductInline,
+    ItemInline,
     CartItemInline,
     OrderItemInline
 )
@@ -25,7 +25,14 @@ from .models import (
     Item,
     Cart,
     Order,
+    ProductVideo
 )
+from embed_video.admin import AdminVideoMixin, AdminVideoWidget
+
+
+@admin.register(ProductVideo)
+class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
+    pass
 
 admin.site.register(Type)
 admin.site.register(Item)
@@ -96,7 +103,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         ProductVideoInline,
         ExtraDescriptionInline,
         ProductFeatureInline,
-        ConfiguratorProductInline
+        ItemInline
     ]
     fieldsets = [
         ("Продукт", {
