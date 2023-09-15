@@ -39,11 +39,11 @@ class TypeSerializer(serializers.ModelSerializer):
 
 class ConfiguratorSerializer(serializers.ModelSerializer):
     product = ItemSerializer()
-    conf_category = TypeSerializer()
+    type = TypeSerializer()
 
     class Meta:
         model = Item
-        fields = ['conf_category', 'product']
+        fields = ['type', 'product']
 
 
 # Serializers related to Category
@@ -114,7 +114,7 @@ class ProductFeatureSerializer(serializers.ModelSerializer):
 class ProductVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVideo
-        fields = ['id', 'title', 'video', 'description']
+        fields = ['id', 'title', 'video_link', 'description']
 
 
 class ProductImageSerializer(serializers.ModelSerializer):

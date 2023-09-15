@@ -14,7 +14,7 @@ from .admin_inlines import (
     ProductFeatureInline,
     ItemInline,
     CartItemInline,
-    OrderItemInline
+    OrderProductInline
 )
 from .models import (
     Category,
@@ -129,4 +129,4 @@ class OrderAdmin(NestedModelAdmin):
     list_display = ['id', 'name']
     list_display_links = ['id', 'name']
     readonly_fields = ['total_price']
-    inlines = [OrderItemInline]
+    inlines = [OrderProductInline]

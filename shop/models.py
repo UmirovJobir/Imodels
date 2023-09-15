@@ -236,16 +236,14 @@ class Order(models.Model):
     name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     phone = models.PositiveIntegerField(null=True, blank=True)
-    total_cost = models.DecimalField(decimal_places=2, max_digits=10)
 
     def total_price(self):
-        print([item for item in self.order_items.all()])
-        return sum([item.subtotal for item in self.order_items.all()])
+        return sum([item.total_price for item in self.order_products.all()])
 
 
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
+class OrderProduct(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='a')
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)
 
@@ -255,34 +253,15 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
-        return self.order_configurators.total_price + self.subtotal
+        return sum([item.subtotal for item in self.order_items.all()]) + self.subtotal
 
     @property
     def subtotal(self):
         return self.price * self.quantity
 
 
-class OrderConfigurator(models.Model):
-    order = models.OneToOneField(OrderItem, on_delete=models.CASCADE, related_name='order_configurators')
-    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
-    quantity = models.PositiveIntegerField(default=1)
-
-
-    def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.configurator.conf_image.url))
-    image_tag.short_description = 'Image'
-
-    @property
-    def total_price(self):
-        return sum([item.subtotal for item in self.order_conf_items.all()]) + self.subtotal
-    
-    @property
-    def subtotal(self):
-        return self.price * self.quantity
-
-
-class OrderConfiguratorItem(models.Model):
-    order_conf = models.ForeignKey(OrderConfigurator, on_delete=models.CASCADE, related_name='order_conf_items')
+class OrderProductItem(models.Model):
+    order_conf = models.ForeignKey(OrderProduct, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)
