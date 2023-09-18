@@ -214,6 +214,9 @@ class OrderProduct(models.Model):
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)
 
+    def __str__(self) -> str:
+        return ''
+
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
     image_tag.short_description = 'Image'
@@ -228,7 +231,7 @@ class OrderProduct(models.Model):
 
 
 class OrderProductItem(models.Model):
-    order_conf = models.ForeignKey(OrderProduct, on_delete=models.CASCADE, related_name='order_items')
+    order_product = models.ForeignKey(OrderProduct, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     quantity = models.PositiveIntegerField(default=1)

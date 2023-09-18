@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.request import Request
+from django.db import transaction
 from . import api
 from .models import (
     Category,
@@ -15,8 +15,37 @@ from .models import (
     ContactRequest,
     Type,
     Item,
-    
+    Order,
+    OrderProduct,
+    OrderProductItem,
 )
+
+# Serializers related to Category
+class SubCategorySerializer(serializers.ModelSerializer):
+    count = serializers.SerializerMethodField('get_product_count')
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'count']
+    
+    def get_product_count(self, obj):
+        count = obj.products.all().count()
+        if count==0:
+            products = [subcategory.products.all().count() for subcategory in obj.subcategories.all()]
+            count = sum(products)
+        return count
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = serializers.SerializerMethodField('get_subcategories')
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'subcategories']
+    
+    def get_subcategories(self, obj):
+        serializer = SubCategorySerializer(obj.subcategories.all(), many=True)
+        return serializer.data
 
 
 # Serializers related to Configurator
@@ -59,34 +88,6 @@ class ConfiguratorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['type', 'product']
-
-
-# Serializers related to Category
-class SubCategorySerializer(serializers.ModelSerializer):
-    count = serializers.SerializerMethodField('get_product_count')
-
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'count']
-    
-    def get_product_count(self, obj):
-        count = obj.products.all().count()
-        if count==0:
-            products = [subcategory.products.all().count() for subcategory in obj.subcategories.all()]
-            count = sum(products)
-        return count
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    subcategories = serializers.SerializerMethodField('get_subcategories')
-
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'subcategories']
-    
-    def get_subcategories(self, obj):
-        serializer = SubCategorySerializer(obj.subcategories.all(), many=True)
-        return serializer.data
 
 
 # Serializers related to Extra Description
@@ -182,15 +183,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     def get_price(self, obj):
         request = self.context['request']
         currency = request.META.get('HTTP_CURRENCY')
-        if currency=='uzs':
-            kurs = api.get_usd_currency()
-            price = round(obj.price * kurs, 2)
-        elif currency=='eur':
-            usd = api.get_usd_currency()
-            eur = api.get_eur_currency()
-            price = round(obj.price * usd / eur, 2)
-        elif currency=='usd':
-            price = obj.price
+        price = api.get_currency(currency=currency, obj_price=obj.price)
         return price
 
 
@@ -207,3 +200,37 @@ class ContactRequestSerializer(serializers.ModelSerializer):
         model = ContactRequest
         fields = ['id', 'name', 'email', 'phone_number', 'message']
 
+
+# Serializers related to Order
+class OrderProductItemSerilaizer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderProductItem
+        fields = ['product', 'price', 'quantity']
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    order_items = OrderProductItemSerilaizer(many=True)
+
+    class Meta:
+        model = OrderProduct
+        fields = ['product', 'price', 'quantity', 'order_items']
+
+class OrderSerializer(serializers.ModelSerializer):
+    order_products = OrderProductSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'name', 'email', 'phone', 'order_products']
+    
+    @transaction.atomic
+    def create(self, validated_data):
+        order_instance = Order.objects.create(
+                        name=validated_data['name'],
+                        email=validated_data['email'],
+                        phone=validated_data['phone'])
+        order_products_data = validated_data.pop('order_products')
+        for order_product_data in order_products_data:
+            order_items_data = order_product_data.pop('order_items')
+            order_product = OrderProduct.objects.create(order=order_instance, **order_product_data)
+            for order_item_data in order_items_data:
+                OrderProductItem.objects.create(order_product=order_product, **order_item_data)
+        return order_instance

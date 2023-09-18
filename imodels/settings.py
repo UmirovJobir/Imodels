@@ -32,7 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'djmoney',
+    # 'jazzmin',
+    'jet',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -205,3 +206,15 @@ CART_SESSION_ID = 'cart'
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.template.context_processors.request',
 )
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Imodels Admin Panel",
+    "site_header": "Imodels",
+    "site_brand": "Imodels",
+    "site_logo": "img/imodels.jpg",
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": "img/imodels.jpg",
+    "welcome_sign": "Welcome to the Imodels Admin Panel"
+}

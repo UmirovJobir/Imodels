@@ -15,6 +15,7 @@ from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
     RetrieveAPIView,
+    ListCreateAPIView,
 )
 from . import api
 from .cart import Cart
@@ -25,6 +26,9 @@ from .models import (
     Product,
     Blog,
     ContactRequest,
+    Order,
+    OrderProduct,
+    OrderProductItem
 )
 from .serializers import (
     CategorySerializer,
@@ -33,6 +37,7 @@ from .serializers import (
     ProductListSerializer,
     BlogSerializer,
     ContactRequestSerializer,
+    OrderSerializer
 )
 
 
@@ -165,7 +170,9 @@ def index(request):
 
 class CartView(APIView):
     def request_cart(self):
-        self.request.META.get('HTTP_CURRENCY')
+        currency = self.request.META.get('HTTP_CURRENCY')
+        if currency==None:
+            currency='usd'
 
         product_list = []
         total_cost = 0
@@ -175,11 +182,11 @@ class CartView(APIView):
             product = Product.objects.select_related('category', 'related_configurator').get(id=cart_product['id'])
             product_dict = {
                 "id": product.pk,
-                "price": product.price,
+                "price": api.get_currency(currency=currency, obj_price=product.price),
                 "title": product.title,
                 "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
                 "quantity": cart_product['quantity']}
-            total_cost += product.price
+            total_cost += product_dict['price']
 
             if cart_product.get('configurators'):
                 item_list = []
@@ -187,12 +194,12 @@ class CartView(APIView):
                     item = Product.objects.select_related('category', 'related_configurator').get(id=configurator['id'])
                     configurators = {
                         "id": item.pk,
-                        "price": item.price,
+                        "price": api.get_currency(currency=currency, obj_price=item.price),
                         "title": item.title,
                         "image": self.request.build_absolute_uri(item.product_images.all().first().image.url),
                         "quantity": configurator['quantity'] * cart_product['quantity']}
                     item_list.append(configurators)
-                    total_cost += item.price * configurators['quantity']
+                    total_cost += configurators['price'] * configurators['quantity']
 
                 product_dict['items'] = item_list
             product_list.append(product_dict)
@@ -240,4 +247,24 @@ class CartView(APIView):
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
+class OrderView(ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
 
+    # def create(self, request, *args, **kwargs):
+    #     # Deserialize the request data using the OrderSerializer
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+
+    #     # Create Order instance
+    #     order = serializer.save()
+
+    #     # Create OrderProducts and OrderItems
+    #     order_products_data = serializer.validated_data.pop('order_products')
+    #     for order_product_data in order_products_data:
+    #         order_items_data = order_product_data.pop('order_items')
+    #         order_product = OrderProduct.objects.create(order=order, **order_product_data)
+    #         for order_item_data in order_items_data:
+    #             OrderProductItem.objects.create(order_product=order_product, **order_item_data)
+
+    #     return Response(OrderSerializer(order, many=True).data, status=status.HTTP_201_CREATED)

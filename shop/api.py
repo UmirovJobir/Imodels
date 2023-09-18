@@ -19,3 +19,16 @@ def get_eur_currency():
     EUR = Decimal(EUR[0].replace(',','.'))
     
     return EUR 
+
+
+def get_currency(currency, obj_price):
+    if currency=='uzs':
+        kurs = get_usd_currency()
+        price = round(obj_price * kurs, 2)
+    elif currency=='eur':
+        usd = get_usd_currency()
+        eur = get_eur_currency()
+        price = round(obj_price * usd / eur, 2)
+    elif currency=='usd':
+        price = obj_price
+    return price
