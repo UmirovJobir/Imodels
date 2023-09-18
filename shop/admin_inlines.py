@@ -15,7 +15,6 @@ from .models import (
     ProductFeatureOption,
     Type,
     Item,
-    CartItem,
     Order,
     OrderProduct,
     OrderProductItem,
@@ -88,25 +87,6 @@ class ItemInline(NestedTabularInline):
     fk_name = 'item'
     raw_id_fields = ['type', 'product']
     readonly_fields = ['price', 'image_tag']
-
-
-# class ConfiguratorCategoryInline(NestedStackedInline):
-#     extra = 0
-#     model = ConfiguratorCategory
-    # inlines = [ConfiguratorProductInline]
-
-
-# class ConfiguratorInline(NestedTabularInline):
-#     extra = 0
-#     model = Configurator
-    # inlines = [ConfiguratorCategoryInline]
-    # classes = ['collapse']
-    # readonly_fields = ['image_tag']
-
-
-class CartItemInline(admin.TabularInline):
-    extra = 0
-    model = CartItem
 
 
 class OrderItemInline(NestedTabularInline):

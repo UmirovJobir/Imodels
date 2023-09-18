@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'djmoney',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -155,13 +156,9 @@ LANGUAGES = (
     ('uz', _('Lotin')),
     ('ru', _('Russian')),
     ('en', _('English')),
-    # ('kk', _('Cyrillic')),
 )
 
 LANGUAGE_CODE = 'uz'
-
-# MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
-# MODELTRANSLATION_LANGUAGES = ('uz','en','ru')
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB

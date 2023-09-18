@@ -16,6 +16,7 @@ from rest_framework.generics import (
     CreateAPIView,
     RetrieveAPIView,
 )
+from . import api
 from .cart import Cart
 from .filter import ProductFilter
 from .pagination import CustomPageNumberPagination
@@ -78,7 +79,7 @@ def upload_image(request):
 
 def get_query_by_heard(self, queryset):
     if 'HTTP_ACCEPT_LANGUAGE' in self.request.META:
-        lang = self.request.META['HTTP_ACCEPT_LANGUAGE']
+        lang = self.request.META.get('HTTP_ACCEPT_LANGUAGE')
         translation.activate(lang)
     return queryset
 
@@ -113,6 +114,11 @@ class ProductListAPIView(ListAPIView):
         queryset = Product.objects.filter(status="Visible").select_related('category')
         return get_query_by_heard(self, queryset)
 
+    def get_serializer(self, *args, **kwargs):
+        serializer = super().get_serializer(*args, **kwargs)
+        serializer.context['request'] = self.request
+        return serializer
+
 
 class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
@@ -120,6 +126,11 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all().select_related('category')
         return get_query_by_heard(self, queryset)
+
+    def get_serializer(self, *args, **kwargs):
+        serializer = super().get_serializer(*args, **kwargs)
+        serializer.context['request'] = self.request
+        return serializer
 
 
 # View related to Blog
@@ -154,6 +165,8 @@ def index(request):
 
 class CartView(APIView):
     def request_cart(self):
+        self.request.META.get('HTTP_CURRENCY')
+
         product_list = []
         total_cost = 0
         cart = Cart(self.request)
@@ -182,8 +195,10 @@ class CartView(APIView):
                     total_cost += item.price * configurators['quantity']
 
                 product_dict['items'] = item_list
-            product_list.append({"products": product_dict, "total_cost":total_cost})
-        return product_list
+            product_list.append(product_dict)
+        data = {"products": product_list, "total_cost":total_cost}
+        return data
+
 
 
     def get(self, request, *args, **kwargs):

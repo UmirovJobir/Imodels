@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.request import Request
+from . import api
 from .models import (
     Category,
     Product,
@@ -18,17 +19,31 @@ from .models import (
 )
 
 
-
-
 # Serializers related to Configurator
 class ItemSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
+    price = serializers.SerializerMethodField('get_price')
+
     class Meta:
         model = Product
         fields = ['id', 'title', 'price', 'image']
     
     def get_first_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+    
+    def get_price(self, obj):
+        request = self.context['request']
+        currency = request.META.get('HTTP_CURRENCY')
+        if currency=='uzs':
+            kurs = api.get_usd_currency()
+            price = round(obj.price * kurs, 2)
+        elif currency=='eur':
+            usd = api.get_usd_currency()
+            eur = api.get_eur_currency()
+            price = round(obj.price * usd / eur, 2)
+        elif currency=='usd':
+            price = obj.price
+        return price
 
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -129,6 +144,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
     configurators = ConfiguratorSerializer(many=True)
+    price = serializers.SerializerMethodField('get_price')
 
     class Meta:
         model = Product
@@ -136,17 +152,46 @@ class ProductDetailSerializer(serializers.ModelSerializer):
                   'price', 'related_configurator', 'configurators', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
+    
+    def get_price(self, obj):
+        request = self.context['request']
+        currency = request.META.get('HTTP_CURRENCY')
+        if currency=='uzs':
+            kurs = api.get_usd_currency()
+            price = round(obj.price * kurs, 2)
+        elif currency=='eur':
+            usd = api.get_usd_currency()
+            eur = api.get_eur_currency()
+            price = round(obj.price * usd / eur, 2)
+        elif currency=='usd':
+            price = obj.price
+        return price
 
 
 class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
+    price = serializers.SerializerMethodField('get_price')
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'title', 'price', 'image']
+        fields = ['id', 'category', 'title', 'image', 'price']
 
     def get_first_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+
+    def get_price(self, obj):
+        request = self.context['request']
+        currency = request.META.get('HTTP_CURRENCY')
+        if currency=='uzs':
+            kurs = api.get_usd_currency()
+            price = round(obj.price * kurs, 2)
+        elif currency=='eur':
+            usd = api.get_usd_currency()
+            eur = api.get_eur_currency()
+            price = round(obj.price * usd / eur, 2)
+        elif currency=='usd':
+            price = obj.price
+        return price
 
 
 # Serializers related to Blog

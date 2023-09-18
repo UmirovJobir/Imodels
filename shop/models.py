@@ -39,11 +39,8 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        verbose_name='Категория'
-        verbose_name_plural='Категории'
-    
-    def __str__(self) -> str:
-        return f"(Category_pk:{self.pk}, name:{self.name})"
+        verbose_name='Kategoriya'
+        verbose_name_plural='Kategoriyalar'
 
 
 class Product(models.Model):
@@ -55,7 +52,7 @@ class Product(models.Model):
     title = models.CharField(max_length=300)
     description = tinymce_models.HTMLField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Visible')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -64,8 +61,8 @@ class Product(models.Model):
         return self.title
     
     class Meta:
-        verbose_name = 'Продукт'
-        verbose_name_plural = 'Продукты'
+        verbose_name = 'Mahsulot'
+        verbose_name_plural = 'Mahsulotlar'
     
     def image_tag(self):
         first_image = self.product_images.all().first().image.url
@@ -111,8 +108,9 @@ class ExtraDescription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self) -> str:
-        return f"(ExtraDescription_pk:{self.pk}, product:{self.product.title})"
+    class Meta:
+        verbose_name = "Qo'shimcha tavsif"
+        verbose_name_plural = "Qo'shimcha tavsiflar"
 
 
 class Description(models.Model):
@@ -120,9 +118,6 @@ class Description(models.Model):
     extradescription = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return f"(Description_pk:{self.pk}, description:{self.extradescription.title})"
     
 
 class ExtraDescImage(models.Model):
@@ -130,9 +125,6 @@ class ExtraDescImage(models.Model):
     extra_desc = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription_images')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return f"(ExtraDescImage_pk:{self.pk}, extra_desc:{self.extra_desc.title})"
 
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
@@ -144,9 +136,6 @@ class ProductFeature(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_features')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    # def __str__(self) -> str:
-    #     return f"(ProductFeatureImage_pk:{self.pk}, product:{self.product.title})"
     
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
@@ -159,9 +148,6 @@ class ProductFeatureOption(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # def __str__(self) -> str:
-    #     return f"(ProductFeature_pk:{self.pk}, feature:{self.feature})"
-
 
 class Blog(models.Model):
     preview_image = models.ImageField(upload_to=blog_image_directory_path)
@@ -171,8 +157,8 @@ class Blog(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Блог'
-        verbose_name_plural = 'Блоги'
+        verbose_name = 'Blog'
+        verbose_name_plural = 'Bloglar'
 
 
 class ContactRequest(models.Model):
@@ -184,9 +170,8 @@ class ContactRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Просьба связаться'
-        verbose_name_plural = 'Просьбы связаться'
-
+        verbose_name = 'Murojat'
+        verbose_name_plural = 'Murojatlar'
 
 
 class Type(models.Model):
@@ -207,35 +192,17 @@ class Item(models.Model):
     image_tag.short_description = 'Image'
 
     def price(self):
-        return self.product.price
+        return self.product.price_uzs
 
-    
-
-class Cart(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link the cart to a user
-    products = models.ManyToManyField('Product', through='CartItem') 
-
-    @property
-    def total_price(self):
-        total = 0
-        for item in self.cartitem_set.all():
-            total += item.subtotal
-        return total
-
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    
-
-    @property
-    def subtotal(self):
-        return self.product.price * self.quantity
-    
 
 class Order(models.Model):
     name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     phone = models.PositiveIntegerField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Buyurtma'
+        verbose_name_plural = 'Buyurtmalar'
 
     def total_price(self):
         return sum([item.total_price for item in self.order_products.all()])
@@ -275,3 +242,22 @@ class OrderProductItem(models.Model):
         return self.price * self.quantity
 
 
+
+
+# class Cart(models.Model):
+#     products = models.ManyToManyField('Product', through='CartItem') 
+
+#     @property
+#     def total_price(self):
+#         total = 0
+#         for item in self.cartitem_set.all():
+#             total += item.subtotal
+#         return total
+
+# class CartItem(models.Model):
+#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+#     @property
+#     def subtotal(self):
+#         return self.product.price_uzs * self.quantity

@@ -13,7 +13,6 @@ from .admin_inlines import (
     ExtraDescriptionInline,
     ProductFeatureInline,
     ItemInline,
-    CartItemInline,
     OrderProductInline
 )
 from .models import (
@@ -23,7 +22,6 @@ from .models import (
     ContactRequest,
     Type,
     Item,
-    Cart,
     Order,
     ProductVideo
 )
@@ -36,13 +34,6 @@ class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
 
 admin.site.register(Type)
 admin.site.register(Item)
-
-@admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
-    list_display = ['id', 'total_price']
-    list_display_links = ['id', 'total_price']
-    inlines = [CartItemInline]
-    readonly_fields = ['total_price']
 
 
 @admin.register(ContactRequest)
@@ -107,7 +98,14 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
     ]
     fieldsets = [
         ("Продукт", {
-            "fields": ["related_configurator", "title", "description", "category", "price", "status"],
+            "fields": [
+                "related_configurator",
+                "title",
+                "description",
+                "category",
+                "price",
+                "status"
+            ],
             "classes": ["wide"],
         }),
     ]
