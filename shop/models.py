@@ -192,7 +192,7 @@ class Item(models.Model):
     image_tag.short_description = 'Image'
 
     def price(self):
-        return self.product.price_uzs
+        return self.product.price
 
 
 class Order(models.Model):

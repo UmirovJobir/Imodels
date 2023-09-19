@@ -33,7 +33,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     # 'jazzmin',
-    'jet',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',

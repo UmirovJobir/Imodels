@@ -33,8 +33,8 @@ class ProductVideoInline(NestedStackedInline, TranslationStackedInline):
     }
     extra = 0
     model = ProductVideo
-    # classes = ['collapse']
-    # readonly_fields = ['video_tag']
+    classes = ['collapse']
+    readonly_fields = ['video_tag']
 
 
 class ProductImageInline(NestedTabularInline):
