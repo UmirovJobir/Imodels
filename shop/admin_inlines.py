@@ -102,4 +102,4 @@ class OrderProductInline(NestedTabularInline):
     inlines = [OrderItemInline]
     # classes = ['collapse']
     raw_id_fields = ['product']
-    # readonly_fields = ['image_tag', 'subtotal', 'total_price']
+    readonly_fields = ['image_tag', 'subtotal', 'total_price']

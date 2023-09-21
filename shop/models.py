@@ -164,7 +164,7 @@ class Blog(models.Model):
 class ContactRequest(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(null=True, blank=True)
-    phone_number = models.CharField(max_length=9, validators=[validate_phone_length])
+    phone_number = models.CharField(max_length=12, validators=[validate_phone_length])
     message = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -196,9 +196,9 @@ class Item(models.Model):
 
 
 class Order(models.Model):
-    name = models.CharField(max_length=200, null=True, blank=True)
+    name = models.CharField(max_length=200)
     email = models.EmailField(null=True, blank=True)
-    phone = models.PositiveIntegerField(null=True, blank=True)
+    phone = models.CharField(max_length=12, validators=[validate_phone_length])
     
     class Meta:
         verbose_name = 'Buyurtma'
@@ -243,6 +243,10 @@ class OrderProductItem(models.Model):
     @property
     def subtotal(self):
         return self.price * self.quantity
+
+
+
+
 
 
 
