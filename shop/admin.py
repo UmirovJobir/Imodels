@@ -25,7 +25,7 @@ from .models import (
     Order,
     ProductVideo
 )
-from embed_video.admin import AdminVideoMixin, AdminVideoWidget
+from embed_video.admin import AdminVideoMixin
 
 
 @admin.register(ProductVideo)
@@ -85,7 +85,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
-    list_display = ['id', 'title', 'category_name', 'price', 'image_tag', 'status'] #description_short
+    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
     list_display_links = ['id', 'title']
     raw_id_fields = ['category']
     list_filter = [ProductFilter]
@@ -101,6 +101,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
             "fields": [
                 "related_configurator",
                 "title",
+                "order_by",
                 "description",
                 "category",
                 "price",

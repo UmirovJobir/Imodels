@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,16 +42,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'tinymce', #packages
+    #app
+    'account',
+    'shop',
+
+    #packages
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_spectacular',
+    'embed_video',
+    'tinymce',
     'nested_admin',
     'debug_toolbar',
     'django_filters',
     'django_cleanup',
-    'rest_framework',
-    'drf_spectacular',
-    'embed_video',
-
-    'shop', #app
 ]
 
 MIDDLEWARE = [
@@ -160,6 +165,7 @@ LANGUAGES = (
 
 LANGUAGE_CODE = 'uz'
 
+AUTH_USER_MODEL = 'account.CustomUser'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
 
@@ -186,8 +192,11 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    "DEFAULT_SCHEMA_CLASS": "imodels.autoschema.CustomAutoSchema",
+    # 'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'imodels.autoschema.CustomAutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 
@@ -216,4 +225,9 @@ JAZZMIN_SETTINGS = {
     "site_logo_classes": "img-circle",
     "site_icon": "img/imodels.jpg",
     "welcome_sign": "Welcome to the Imodels Admin Panel"
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
 }

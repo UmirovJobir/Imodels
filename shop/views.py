@@ -102,7 +102,6 @@ class SubCategoryView(ListAPIView):
     serializer_class = SubCategorySerializer
 
     def get_queryset(self):
-        print(Configurator.objects.all())
         queryset = Category.objects.all()
         return get_query_by_heard(self, queryset)
 
@@ -116,7 +115,7 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.filter(status="Visible").select_related('category')
+        queryset = Product.objects.filter(status="Visible").select_related('category').order_by('order_by')
         return get_query_by_heard(self, queryset)
 
     def get_serializer(self, *args, **kwargs):
@@ -129,7 +128,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.all().select_related('category')
+        queryset = Product.objects.all().select_related('category').order_by('order_by')
         return get_query_by_heard(self, queryset)
 
     def get_serializer(self, *args, **kwargs):

@@ -1,10 +1,9 @@
 from django.db import models
 from django.utils.html import mark_safe
-from django.contrib.auth.models import User
 
 from embed_video.fields import EmbedVideoField
 from tinymce import models as tinymce_models
-from .validators import validate_phone_length
+from account.validators import validate_phone_length
 
 
 def blog_image_directory_path(instance: "Blog", filename: str) -> str:
@@ -54,6 +53,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Visible')
+    order_by = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
