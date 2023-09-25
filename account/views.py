@@ -1,12 +1,12 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from .models import CustomUser
+from .models import User
 from .serializers import RegisterSerializer, CustomUserSerializer
 
 
 class RegisterView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
 

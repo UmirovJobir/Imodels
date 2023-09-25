@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.views import APIView
-from rest_framework import filters, status
+from rest_framework import filters, status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
@@ -249,6 +249,18 @@ class CartView(APIView):
 class OrderView(ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['customer'] = self.request.user
+        return context
+
+    def perform_create(self, serializer):
+        serializer.save(customer=self.request.user)
 
     # def create(self, request, *args, **kwargs):
     #     # Deserialize the request data using the OrderSerializer

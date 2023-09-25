@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
+from account.serializers import CustomUserSerializer
 from . import api
 from .models import (
     Category,
@@ -215,22 +216,36 @@ class OrderProductSerializer(serializers.ModelSerializer):
         fields = ['product', 'price', 'quantity', 'order_items']
 
 class OrderSerializer(serializers.ModelSerializer):
+    # customer = OrderProductSerializer()
     order_products = OrderProductSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'name', 'email', 'phone', 'order_products']
+        fields = ['id', 'order_products']
     
     @transaction.atomic
     def create(self, validated_data):
-        order_instance = Order.objects.create(
-                        name=validated_data['name'],
-                        email=validated_data['email'],
-                        phone=validated_data['phone'])
+        order_instance, created = Order.objects.get_or_create(customer=validated_data['customer'])
         order_products_data = validated_data.pop('order_products')
+
         for order_product_data in order_products_data:
             order_items_data = order_product_data.pop('order_items')
-            order_product = OrderProduct.objects.create(order=order_instance, **order_product_data)
+            order_product, created = OrderProduct.objects.get_or_create(
+                                                            product = order_product_data.get('product').id,
+                                                            order   = order_instance, 
+                                                                    **order_product_data)
+            if created==False:
+                order_product.price += order_product_data.get('price')
+                order_product.quantity += order_product_data.get('quantity')
+                order_product.save()
+
             for order_item_data in order_items_data:
-                OrderProductItem.objects.create(order_product=order_product, **order_item_data)
+                order_product_item, created = OrderProductItem.objects.get_or_create(
+                                                                        product       = order_product_data.get('product').id,
+                                                                        order_product = order_product,
+                                                                                        **order_item_data)
+                if created==False:
+                    order_product_item.price += order_item_data.get('price')
+                    order_product_item.quantity += order_product_item.get('quantity')
+                    order_product_item.save()
         return order_instance

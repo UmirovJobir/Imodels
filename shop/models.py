@@ -3,7 +3,8 @@ from django.utils.html import mark_safe
 
 from embed_video.fields import EmbedVideoField
 from tinymce import models as tinymce_models
-from account.validators import validate_phone_length
+from account.models import User
+from django.utils.translation import gettext_lazy as _
 
 
 def blog_image_directory_path(instance: "Blog", filename: str) -> str:
@@ -162,9 +163,9 @@ class Blog(models.Model):
 
 
 class ContactRequest(models.Model):
+    phone = models.CharField(_('Telefon raqam'), validators=[User.phone_regex], max_length=17, unique=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(null=True, blank=True)
-    phone_number = models.CharField(max_length=12, validators=[validate_phone_length])
     message = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -196,9 +197,7 @@ class Item(models.Model):
 
 
 class Order(models.Model):
-    name = models.CharField(max_length=200)
-    email = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=12, validators=[validate_phone_length])
+    customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='order')
     
     class Meta:
         verbose_name = 'Buyurtma'

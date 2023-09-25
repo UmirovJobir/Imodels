@@ -38,7 +38,7 @@ admin.site.register(Item)
 
 @admin.register(ContactRequest)
 class ContactRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'email', 'phone_number', 'message_short']
+    list_display = ['id', 'name', 'email', 'phone', 'message_short']
     list_display_links = ['id', 'name']
 
     def message_short(self, obj: ContactRequest) -> str:
@@ -125,7 +125,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
-    list_display = ['id', 'name']
-    list_display_links = ['id', 'name']
+    list_display = ['id', 'customer']
+    list_display_links = ['id', 'customer']
     readonly_fields = ['total_price']
     inlines = [OrderProductInline]

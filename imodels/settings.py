@@ -165,7 +165,7 @@ LANGUAGES = (
 
 LANGUAGE_CODE = 'uz'
 
-AUTH_USER_MODEL = 'account.CustomUser'
+AUTH_USER_MODEL = 'account.User'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
 
