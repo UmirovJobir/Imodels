@@ -125,7 +125,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
-    list_display = ['id', 'customer']
+    list_display = ['id', 'customer', 'total_price']
     list_display_links = ['id', 'customer']
     readonly_fields = ['total_price']
     inlines = [OrderProductInline]

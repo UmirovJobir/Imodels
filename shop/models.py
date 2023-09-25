@@ -98,9 +98,9 @@ class ProductVideo(models.Model):
     def __str__(self) -> str:
         return self.product.title
     
-    def video_tag(self):
-        return f'<iframe width="560" height="315" src="{self.video_link}" frameborder="0" allowfullscreen></iframe>'
-    video_tag.short_description = 'Video'
+    # def video_tag(self):
+    #     return f'<iframe width="560" height="315" src="{self.video_link}" frameborder="0" allowfullscreen></iframe>'
+    # video_tag.short_description = 'Video'
 
 
 class ExtraDescription(models.Model):
@@ -197,7 +197,7 @@ class Item(models.Model):
 
 
 class Order(models.Model):
-    customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='order')
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order')
     
     class Meta:
         verbose_name = 'Buyurtma'
