@@ -67,11 +67,12 @@ class BlogAdmin(TranslationAdmin):
 class CategoryAdmin(TranslationAdmin):
     list_display = ['id', 'name', 'parent']
     list_display_links = ['id', 'name']
-    inlines = [CategoryInline]
+    raw_id_fields = ['parent']
+    #inlines = [CategoryInline]
     list_filter = [CategoryFilter]
     fieldsets = [
         ("КАТЕГОРИЯ", {
-            "fields": ("name",),
+            "fields": ("parent", "name"),
             "classes":("collapse"),
             "description":"Родительская категория",
         }),
