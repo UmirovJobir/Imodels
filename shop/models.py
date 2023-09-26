@@ -89,8 +89,6 @@ class ProductImage(models.Model):
 class ProductVideo(models.Model):
     title = models.CharField(max_length=500, null=True, blank=True)
     description = tinymce_models.HTMLField(null=True, blank=True)
-    # video_link = models.CharField(max_length=800, null=True, blank=True)
-    # video_link = models.URLField(max_length=800, null=True, blank=True)
     video_link = EmbedVideoField(null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)

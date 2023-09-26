@@ -7,7 +7,7 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
-    _USER_ERROR_MESSAGE = "Bunday foydalanuvchi topilmadi"
+    _USER_ERROR_MESSAGE = "User not found"
     
     username = None
     phone = models.CharField(_('Telefon raqam'), validators=[phone_regex], max_length=17, unique=True)
@@ -22,6 +22,10 @@ class User(AbstractUser):
     
     objects = UserManager()
 
+    class Meta:
+        verbose_name = 'Foydalanuvchi'
+        verbose_name_plural = 'Foydalanuvchilar'
+
 
 class AuthSms(models.Model):
     _WRONG_SECURE_CODE = "Wrong security code"
@@ -32,3 +36,7 @@ class AuthSms(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user')
     secure_code = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Auth Sms"
+        verbose_name_plural = 'Auth Sms'
