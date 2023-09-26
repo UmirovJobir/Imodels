@@ -4,6 +4,7 @@ from django.utils.html import mark_safe
 from embed_video.fields import EmbedVideoField
 from tinymce import models as tinymce_models
 from account.models import User
+from account.validators import phone_regex
 from django.utils.translation import gettext_lazy as _
 
 
@@ -163,7 +164,7 @@ class Blog(models.Model):
 
 
 class ContactRequest(models.Model):
-    phone = models.CharField(_('Telefon raqam'), validators=[User.phone_regex], max_length=17, unique=True)
+    phone = models.CharField(_('Telefon raqam'), validators=[phone_regex], max_length=17, unique=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(null=True, blank=True)
     message = models.TextField(null=True, blank=True)

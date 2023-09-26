@@ -1,6 +1,7 @@
-from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 
-def validate_phone_length(value):
-    if len(value) != 12:
-        raise ValidationError('Phone number must be exactly 12 digits.')
+phone_regex = RegexValidator(
+                regex=r'^998[0-9]{2}[0-9]{7}$',
+                message="Faqat o'zbek raqamlarigina tasdiqlanadi"
+            )

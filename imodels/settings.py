@@ -13,6 +13,10 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
+from environs import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -135,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -230,4 +234,23 @@ JAZZMIN_SETTINGS = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
+}
+
+
+MYSERVICE = {
+    'telebot': {
+        'base_url': env.str('TELEBOT_URL'),
+        'token': env.str('TELEBOT_TOKEN'),
+        'chat_id': {
+            "chat_id_orders": env.str('TELEBOT_CHAT_ID_ORDERS'),
+            "chat_id_warnings": env.str('TELEBOT_CHAT_ID_WARNINGS'),
+        }
+    },
+    'sms_service': {
+        'base_url': env.str('SMS_URL'),
+        'email': env.str('SMS_EMAIL'),
+        'password': env.str('SMS_PASSWORD'),
+        'group': env.str('SMS_GROUP'),
+        'callback_url': env.str('SMS_CALLBACK_URL'),
+    }
 }
