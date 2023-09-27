@@ -7,7 +7,8 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
-    _USER_ERROR_MESSAGE = "User not found"
+    USER_ERROR_MESSAGE = "User not found"
+    PASSWORD_REST = "Password reset complete"
     
     username = None
     phone = models.CharField(_('Telefon raqam'), validators=[phone_regex], max_length=17, unique=True)
@@ -28,13 +29,14 @@ class User(AbstractUser):
 
 
 class AuthSms(models.Model):
-    _WRONG_SECURE_CODE = "Wrong security code"
-    _SECURE_CODE_EXPIRED = "Security code has expired"
-    _USER_ACTIVETED = "User activated"
-    _SECURE_CODE_RESENT = "The security code has been resent"
+    AUTH_VERIFY_CODE_TEXT = "Imodels web sahifasi uchun tasdiqlash kodi: {}"
+    WRONG_SECURE_CODE = "Wrong security code"
+    SECURE_CODE_EXPIRED = "Security code has expired"
+    USER_ACTIVETED = "User activated"
+    SECURE_CODE_RESENT = "The security code has been resent"
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user')
-    secure_code = models.PositiveIntegerField()
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='authsms')
+    secure_code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

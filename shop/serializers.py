@@ -201,7 +201,7 @@ class BlogSerializer(serializers.ModelSerializer):
 class ContactRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactRequest
-        fields = ['id', 'name', 'email', 'phone_number', 'message']
+        fields = ['id', 'name', 'email', 'phone', 'message']
 
 
 # Serializers related to Order

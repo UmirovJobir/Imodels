@@ -254,3 +254,5 @@ MYSERVICE = {
         'callback_url': env.str('SMS_CALLBACK_URL'),
     }
 }
+
+PASSWORD_RESET_TIMEOUT = 10800

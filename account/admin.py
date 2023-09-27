@@ -11,13 +11,14 @@ class SmsAdmin(admin.ModelAdmin):
 
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class UserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = User
-    readonly_fields = ("created_at",)
-    list_display = ("phone", "first_name", "is_staff", "is_active",)
-    list_filter = ("phone", "first_name", "is_staff", "is_active",)
+    readonly_fields = ["created_at"]
+    list_display_links = ["id", "phone"]
+    list_display = ["id", "phone", "first_name", "is_staff", "is_active"]
+    list_filter = ["phone", "first_name", "is_staff", "is_active"]
     fieldsets = (
         (None, {"fields": ("phone", "password", "first_name", "last_name", "created_at")}),
         ("Permissions", {"fields": ("is_staff", "is_active", "groups", "user_permissions")}),
@@ -31,5 +32,5 @@ class CustomUserAdmin(UserAdmin):
             )}
         ),
     )
-    search_fields = ("phone",)
-    ordering = ("phone",)
+    search_fields = ["phone"]
+    ordering = ["phone"]
