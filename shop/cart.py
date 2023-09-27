@@ -11,21 +11,19 @@ class Cart:
         self.cart = cart
 
 
-    def add(self, product, quantity=1, configurators:list=[], override_quantity=True):
+    def add(self, product, quantity=1, items:list=[], override_quantity=True):
         product_id = product.id
-
         if product_id not in self.cart:
             data = {}
-            if len(configurators)==0:
+            if len(items)==0:
                 data['id'] = product_id
                 data['quantity'] = quantity
                 self.cart.append(data)
             else:
                 data['id'] = product_id
                 data['quantity'] = quantity
-                data['configurators'] = configurators
+                data['items'] = items
                 self.cart.append(data)
-        
         self.save()
 
 

@@ -44,7 +44,7 @@ class ProductImageInline(NestedTabularInline):
     readonly_fields = ['image_tag']
 
 
-class ProductFeatureOptionsInline(NestedStackedInline):
+class ProductFeatureOptionsInline(NestedStackedInline, TranslationStackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }

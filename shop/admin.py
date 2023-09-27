@@ -23,12 +23,14 @@ from .models import (
     Type,
     Item,
     Order,
-    ProductVideo
+    ProductVideo,
+    ProductImage
 )
 from embed_video.admin import AdminVideoMixin
 
 
 @admin.register(ProductVideo)
+@admin.register(ProductImage)
 class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
     pass
 
@@ -100,7 +102,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
     fieldsets = [
         ("Продукт", {
             "fields": [
-                "related_configurator",
+                "related_product",
                 "title",
                 "order_by",
                 "description",

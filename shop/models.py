@@ -49,7 +49,7 @@ class Product(models.Model):
         ('Visible', 'Visible'),
         ('Invisible', 'Invisible'),
     )
-    related_configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
+    related_product = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
     description = tinymce_models.HTMLField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
@@ -67,7 +67,10 @@ class Product(models.Model):
         verbose_name_plural = 'Mahsulotlar'
     
     def image_tag(self):
-        first_image = self.product_images.all().first().image.url
+        try:
+            first_image = self.product_images.all().first().image.url
+        except AttributeError:
+            first_image = "/media/no-image.png"
         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
     image_tag.short_description = 'Image'
 
@@ -183,8 +186,8 @@ class Type(models.Model):
 
 class Item(models.Model):
     type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='configurators')
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='item')
+    item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='items')
     
 
     def image_tag(self):

@@ -3,6 +3,7 @@ from .models import (
     Category,
     Product,
     ProductVideo,
+    ProductFeatureOption,
     ExtraDescription,
     Description,
     Blog
@@ -22,6 +23,11 @@ class ProductTranslationOptions(TranslationOptions):
 @register(ProductVideo)
 class ProductVideoTranslationOptions(TranslationOptions):
     fields = ['title', 'description']
+
+
+@register(ProductFeatureOption)
+class ProductFeatureOptionTranslationOptions(TranslationOptions):
+    fields = ['feature']
 
 
 @register(ExtraDescription)

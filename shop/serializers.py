@@ -147,13 +147,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_description = ExtraDescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
-    configurators = ConfiguratorSerializer(many=True)
+    items = ConfiguratorSerializer(many=True)
     price = serializers.SerializerMethodField('get_price')
 
     class Meta:
         model = Product
         fields = ['id', 'category', 'title', 'description', 
-                  'price', 'related_configurator', 'configurators', 'product_images', 'product_video', 
+                  'price', 'related_product', 'items', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
     
@@ -185,7 +185,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     def get_price(self, obj):
         request = self.context['request']
-        currency = request.META.get('HTTP_CURRENCY')
+        currency = request.META.get('HTTP_CURRENCY', 'usd')
         price = api.get_currency(currency=currency, obj_price=obj.price)
         return price
 
@@ -249,3 +249,32 @@ class OrderSerializer(serializers.ModelSerializer):
         cart.clear()
 
         return order_instance
+    
+
+class CartItemSerilaizer(serializers.Serializer):
+    id = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+
+    class Meta:
+        fields = ['id', 'quantity']
+    
+    def validate(self, data):
+        if self.quantity < 1:
+            raise serializers.ValidationError("Quantity must be bigger than 0")
+        if self.id < 1 < 1:
+            raise serializers.ValidationError("Product must be bigger than 0")
+
+
+class CartProductSerilaizer(serializers.Serializer):
+    id = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+    items = CartItemSerilaizer(many=True)
+
+    class Meta:
+        fields = ['id', 'quantity', "items"]
+
+    def validate(self, data):
+        if self.quantity < 1:
+            raise serializers.ValidationError("Quantity must be bigger than 0")
+        if self.id < 1 < 1:
+            raise serializers.ValidationError("Product must be bigger than 0")

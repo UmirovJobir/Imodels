@@ -8,8 +8,11 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
+from drf_spectacular.types import OpenApiTypes
+
 from rest_framework.views import APIView
-from rest_framework import filters, status, permissions
+from rest_framework import filters, status, permissions, serializers
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
@@ -37,7 +40,8 @@ from .serializers import (
     ProductListSerializer,
     BlogSerializer,
     ContactRequestSerializer,
-    OrderSerializer
+    OrderSerializer,
+    CartProductSerilaizer
 )
 
 
@@ -90,6 +94,16 @@ def get_query_by_heard(self, queryset):
 
 
 # View related to Category
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="accept-language",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`uz` or `ru` or `en`. The default value is uz",
+        ),
+    ],
+)
 class CategoryView(ListAPIView):
     serializer_class = CategorySerializer
 
@@ -97,7 +111,16 @@ class CategoryView(ListAPIView):
         queryset = Category.objects.filter(parent__isnull=True)
         return get_query_by_heard(self, queryset)
 
-
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="accept-language",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`uz` or `ru` or `en`. The default value is uz",
+        ),
+    ],
+)
 class SubCategoryView(ListAPIView):
     serializer_class = SubCategorySerializer
 
@@ -107,6 +130,22 @@ class SubCategoryView(ListAPIView):
 
 
 # View related to Product
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="accept-language",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`uz` or `ru` or `en`. The default value is uz",
+        ),
+        OpenApiParameter(
+            name="currency",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`usd` or `eur` or `uzs`. The default value is usd",
+        ),
+    ],
+)
 class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
@@ -123,7 +162,22 @@ class ProductListAPIView(ListAPIView):
         serializer.context['request'] = self.request
         return serializer
 
-
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="accept-language",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`uz` or `ru` or `en`. The default value is uz",
+        ),
+        OpenApiParameter(
+            name="currency",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`usd` or `eur` or `uzs`. The default value is usd",
+        ),
+    ],
+)
 class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
 
@@ -153,20 +207,12 @@ class ContactRequestCreateView(CreateAPIView):
     serializer_class = ContactRequestSerializer
 
 
-#View related to Configurator
-class ConfiguratorAPIView(APIView):
-    def get(self, request):
-        configurators = Configurator.objects.all()
-        products = [configurator.product for configurator in configurators]
-        serializer = ConfiguratorProductNotPriceSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data)
-
-
 def index(request):
     products = Product.objects.all()
     return render(request, 'index.html', context={'products':products})
 
 
+#View related to Cart
 class CartView(APIView):
     def request_cart(self):
         currency = self.request.META.get('HTTP_CURRENCY')
@@ -178,7 +224,8 @@ class CartView(APIView):
         cart = Cart(self.request)
 
         for cart_product in cart.cart:
-            product = Product.objects.select_related('category', 'related_configurator').get(id=cart_product['id'])
+            product_queryset = Product.objects.select_related('category', 'related_product').get(id=cart_product['id'])
+            product =  get_query_by_heard(self, product_queryset)
             product_dict = {
                 "id": product.pk,
                 "price": api.get_currency(currency=currency, obj_price=product.price),
@@ -187,18 +234,19 @@ class CartView(APIView):
                 "quantity": cart_product['quantity']}
             total_cost += product_dict['price']
 
-            if cart_product.get('configurators'):
+            if cart_product.get('items'):
                 item_list = []
-                for configurator in cart_product.get('configurators'):
-                    item = Product.objects.select_related('category', 'related_configurator').get(id=configurator['id'])
-                    configurators = {
+                for items in cart_product.get('items'):
+                    item_queryset = Product.objects.select_related('category', 'related_product').get(id=items['id'])
+                    item =  get_query_by_heard(self, item_queryset)
+                    items = {
                         "id": item.pk,
                         "price": api.get_currency(currency=currency, obj_price=item.price),
                         "title": item.title,
                         "image": self.request.build_absolute_uri(item.product_images.all().first().image.url),
-                        "quantity": configurator['quantity'] * cart_product['quantity']}
-                    item_list.append(configurators)
-                    total_cost += configurators['price'] * configurators['quantity']
+                        "quantity": items['quantity'] * cart_product['quantity']}
+                    item_list.append(items)
+                    total_cost += items['price'] * items['quantity']
 
                 product_dict['items'] = item_list
             product_list.append(product_dict)
@@ -206,11 +254,31 @@ class CartView(APIView):
         return data
 
 
-
+    @extend_schema(
+        responses=CartProductSerilaizer,
+        parameters=[
+            OpenApiParameter(
+                name="accept-language",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                description="`uz` or `ru` or `en`. The default value is uz",
+            ),
+            OpenApiParameter(
+                name="currency",
+                type=str,
+                location=OpenApiParameter.HEADER,
+                description="`usd` or `eur` or `uzs`. The default value is usd",
+            ),
+        ],
+    )
     def get(self, request, *args, **kwargs):
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
+    @extend_schema(
+            request=CartProductSerilaizer,
+            responses=CartProductSerilaizer,
+    )
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
         data = request.data
@@ -221,31 +289,61 @@ class CartView(APIView):
                 if item['id']==data['id']:
                     item['quantity'] += data['quantity']
         else:
-            if request.data.get("configurators")==None:
+            if request.data.get("items")==None:
                 cart.add(product=product, quantity=data['quantity'])
             else:
-                cart.add(product=product, quantity=data['quantity'], configurators=request.data.get("configurators"))
+                cart.add(product=product, quantity=data['quantity'], items=request.data.get("items"))
         cart.save()
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
+    @extend_schema(
+        description="Delete a product with quantity from the cart by ID.",
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                required=True
+            ),
+            OpenApiParameter(
+                name="quantity",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                required=True
+            ),
+        ],
+    )
     def delete(self, request):
+        id = request.GET.get('id')
+        quantity = request.GET.get('quantity')
+
+        if id==None or quantity==None:
+            return Response({"error": "Id or quantity is not given"})
+
+        id = int(id)
+        quantity = int(quantity)
+
         cart = Cart(request)
-        if request.data['id'] not in [item['id'] for item in cart.cart]:
+        if id not in [item['id'] for item in cart.cart]:
             return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
         
-        product = get_object_or_404(Product, id=request.data['id'])
+        product = get_object_or_404(Product, id=id)
 
-        for item in cart.cart:
-            if item['id']==request.data['id']:
-                if item['quantity']==request.data['quantity'] or item['quantity']==request.data['quantity'] <= 1:
+        for items in cart.cart:
+            if items['id']==id:
+                if items['quantity']==quantity or items['quantity'] <= 1:
                     cart.remove(product)
                 else:
-                    item['quantity'] -= 1
+                    items['quantity'] -= 1
             cart.save()
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
+@extend_schema(
+        request=OrderSerializer,
+        responses=OrderSerializer,
+)
 class OrderView(ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -261,6 +359,12 @@ class OrderView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(customer=self.request.user)
+
+
+
+
+
+
 
     # def create(self, request, *args, **kwargs):
     #     # Deserialize the request data using the OrderSerializer
@@ -279,3 +383,5 @@ class OrderView(ListCreateAPIView):
     #             OrderProductItem.objects.create(order_product=order_product, **order_item_data)
 
     #     return Response(OrderSerializer(order, many=True).data, status=status.HTTP_201_CREATED)
+
+
