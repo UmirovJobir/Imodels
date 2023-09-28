@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
     #app
     'account',
-    'shop',
+    # 'shop',
 
     #packages
     'rest_framework',

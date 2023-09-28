@@ -31,6 +31,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'phone', 'first_name', 'last_name']
     
 
+class PhoneResetSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=17, validators=[phone_regex])
+
+    class Meta:
+        field = ["phone"]
+
 
 class PhoneRequestSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=17, validators=[phone_regex])
