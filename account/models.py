@@ -12,9 +12,6 @@ class User(AbstractUser):
     
     username = None
     phone = models.CharField(_('Telefon raqam'), validators=[phone_regex], max_length=17, unique=True)
-    eskiz_id = models.CharField(max_length=20, null=True, blank=True)
-    key = models.CharField(max_length=100, null=True, blank=False)
-    eskiz_code = models.CharField(max_length=6, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     
