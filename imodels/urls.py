@@ -22,7 +22,7 @@ from rest_framework import permissions
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-from shop.views import upload_image
+# from shop.views import upload_image
 
 
 urlpatterns = [   
@@ -32,12 +32,12 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
-    path('shop/', include('shop.urls')),
+    # path('shop/', include('shop.urls')),
 
     path('tinymce/', include('tinymce.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
     path('_nested_admin/', include('nested_admin.urls')),
-    path('upload_image/', upload_image, name="upload_image"),
+    # path('upload_image/', upload_image, name="upload_image"),
 
 ]
 

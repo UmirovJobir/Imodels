@@ -8,12 +8,15 @@ from django.utils.http import urlsafe_base64_encode
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+
 from libs.telegram import telebot
 from .utils import generate_code
 from .models import User, AuthSms
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
+    PhoneResetSerializer,
     PhoneRequestSerializer,
     ResetPasswordSerializer,
 )
@@ -41,10 +44,17 @@ class VerifyView(views.APIView):
             return Response({"detail": AuthSms.USER_ACTIVETED}, status=status.HTTP_202_ACCEPTED)
 
 
+@extend_schema(
+        request=PhoneResetSerializer,
+        responses={
+            200: OpenApiResponse(description="Created. New resource in response"),
+            404: OpenApiResponse(description="Not found"),
+        },
+)
 class ResendView(views.APIView):
     def post(self, request):
         user = get_object_or_404(User, phone=request.data.get('phone'))
-
+        
         auth_sms = user.authsms
         auth_sms.secure_code = generate_code()
         auth_sms.created_at = timezone.now()
@@ -55,7 +65,7 @@ class ResendView(views.APIView):
         return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
 
 
-class UserDetailView(generics.RetrieveUpdateAPIView):
+class UserDetailView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
@@ -87,6 +97,10 @@ class PasswordResetTokenAPI(generics.GenericAPIView):
         return Response({"token": f"{encoded_pk}/{token}"}, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+        request=PhoneResetSerializer,
+        responses="test",
+)
 class ResetPasswordAPI(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
 

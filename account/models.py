@@ -22,6 +22,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     class Meta:
+        db_table = 'auth_user'
         verbose_name = 'Foydalanuvchi'
         verbose_name_plural = 'Foydalanuvchilar'
 
