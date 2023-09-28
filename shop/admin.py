@@ -102,7 +102,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
     fieldsets = [
         ("Продукт", {
             "fields": [
-                "related_product",
+                "set_creator",
                 "title",
                 "order_by",
                 "description",

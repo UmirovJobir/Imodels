@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
@@ -54,7 +55,7 @@ class ResetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("token or encoded_pk is not given")
 
         pk = urlsafe_base64_decode(encoded_pk).decode()
-        user = User.objects.get(pk=pk)
+        user = get_object_or_404(User, pk=pk)
         if not PasswordResetTokenGenerator().check_token(user, token):
             raise serializers.ValidationError("The reset token is invalid")
 
