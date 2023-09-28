@@ -20,6 +20,6 @@ urlpatterns = [
     path("password-reset/<str:encoded_pk>/<str:token>/", ResetPasswordAPI.as_view(), name="password-reset"),
 
     path('user-detail/', UserDetailView.as_view(), name='user-detail'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

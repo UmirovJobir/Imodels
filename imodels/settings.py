@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
     #app
     'account',
-    # 'shop',
+    'shop',
 
     #packages
     'rest_framework',
@@ -164,9 +164,9 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 
 LANGUAGES = (
-    ('uz', _('Lotin')),
-    ('ru', _('Russian')),
-    ('en', _('English')),
+    ('uz', 'Lotin'),
+    ('ru', 'Russian'),
+    ('en', 'English'),
 )
 
 LANGUAGE_CODE = 'uz'
@@ -212,9 +212,8 @@ SPECTACULAR_SETTINGS = {
 
 
 CART_SESSION_ID = 'cart'
-# SESSION_COOKIE_AGE = 5
+SESSION_COOKIE_AGE = 86400
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-# SESSION_COOKIE_NAME = 'cart'
 
 
 TEMPLATE_CONTEXT_PROCESSORS = (
