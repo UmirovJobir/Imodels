@@ -12,32 +12,35 @@ from .admin_inlines import (
     ProductVideoInline,
     ExtraDescriptionInline,
     ProductFeatureInline,
-    ConfiguratorInline,
-    ConfiguratorCategoryInline,
-    CartItemInline,
-    OrderItemInline
+    ItemInline,
+    OrderProductInline
 )
 from .models import (
     Category,
     Product,
     Blog,
     ContactRequest,
-    Configurator,
-    Cart,
+    Type,
+    Item,
     Order,
+    ProductVideo,
+    ProductImage
 )
+from embed_video.admin import AdminVideoMixin
 
-@admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
-    list_display = ['id', 'total_price']
-    list_display_links = ['id', 'total_price']
-    inlines = [CartItemInline]
-    readonly_fields = ['total_price']
+
+@admin.register(ProductVideo)
+@admin.register(ProductImage)
+class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
+    pass
+
+admin.site.register(Type)
+admin.site.register(Item)
 
 
 @admin.register(ContactRequest)
 class ContactRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'email', 'phone_number', 'message_short']
+    list_display = ['id', 'name', 'email', 'phone', 'message_short']
     list_display_links = ['id', 'name']
 
     def message_short(self, obj: ContactRequest) -> str:
@@ -66,11 +69,12 @@ class BlogAdmin(TranslationAdmin):
 class CategoryAdmin(TranslationAdmin):
     list_display = ['id', 'name', 'parent']
     list_display_links = ['id', 'name']
-    inlines = [CategoryInline]
+    raw_id_fields = ['parent']
+    #inlines = [CategoryInline]
     list_filter = [CategoryFilter]
     fieldsets = [
         ("КАТЕГОРИЯ", {
-            "fields": ("name",),
+            "fields": ("parent", "name"),
             "classes":("collapse"),
             "description":"Родительская категория",
         }),
@@ -84,7 +88,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
-    list_display = ['id', 'title', 'category_name', 'price', 'image_tag'] #description_short
+    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
     list_display_links = ['id', 'title']
     raw_id_fields = ['category']
     list_filter = [ProductFilter]
@@ -93,11 +97,19 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         ProductVideoInline,
         ExtraDescriptionInline,
         ProductFeatureInline,
-        ConfiguratorInline
+        ItemInline
     ]
     fieldsets = [
         ("Продукт", {
-            "fields": ["related_configurator", "title", "description", "category", "price"],
+            "fields": [
+                "related_product",
+                "title",
+                "order_by",
+                "description",
+                "category",
+                "price",
+                "status"
+            ],
             "classes": ["wide"],
         }),
     ]
@@ -113,24 +125,10 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
             return obj.description[:48] + "..."
 
 
-@admin.register(Configurator)
-class ConfiguratorAdmin(NestedModelAdmin):
-    list_display = ['id', 'conf_title', 'conf_image', 'image_tag']
-    list_display_links = ['id', 'conf_title']
-    raw_id_fields = ['product']
-    readonly_fields = ['image_tag', 'product_image_tag']
-    inlines = [ConfiguratorCategoryInline]
-
-    fieldsets = [
-        ("Configurator", {
-            "fields": ['conf_title', 'conf_image', 'image_tag', 'product', 'product_image_tag'],
-        }),
-    ]
-
 
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
-    list_display = ['id', 'name']
-    list_display_links = ['id', 'name']
+    list_display = ['id', 'customer', 'total_price']
+    list_display_links = ['id', 'customer']
     readonly_fields = ['total_price']
-    inlines = [OrderItemInline]
+    inlines = [OrderProductInline]

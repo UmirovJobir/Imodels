@@ -11,7 +11,12 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
+from environs import Env
+
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +37,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # 'jazzmin',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,15 +46,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'tinymce', #packages
+    #app
+    'account',
+    'shop',
+
+    #packages
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_spectacular',
+    'embed_video',
+    'tinymce',
     'nested_admin',
     'debug_toolbar',
     'django_filters',
     'django_cleanup',
-    'rest_framework',
-    'drf_spectacular',
-
-    'shop', #app
 ]
 
 MIDDLEWARE = [
@@ -86,23 +97,23 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
-#    'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('POSTGRES_DB'), 
-#         'USER': os.environ.get('POSTGRES_USER'), 
-#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-#         'HOST': os.environ.get('POSTGRES_HOST'),    
-#         'PORT': os.environ.get('POSTGRES_PORT')
-#    }
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
 # }
+
+DATABASES = {
+   'default': {
+        'ENGINE': env.str('POSTGRES_ENGINE'),
+        'NAME': env.str('POSTGRES_DB'), 
+        'USER': env.str('POSTGRES_USER'), 
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST'),    
+        'PORT': env.str('POSTGRES_PORT')
+   }
+}
 
 
 # Password validation
@@ -128,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -154,14 +165,11 @@ LANGUAGES = (
     ('uz', _('Lotin')),
     ('ru', _('Russian')),
     ('en', _('English')),
-    # ('kk', _('Cyrillic')),
 )
 
 LANGUAGE_CODE = 'uz'
 
-# MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
-# MODELTRANSLATION_LANGUAGES = ('uz','en','ru')
-
+AUTH_USER_MODEL = 'account.User'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
 
@@ -189,7 +197,9 @@ TINYMCE_DEFAULT_CONFIG = {
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    "DEFAULT_SCHEMA_CLASS": "imodels.autoschema.CustomAutoSchema",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 
@@ -202,3 +212,49 @@ SPECTACULAR_SETTINGS = {
 
 
 CART_SESSION_ID = 'cart'
+# SESSION_COOKIE_AGE = 5
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_COOKIE_NAME = 'cart'
+
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.template.context_processors.request',
+)
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Imodels Admin Panel",
+    "site_header": "Imodels",
+    "site_brand": "Imodels",
+    "site_logo": "img/imodels.jpg",
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": "img/imodels.jpg",
+    "welcome_sign": "Welcome to the Imodels Admin Panel"
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
+}
+
+
+MYSERVICE = {
+    'telebot': {
+        'base_url': env.str('TELEBOT_URL'),
+        'token': env.str('TELEBOT_TOKEN'),
+        'chat_id': {
+            "chat_id_orders": env.str('TELEBOT_CHAT_ID_ORDERS'),
+            "chat_id_warnings": env.str('TELEBOT_CHAT_ID_WARNINGS'),
+        }
+    },
+    'sms_service': {
+        'base_url': env.str('SMS_URL'),
+        'email': env.str('SMS_EMAIL'),
+        'password': env.str('SMS_PASSWORD'),
+        'group': env.str('SMS_GROUP'),
+        'callback_url': env.str('SMS_CALLBACK_URL'),
+    }
+}
+
+PASSWORD_RESET_TIMEOUT = 10800

@@ -1,0 +1,47 @@
+version: '3.3'
+
+services:
+  app:
+    restart: always
+    container_name: django
+    build: .
+    command: 
+      - gunicorn 
+      - imodels.wsgi:application 
+      - --bind
+      - 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgdb
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
+  pgdb:
+    restart: always
+    image: postgres:latest
+    container_name: pgdb
+    environment:
+      - POSTGRES_DB=Imodels
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  pgadmin:
+      restart: always
+      image: dpage/pgadmin4:latest
+      container_name: pgadmin
+      depends_on:
+        - pgdb
+      environment:
+        PGADMIN_DEFAULT_EMAIL: jobirumirovmoliya@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: pgadmin
+      ports:
+        - "80:80"
+
+
