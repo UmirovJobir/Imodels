@@ -21,7 +21,7 @@ services:
 
   pgdb:
     restart: always
-    image: postgres:latest
+    image: postgres:15-alpine
     container_name: pgdb
     environment:
       - POSTGRES_DB=Imodels
