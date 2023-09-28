@@ -42,6 +42,6 @@ services:
         PGADMIN_DEFAULT_EMAIL: jobirumirovmoliya@gmail.com
         PGADMIN_DEFAULT_PASSWORD: pgadmin
       ports:
-        - "1334:1334"
+        - "8080:80"
 
 
