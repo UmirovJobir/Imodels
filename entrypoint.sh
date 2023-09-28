@@ -16,7 +16,8 @@ sleep 2
 echo "Apply database migrations"
 python3 manage.py makemigrations
 python3 manage.py migrate account
+python3 manage.py migrate shop
+python3 manage.py migrate
 
-# python3 manage.py runserver --insecure 0.0.0.0:8000
 
 exec "$@"
