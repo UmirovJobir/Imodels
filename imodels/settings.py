@@ -97,23 +97,23 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
-#    'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': os.environ.get('POSTGRES_DB'), 
-#         'USER': os.environ.get('POSTGRES_USER'), 
-#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-#         'HOST': os.environ.get('POSTGRES_HOST'),    
-#         'PORT': os.environ.get('POSTGRES_PORT')
-#    }
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
 # }
+
+DATABASES = {
+   'default': {
+        'ENGINE': env.str('POSTGRES_ENGINE'),
+        'NAME': env.str('POSTGRES_DB'), 
+        'USER': env.str('POSTGRES_USER'), 
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST'),    
+        'PORT': env.str('POSTGRES_PORT')
+   }
+}
 
 
 # Password validation
@@ -197,7 +197,6 @@ TINYMCE_DEFAULT_CONFIG = {
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    # 'DEFAULT_SCHEMA_CLASS': 'imodels.autoschema.CustomAutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
@@ -213,6 +212,9 @@ SPECTACULAR_SETTINGS = {
 
 
 CART_SESSION_ID = 'cart'
+# SESSION_COOKIE_AGE = 5
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_COOKIE_NAME = 'cart'
 
 
 TEMPLATE_CONTEXT_PROCESSORS = (

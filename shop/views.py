@@ -31,14 +31,15 @@ from .models import (
     ContactRequest,
     Order,
     OrderProduct,
-    OrderProductItem
+    OrderProductItem,
 )
 from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
     ProductDetailSerializer,
     ProductListSerializer,
-    BlogSerializer,
+    BlogListSerializer,
+    BlogDetailSerializer,
     ContactRequestSerializer,
     OrderSerializer,
     CartProductSerilaizer
@@ -192,13 +193,43 @@ class ProductRetrieveAPIView(RetrieveAPIView):
 
 
 # View related to Blog
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="accept-language",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`uz` or `ru` or `en`. The default value is uz",
+        ),
+    ],
+)
 class BlogView(ListAPIView):
     pagination_class = CustomPageNumberPagination
-    serializer_class = BlogSerializer
+    serializer_class = BlogListSerializer
 
     def get_queryset(self, *args, **kwargs):
         queryset = Blog.objects.all()
         return get_query_by_heard(self, queryset)
+    
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="accept-language",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="`uz` or `ru` or `en`. The default value is uz",
+        ),
+    ],
+    responses=BlogDetailSerializer
+)
+class BlogDetailView(RetrieveAPIView):
+    serializer_class = BlogDetailSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = Blog.objects.all()
+        return get_query_by_heard(self, queryset)
+
 
 
 # View related to ContactRequest
@@ -212,7 +243,7 @@ def index(request):
     return render(request, 'index.html', context={'products':products})
 
 
-#View related to Cart
+# View related to Cart
 class CartView(APIView):
     def request_cart(self):
         currency = self.request.META.get('HTTP_CURRENCY')
@@ -272,6 +303,8 @@ class CartView(APIView):
         ],
     )
     def get(self, request, *args, **kwargs):
+        cart = Cart(request)
+        # return Response(list(cart.__iter__(request)), status=status.HTTP_200_OK)
         return Response(self.request_cart(), status=status.HTTP_200_OK)
 
 
@@ -383,5 +416,4 @@ class OrderView(ListCreateAPIView):
     #             OrderProductItem.objects.create(order_product=order_product, **order_item_data)
 
     #     return Response(OrderSerializer(order, many=True).data, status=status.HTTP_201_CREATED)
-
 

@@ -5,6 +5,7 @@ from .views import (
     CategoryView,
     SubCategoryView,
     BlogView,
+    BlogDetailView,
     ContactRequestCreateView,
     CartView,
     OrderView,
@@ -19,7 +20,8 @@ urlpatterns = [
     path('categories/', CategoryView.as_view(), name='categories'),
     path('subcategories/', SubCategoryView.as_view(), name='categories'),
     
-    path('blog/', BlogView.as_view(), name='blog'),
+    path('blog/', BlogView.as_view(), name='blogs'),
+    path('blog/<int:pk>/', BlogDetailView.as_view(), name='blog'),
     
     path('contact/', ContactRequestCreateView.as_view(), name='contact'),
     path('cart/', CartView.as_view(), name='cart'),

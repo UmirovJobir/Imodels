@@ -52,7 +52,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 # Serializers related to Configurator
-class ItemSerializer(serializers.ModelSerializer):
+class ItemDetailSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
 
@@ -65,7 +65,7 @@ class ItemSerializer(serializers.ModelSerializer):
     
     def get_price(self, obj):
         request = self.context['request']
-        currency = request.META.get('HTTP_CURRENCY')
+        currency = request.META.get('HTTP_CURRENCY', 'usd')
         if currency=='uzs':
             kurs = api.get_usd_currency()
             price = round(obj.price * kurs, 2)
@@ -84,8 +84,8 @@ class TypeSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class ConfiguratorSerializer(serializers.ModelSerializer):
-    product = ItemSerializer()
+class ItemSerializer(serializers.ModelSerializer):
+    product = ItemDetailSerializer()
     type = TypeSerializer()
 
     class Meta:
@@ -147,19 +147,19 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_description = ExtraDescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
-    items = ConfiguratorSerializer(many=True)
+    items = ItemSerializer(many=True)
     price = serializers.SerializerMethodField('get_price')
 
     class Meta:
         model = Product
         fields = ['id', 'category', 'title', 'description', 
-                  'price', 'related_product', 'items', 'product_images', 'product_video', 
+                  'price', 'set_creator', 'items', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
     
     def get_price(self, obj):
         request = self.context['request']
-        currency = request.META.get('HTTP_CURRENCY')
+        currency = request.META.get('HTTP_CURRENCY', 'usd')
         if currency=='uzs':
             kurs = api.get_usd_currency()
             price = round(obj.price * kurs, 2)
@@ -191,10 +191,16 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 
 # Serializers related to Blog
-class BlogSerializer(serializers.ModelSerializer):
+class BlogListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
-        fields = ['id', 'preview_image', 'title', 'text']
+        fields = ['id', 'preview_image', 'title', 'created_at']
+
+
+class BlogDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blog
+        fields = ['id', 'preview_image', 'title', 'text', 'created_at']
 
 
 # Serializers related to ContactRequest
@@ -252,29 +258,21 @@ class OrderSerializer(serializers.ModelSerializer):
     
 
 class CartItemSerilaizer(serializers.Serializer):
-    id = serializers.IntegerField()
+    product_id = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
     class Meta:
         fields = ['id', 'quantity']
     
-    def validate(self, data):
-        if self.quantity < 1:
-            raise serializers.ValidationError("Quantity must be bigger than 0")
-        if self.id < 1 < 1:
-            raise serializers.ValidationError("Product must be bigger than 0")
 
 
 class CartProductSerilaizer(serializers.Serializer):
-    id = serializers.IntegerField()
+    product_id = serializers.IntegerField()
     quantity = serializers.IntegerField()
-    items = CartItemSerilaizer(many=True)
+    items = CartItemSerilaizer(many=True, required=False, allow_null=True)
 
     class Meta:
         fields = ['id', 'quantity', "items"]
 
-    def validate(self, data):
-        if self.quantity < 1:
-            raise serializers.ValidationError("Quantity must be bigger than 0")
-        if self.id < 1 < 1:
-            raise serializers.ValidationError("Product must be bigger than 0")
+
+
