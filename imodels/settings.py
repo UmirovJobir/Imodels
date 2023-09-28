@@ -134,6 +134,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'account.User'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -168,8 +170,6 @@ LANGUAGES = (
 )
 
 LANGUAGE_CODE = 'uz'
-
-AUTH_USER_MODEL = 'account.User'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
 

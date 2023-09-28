@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from .validators import phone_regex
 from .managers import UserManager
 
+# from django.contrib.auth.models import User
 
 class User(AbstractUser):
     USER_ERROR_MESSAGE = "User not found"

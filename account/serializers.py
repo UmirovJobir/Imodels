@@ -40,7 +40,7 @@ class PhoneRequestSerializer(serializers.Serializer):
         field = ["phone", "secure_code"]
 
 
-class ResetPasswordSerializer(serializers.Serializer):
+class ResetPasswordSerializer(serializers.Serializer):  
     password = serializers.CharField(write_only=True, min_length=1)
 
     class Meta:
