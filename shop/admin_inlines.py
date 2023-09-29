@@ -87,6 +87,7 @@ class ItemInline(NestedTabularInline):
     fk_name = 'item'
     raw_id_fields = ['type', 'product']
     readonly_fields = ['price', 'image_tag']
+    classes = ['collapse']
 
 
 class OrderItemInline(NestedTabularInline):

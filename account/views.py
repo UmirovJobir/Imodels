@@ -27,7 +27,13 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
 
-class VerifyView(views.APIView):
+@extend_schema(
+        request=PhoneRequestSerializer,
+        responses={
+            200: OpenApiResponse(description="User activated")
+        },
+)
+class ConfirmView(views.APIView):
     def post(self, request):
         user = get_object_or_404(User, phone=request.data.get('phone'))
         auth_sms = user.authsms

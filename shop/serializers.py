@@ -258,7 +258,7 @@ class OrderSerializer(serializers.ModelSerializer):
     
 
 class CartItemSerilaizer(serializers.Serializer):
-    product_id = serializers.IntegerField()
+    id = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
     class Meta:
@@ -267,12 +267,18 @@ class CartItemSerilaizer(serializers.Serializer):
 
 
 class CartProductSerilaizer(serializers.Serializer):
-    product_id = serializers.IntegerField()
+    id = serializers.IntegerField()
     quantity = serializers.IntegerField()
     items = CartItemSerilaizer(many=True, required=False, allow_null=True)
 
     class Meta:
         fields = ['id', 'quantity', "items"]
 
-
-
+    # def validate(self, data):
+    #     id = data.get('id')
+    #     quantity = data.get('quantity')
+    #     items = data.get('items')
+        
+    #     print
+    #     if items==None and quantity < 1:
+    #         raise serializers.ValidationError("field1 cannot be greater than field2")

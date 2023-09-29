@@ -13,7 +13,9 @@ from .admin_inlines import (
     ExtraDescriptionInline,
     ProductFeatureInline,
     ItemInline,
-    OrderProductInline
+    OrderProductInline,
+    ExtraDescImageInline,
+    DescriptionInline
 )
 from .models import (
     Category,
@@ -24,18 +26,28 @@ from .models import (
     Item,
     Order,
     ProductVideo,
-    ProductImage
+    ProductImage,
+    ExtraDescription,
+    Description
 )
 from embed_video.admin import AdminVideoMixin
 
 
-@admin.register(ProductVideo)
-@admin.register(ProductImage)
-class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
-    pass
+
+@admin.register(ExtraDescription)
+class ExtraDescriptionAdmin(TranslationAdmin, NestedModelAdmin):
+    inlines = [ExtraDescImageInline, DescriptionInline]
+
+    class Media:
+        js = ('js/tinymce_setup.js', '/static/tiny_mce/textareas.js')
+
 
 admin.site.register(Type)
 admin.site.register(Item)
+
+@admin.register(ProductVideo)
+class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
+    pass
 
 
 @admin.register(ContactRequest)
@@ -67,8 +79,8 @@ class BlogAdmin(TranslationAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(TranslationAdmin):
-    list_display = ['id', 'name', 'parent']
-    list_display_links = ['id', 'name']
+    list_display = ['id', 'name_uz', 'name_ru', 'name_en', 'parent']
+    list_display_links = ['id', 'name_uz']
     raw_id_fields = ['parent']
     #inlines = [CategoryInline]
     list_filter = [CategoryFilter]
@@ -88,9 +100,10 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
+    list_per_page = 20
     list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
     list_display_links = ['id', 'title']
-    raw_id_fields = ['category']
+    raw_id_fields = ['category', 'set_creator']
     list_filter = [ProductFilter]
     inlines = [
         ProductImageInline,
@@ -124,6 +137,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         else:
             return obj.description[:48] + "..."
 
+    class Media:
+        js = ('js/tinymce_setup.js',)
 
 
 @admin.register(Order)

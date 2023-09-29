@@ -70,3 +70,4 @@ class Cart:
     def clear(self):
         del self.session[settings.CART_SESSION_ID]
         self.save()
+
