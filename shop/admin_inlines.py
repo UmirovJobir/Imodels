@@ -77,7 +77,7 @@ class ExtraDescriptionInline(NestedStackedInline, TranslationStackedInline):
     }
     extra = 0
     model = ExtraDescription
-    inlines = [ExtraDescImageInline, DescriptionInline]
+    inlines = [ExtraDescImageInline] #, DescriptionInline]
     classes = ['collapse']
 
 
