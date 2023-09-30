@@ -95,6 +95,7 @@ def get_query_by_heard(self, queryset):
 
 # View related to Category
 @extend_schema(
+    tags=["Category"],
     parameters=[
         OpenApiParameter(
             name="accept-language",
@@ -112,6 +113,7 @@ class CategoryView(ListAPIView):
         return get_query_by_heard(self, queryset)
 
 @extend_schema(
+    tags=["Category"],
     parameters=[
         OpenApiParameter(
             name="accept-language",
@@ -131,6 +133,7 @@ class SubCategoryView(ListAPIView):
 
 # View related to Product
 @extend_schema(
+    tags=["Product"],
     parameters=[
         OpenApiParameter(
             name="accept-language",
@@ -154,7 +157,7 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.filter(status="Visible").select_related('category').order_by('order_by')
+        queryset = Product.objects.filter(status="Visible").select_related('category', 'set_creator').order_by('order_by')
         return get_query_by_heard(self, queryset)
 
     def get_serializer(self, *args, **kwargs):
@@ -163,6 +166,7 @@ class ProductListAPIView(ListAPIView):
         return serializer
 
 @extend_schema(
+    tags=["Product"],
     parameters=[
         OpenApiParameter(
             name="accept-language",
@@ -182,7 +186,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.all().select_related('category').order_by('order_by')
+        queryset = Product.objects.all().select_related('category', 'set_creator').order_by('order_by')
         return get_query_by_heard(self, queryset)
 
     def get_serializer(self, *args, **kwargs):
@@ -193,6 +197,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
 
 # View related to Blog
 @extend_schema(
+    tags=["Blog"],
     parameters=[
         OpenApiParameter(
             name="accept-language",
@@ -212,6 +217,7 @@ class BlogView(ListAPIView):
     
 
 @extend_schema(
+    tags=["Blog"],
     parameters=[
         OpenApiParameter(
             name="accept-language",
@@ -232,6 +238,7 @@ class BlogDetailView(RetrieveAPIView):
 
 
 # View related to ContactRequest
+@extend_schema(tags=["Contact"])
 class ContactRequestCreateView(CreateAPIView):
     queryset = ContactRequest.objects.all()
     serializer_class = ContactRequestSerializer
@@ -243,6 +250,7 @@ def index(request):
 
 
 # View related to Cart
+@extend_schema(tags=["Cart"])
 class CartView(APIView):
     def request_cart(self):
         currency = self.request.META.get('HTTP_CURRENCY')
@@ -254,7 +262,7 @@ class CartView(APIView):
         cart = Cart(self.request)
 
         for cart_product in cart.cart:
-            product_queryset = Product.objects.select_related('category', 'related_product').get(id=cart_product['id'])
+            product_queryset = Product.objects.select_related('category', 'set_creator').get(id=cart_product['id'])
             product =  get_query_by_heard(self, product_queryset)
             product_dict = {
                 "id": product.pk,
@@ -267,7 +275,7 @@ class CartView(APIView):
             if cart_product.get('items'):
                 item_list = []
                 for items in cart_product.get('items'):
-                    item_queryset = Product.objects.select_related('category', 'related_product').get(id=items['id'])
+                    item_queryset = Product.objects.select_related('category', 'set_creator').get(id=items['id'])
                     item =  get_query_by_heard(self, item_queryset)
                     items = {
                         "id": item.pk,
@@ -373,8 +381,9 @@ class CartView(APIView):
 
 
 @extend_schema(
-        request=OrderSerializer,
-        responses=OrderSerializer,
+    tags=["Order"],
+    request=OrderSerializer,
+    responses=OrderSerializer,
 )
 class OrderView(ListCreateAPIView):
     queryset = Order.objects.all()
