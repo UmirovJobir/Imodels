@@ -45,7 +45,7 @@ class Product(models.Model):
     
     def image_tag(self):
         try:
-            first_image = self.product_images.all().first().image.url
+            first_image = self.product_images.first().image.url
         except AttributeError:
             first_image = "/media/no-image.png"
         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))

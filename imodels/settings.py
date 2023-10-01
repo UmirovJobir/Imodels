@@ -34,8 +34,11 @@ DEBUG = env.bool('DEBUG')
 ALLOWED_HOSTS = ['jobir.uz', '37.140.241.70', 'localhost', '127.0.0.1',]
 
 
-# Application definition
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
+# Application definition
 INSTALLED_APPS = [
     # 'jazzmin',
     'modeltranslation',
