@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'shop',
 
     #packages
+    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_spectacular',
@@ -66,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware', #debug_toolbar
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware', #cors
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -257,3 +259,12 @@ MYSERVICE = {
 }
 
 PASSWORD_RESET_TIMEOUT = 10800
+
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+CORS_ALLOWED_ORIGINS = [
+    "http://jobir.com",
+    "https://jobir.com",
+    "http://localhost:8080",
+    "http://127.0.0.1:9000"
+    ]
