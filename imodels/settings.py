@@ -178,6 +178,8 @@ LANGUAGE_CODE = 'uz'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
 
+# TINYMCE_SPELLCHECKER = True
+# TINYMCE_COMPRESSOR = True
 TINYMCE_DEFAULT_CONFIG = {
     'custom_undo_redo_levels': 100,
     'selector': 'textarea',
