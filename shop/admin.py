@@ -35,7 +35,7 @@ from embed_video.admin import AdminVideoMixin
 
 
 @admin.register(ExtraDescription)
-class ExtraDescriptionAdmin(TranslationAdmin, NestedModelAdmin):
+class ExtraDescriptionAdmin(TranslationAdmin):
     inlines = [ExtraDescImageInline, DescriptionInline]
 
 
@@ -91,7 +91,7 @@ class CategoryAdmin(TranslationAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(TranslationAdmin, NestedModelAdmin):
+class ProductAdmin(TranslationAdmin, admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': TinyMCE(attrs={'cols': 130, 'rows': 20})},
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
@@ -137,7 +137,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
 
 
 @admin.register(Order)
-class OrderAdmin(NestedModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'customer', 'total_price']
     list_display_links = ['id', 'customer']
     readonly_fields = ['total_price']
