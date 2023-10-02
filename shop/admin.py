@@ -38,9 +38,6 @@ from embed_video.admin import AdminVideoMixin
 class ExtraDescriptionAdmin(TranslationAdmin, NestedModelAdmin):
     inlines = [ExtraDescImageInline, DescriptionInline]
 
-    class Media:
-        js = ('js/tinymce_setup.js', '/static/tiny_mce/textareas.js')
-
 
 admin.site.register(Type)
 admin.site.register(Item)
@@ -137,8 +134,6 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin):
         else:
             return obj.description[:48] + "..."
 
-    class Media:
-        js = ('js/tinymce_setup.js',)
 
 
 @admin.register(Order)
