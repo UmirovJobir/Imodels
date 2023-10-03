@@ -27,7 +27,7 @@ class CategoryInline(TranslationTabularInline):
     verbose_name_plural = "Подкатегории"
 
 
-class ProductVideoInline(TranslationStackedInline, admin.StackedInline):
+class ProductVideoInline(TranslationStackedInline, NestedStackedInline): #admin.StackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -37,14 +37,14 @@ class ProductVideoInline(TranslationStackedInline, admin.StackedInline):
     # readonly_fields = ['video_tag']
 
 
-class ProductImageInline(admin.TabularInline):
+class ProductImageInline(NestedTabularInline): #admin.TabularInline):
     extra = 1
     model = ProductImage
     classes = ['collapse']
     # readonly_fields = ['image_tag']
 
 
-class ProductFeatureOptionsInline(TranslationStackedInline, admin.StackedInline):
+class ProductFeatureOptionsInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -52,7 +52,7 @@ class ProductFeatureOptionsInline(TranslationStackedInline, admin.StackedInline)
     model = ProductFeatureOption
 
 
-class ProductFeatureInline(admin.TabularInline):
+class ProductFeatureInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = ProductFeature
     inlines = [ProductFeatureOptionsInline]
@@ -65,13 +65,13 @@ class DescriptionInline(TranslationTabularInline, admin.TabularInline):
     model = Description
 
 
-class ExtraDescImageInline(admin.TabularInline):
+class ExtraDescImageInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = ExtraDescImage
     readonly_fields = ['image_tag']
 
 
-class ExtraDescriptionInline(TranslationStackedInline, admin.StackedInline):
+class ExtraDescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -81,7 +81,7 @@ class ExtraDescriptionInline(TranslationStackedInline, admin.StackedInline):
     classes = ['collapse']
 
 
-class ItemInline(admin.TabularInline):
+class ItemInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = Item
     fk_name = 'item'
@@ -90,14 +90,14 @@ class ItemInline(admin.TabularInline):
     classes = ['collapse']
 
 
-class OrderItemInline(admin.TabularInline):
+class OrderItemInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = OrderProductItem
     raw_id_fields = ['product']
     readonly_fields = ['image_tag', 'subtotal']
 
 
-class OrderProductInline(admin.TabularInline):
+class OrderProductInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = OrderProduct
     inlines = [OrderItemInline]

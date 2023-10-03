@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'embed_video',
     'tinymce',
-    # 'nested_admin',
+    'nested_admin',
     'debug_toolbar',
     'django_filters',
     'django_cleanup',

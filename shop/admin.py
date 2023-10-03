@@ -91,7 +91,7 @@ class CategoryAdmin(TranslationAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(TranslationAdmin, admin.ModelAdmin):
+class ProductAdmin(TranslationAdmin, NestedModelAdmin): #, admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': TinyMCE(attrs={'cols': 130, 'rows': 20})},
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
