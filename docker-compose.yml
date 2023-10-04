@@ -17,7 +17,8 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/app
+       - media:/src/media/
+       - static:/src/static/
 
   pgdb:
     restart: always
@@ -44,4 +45,8 @@ services:
       ports:
         - "8080:80"
 
+volumes:
+  pgdb:
+  media:
+  static:
 
