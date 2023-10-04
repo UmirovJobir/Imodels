@@ -38,10 +38,10 @@ class ProductVideoInline(TranslationStackedInline, NestedStackedInline): #admin.
 
 
 class ProductImageInline(NestedTabularInline): #admin.TabularInline):
-    extra = 1
+    extra = 0
     model = ProductImage
     classes = ['collapse']
-    # readonly_fields = ['image_tag']
+    readonly_fields = ['image_tag']
 
 
 class ProductFeatureOptionsInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
