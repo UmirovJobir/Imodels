@@ -403,10 +403,6 @@ class OrderView(ListCreateAPIView):
 
 
 
-
-
-
-
     # def create(self, request, *args, **kwargs):
     #     # Deserialize the request data using the OrderSerializer
     #     serializer = self.get_serializer(data=request.data)
