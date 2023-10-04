@@ -17,8 +17,8 @@ services:
     env_file:
       - .env
     volumes:
-       - media:/src/media/
-       - static:/src/static/
+       - media:/usr/src/app/media
+       - static:/usr/src/app/static/
 
   pgdb:
     restart: always
