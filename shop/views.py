@@ -110,7 +110,9 @@ class CategoryView(ListAPIView):
 
     def get_queryset(self):
         queryset = Category.objects.filter(parent__isnull=True)
-        return get_query_by_heard(self, queryset)
+        print(queryset.values('name'))
+        return queryset
+        # return get_query_by_heard(self, queryset)
 
 @extend_schema(
     tags=["Category"],
@@ -243,11 +245,6 @@ class BlogDetailView(RetrieveAPIView):
 class ContactRequestCreateView(CreateAPIView):
     queryset = ContactRequest.objects.all()
     serializer_class = ContactRequestSerializer
-
-
-def index(request):
-    products = Product.objects.all()
-    return render(request, 'index.html', context={'products':products})
 
 
 # View related to Cart

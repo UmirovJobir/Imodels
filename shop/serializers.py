@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from .translation import get_full_value
 # from account.serializers import UserSerializer
 from . import api
 from .cart import Cart
@@ -23,9 +24,11 @@ from .models import (
     OrderProductItem,
 )
 
+
 # Serializers related to Category
 class SubCategorySerializer(serializers.ModelSerializer):
     count = serializers.SerializerMethodField('get_product_count')
+    name = serializers.SerializerMethodField('get_name')
 
     class Meta:
         model = Category
@@ -38,9 +41,14 @@ class SubCategorySerializer(serializers.ModelSerializer):
             count = sum(products)
         return count
 
+    def get_name(self, obj):
+        name = get_full_value(obj=obj, field='name')
+        return name
+
 
 class CategorySerializer(serializers.ModelSerializer):
     subcategories = serializers.SerializerMethodField('get_subcategories')
+    name = serializers.SerializerMethodField('get_name')
 
     class Meta:
         model = Category
@@ -49,6 +57,11 @@ class CategorySerializer(serializers.ModelSerializer):
     def get_subcategories(self, obj):
         serializer = SubCategorySerializer(obj.subcategories.all(), many=True)
         return serializer.data
+    
+    def get_name(self, obj):
+        name = get_full_value(obj=obj, field='name')
+        return name
+
 
 
 # Serializers related to Configurator
@@ -149,6 +162,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_video = ProductVideoSerializer()
     items = ItemSerializer(many=True)
     price = serializers.SerializerMethodField('get_price')
+    title = serializers.SerializerMethodField('get_title')
+    description = serializers.SerializerMethodField('get_description')
 
     class Meta:
         model = Product
@@ -171,10 +186,18 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             price = obj.price
         return price
 
+    def get_title(self, obj):
+        name = get_full_value(obj=obj, field='title')
+        return name
+
+    def get_description(self, obj):
+        description = get_full_value(obj=obj, field='description')
+        return description
 
 class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
+    title = serializers.SerializerMethodField('get_title')
 
     class Meta:
         model = Product
@@ -188,6 +211,10 @@ class ProductListSerializer(serializers.ModelSerializer):
         currency = request.META.get('HTTP_CURRENCY', 'usd')
         price = api.get_currency(currency=currency, obj_price=obj.price)
         return price
+
+    def get_title(self, obj):
+        name = get_full_value(obj=obj, field='title')
+        return name
 
 
 # Serializers related to Blog
