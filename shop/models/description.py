@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils.html import mark_safe
 
-from tinymce import models as tinymce_models
-
 from .product import Product
 
 def product_extradesc_image_directory_path(instance: "ExtraDescription", filename: str) -> str:
@@ -24,7 +22,7 @@ class ExtraDescription(models.Model):
 
 
 class Description(models.Model):
-    text = tinymce_models.HTMLField()
+    text = models.TextField()
     extradescription = models.ForeignKey(ExtraDescription, on_delete=models.CASCADE, related_name='extradescription')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
