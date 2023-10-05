@@ -2,7 +2,6 @@ from django import forms
 from django.db import models
 from django.contrib import admin
 
-from tinymce.widgets import TinyMCE
 from nested_admin import NestedModelAdmin
 from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
 from .admin_filters import CategoryFilter, ProductFilter
@@ -30,21 +29,16 @@ from .models import (
     ExtraDescription,
     Description
 )
-from embed_video.admin import AdminVideoMixin
-
-
-
-@admin.register(ExtraDescription)
-class ExtraDescriptionAdmin(TranslationAdmin):
-    inlines = [ExtraDescImageInline, DescriptionInline]
-
+from django_summernote.admin import SummernoteModelAdmin
 
 admin.site.register(Type)
-admin.site.register(Item)
 
-@admin.register(ProductVideo)
-class ProductVideoAdmin(AdminVideoMixin, admin.ModelAdmin):
-    pass
+@admin.register(ExtraDescription)
+class ExtraDescriptionAdmin(TranslationAdmin, NestedModelAdmin  ):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
+    }
+    inlines = [ExtraDescImageInline, DescriptionInline]
 
 
 @admin.register(ContactRequest)
@@ -53,25 +47,33 @@ class ContactRequestAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'name']
 
     def message_short(self, obj: ContactRequest) -> str:
-        if len(obj.message) < 48:
-            return obj.message
-        else:
-            return obj.message[:48] + "..."
-
+        if obj.message:
+            if len(obj.message) < 48:
+                return obj.message
+            else:
+                return obj.message[:48] + "..."
+        return None
 
 @admin.register(Blog)
-class BlogAdmin(TranslationAdmin):
+class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
+    }
+
     list_display = ['id', 'title', 'description_short']
     list_display_links = ['id', 'title']
 
     def description_short(self, obj: Blog) -> str:
-        if len(obj.text) < 48:
-            return obj.text
+        if obj.text:
+            if len(obj.text) < 48:
+                return obj.text
+            else:
+                return obj.text[:48] + "..."
         else:
-            return obj.text[:48] + "..."
+            return obj.text
     
-    class Media:
-        js = ('js/uploader.js',)
+    # class Media:
+    #     js = ('js/uploader.js',)
 
 
 @admin.register(Category)
@@ -79,7 +81,6 @@ class CategoryAdmin(TranslationAdmin):
     list_display = ['id', 'name_uz', 'name_ru', 'name_en', 'parent']
     list_display_links = ['id', 'name_uz']
     raw_id_fields = ['parent']
-    #inlines = [CategoryInline]
     list_filter = [CategoryFilter]
     fieldsets = [
         ("КАТЕГОРИЯ", {
@@ -91,11 +92,12 @@ class CategoryAdmin(TranslationAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(TranslationAdmin, NestedModelAdmin): #, admin.ModelAdmin):
+class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #, admin.ModelAdmin):
     formfield_overrides = {
-        models.TextField: {'widget': TinyMCE(attrs={'cols': 130, 'rows': 20})},
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
+
+    summernote_fields = ['description']
 
     list_per_page = 20
     list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
@@ -105,7 +107,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin): #, admin.ModelAdmin):
     inlines = [
         ProductImageInline,
         ProductVideoInline,
-        ExtraDescriptionInline,
+        # ExtraDescriptionInline,
         ProductFeatureInline,
         ItemInline
     ]

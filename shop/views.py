@@ -165,6 +165,7 @@ class ProductListAPIView(ListAPIView):
         serializer.context['request'] = self.request
         return serializer
 
+
 @extend_schema(
     tags=["Product"],
     parameters=[

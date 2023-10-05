@@ -4,6 +4,10 @@ from django.contrib import admin
 from embed_video.admin import AdminVideoMixin
 from nested_admin import NestedStackedInline, NestedTabularInline
 from modeltranslation.admin import TranslationStackedInline, TranslationTabularInline
+
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+from django_summernote.admin import SummernoteInlineModelAdmin
+
 from .models import (
     Category,
     ProductImage,
@@ -27,7 +31,7 @@ class CategoryInline(TranslationTabularInline):
     verbose_name_plural = "Подкатегории"
 
 
-class ProductVideoInline(TranslationStackedInline, NestedStackedInline): #admin.StackedInline):
+class ProductVideoInline(TranslationStackedInline, NestedStackedInline, SummernoteInlineModelAdmin): #admin.StackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -60,7 +64,7 @@ class ProductFeatureInline(NestedTabularInline): #admin.TabularInline):
     readonly_fields = ['image_tag']
 
 
-class DescriptionInline(TranslationTabularInline, admin.TabularInline):
+class DescriptionInline(TranslationTabularInline, NestedTabularInline, SummernoteInlineModelAdmin):
     extra = 0
     model = Description
 
@@ -72,12 +76,12 @@ class ExtraDescImageInline(NestedTabularInline): #admin.TabularInline):
 
 
 class ExtraDescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
-    formfield_overrides = {
-        models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
-    }
+    # formfield_overrides = {
+    #     # models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+    # }
     extra = 0
     model = ExtraDescription
-    inlines = [ExtraDescImageInline] #, DescriptionInline]
+    inlines = [ExtraDescImageInline, DescriptionInline]
     classes = ['collapse']
 
 
