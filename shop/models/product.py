@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.html import mark_safe
 
-from tinymce import models as tinymce_models
 from embed_video.fields import EmbedVideoField
 
 from .category import Category
@@ -28,9 +27,9 @@ class Product(models.Model):
     )
     set_creator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
-    description = tinymce_models.HTMLField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Visible')
     order_by = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -68,7 +67,7 @@ class ProductImage(models.Model):
 
 class ProductVideo(models.Model):
     title = models.CharField(max_length=500, null=True, blank=True)
-    description = tinymce_models.HTMLField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     video_link = EmbedVideoField(null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)

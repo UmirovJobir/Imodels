@@ -1,7 +1,5 @@
 from django.db import models
 
-from tinymce import models as tinymce_models
-
 
 def blog_image_directory_path(instance: "Blog", filename: str) -> str:
     return "blog_images/blog_{pk}__{filename}".format(
@@ -13,7 +11,7 @@ def blog_image_directory_path(instance: "Blog", filename: str) -> str:
 class Blog(models.Model):
     preview_image = models.ImageField(upload_to=blog_image_directory_path)
     title = models.CharField(max_length=500)
-    text = tinymce_models.HTMLField()
+    text = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
