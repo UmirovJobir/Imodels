@@ -9,7 +9,6 @@ from .views import (
     ContactRequestCreateView,
     CartView,
     OrderView,
-    index
 )
 
 
@@ -27,6 +26,4 @@ urlpatterns = [
     path('cart/', CartView.as_view(), name='cart'),
 
     path('order/', OrderView.as_view(), name='order'),
-    
-    path('index/', index, name='index'),
-]
+    ]

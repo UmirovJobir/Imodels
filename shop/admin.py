@@ -97,7 +97,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
 
-    summernote_fields = ['description']
+    summernote_fields = ['information']
 
     list_per_page = 20
     list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
@@ -117,7 +117,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
                 "set_creator",
                 "title",
                 "order_by",
-                "description",
+                "information",
                 "category",
                 "price",
                 "status"

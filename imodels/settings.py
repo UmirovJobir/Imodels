@@ -160,8 +160,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = 'static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATICFILES_DIRS = []
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
@@ -178,6 +176,12 @@ LANGUAGES = (
 )
 
 LANGUAGE_CODE = 'uz'
+# MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru', 'en')
+MODELTRANSLATION_FALLBACK_LANGUAGES = {
+    'default': ('uz', 'ru', 'en'),
+    'ru': ('ru',),
+    'en': ('en',)
+}
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
 
