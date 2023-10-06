@@ -33,12 +33,12 @@ class CategoryTranslationOptions(TranslationOptions):
 
 @register(Product)
 class ProductTranslationOptions(TranslationOptions):
-    fields = ['title', 'description']
+    fields = ['title', 'information']
 
 
 @register(ProductVideo)
 class ProductVideoTranslationOptions(TranslationOptions):
-    fields = ['title', 'description']
+    fields = ['title', 'text']
 
 
 @register(ProductFeatureOption)

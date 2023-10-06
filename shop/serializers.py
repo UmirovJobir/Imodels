@@ -63,9 +63,9 @@ class CategorySerializer(serializers.ModelSerializer):
         return name
 
 
-
 # Serializers related to Configurator
 class ItemDetailSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField('get_title')
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
 
@@ -73,6 +73,10 @@ class ItemDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'title', 'price', 'image']
     
+    def get_title(self, obj):
+        title = get_full_value(obj=obj, field='title')
+        return title
+
     def get_first_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
     
@@ -130,9 +134,15 @@ class ExtraDescriptionSerializer(serializers.ModelSerializer):
 
 # Serializers related to Product
 class ProductFeatureOptionSerializer(serializers.ModelSerializer):
+    feature = serializers.SerializerMethodField('get_feature')
+
     class Meta:
         model = ProductFeatureOption
-        fields = ['feature']
+        fields = ['id', 'feature']
+    
+    def get_feature(self, obj):
+        feature = get_full_value(obj=obj, field='feature')
+        return feature
 
 
 class ProductFeatureSerializer(serializers.ModelSerializer):
@@ -144,9 +154,20 @@ class ProductFeatureSerializer(serializers.ModelSerializer):
 
 
 class ProductVideoSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField('get_title')
+    text = serializers.SerializerMethodField('get_text')
+
     class Meta:
         model = ProductVideo
-        fields = ['id', 'title', 'video_link', 'description']
+        fields = ['id', 'title', 'text', 'video_link']
+
+    def get_title(self, obj):
+        title = get_full_value(obj=obj, field='title')
+        return title
+    
+    def get_text(self, obj):
+        text = get_full_value(obj=obj, field='text')
+        return text
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -163,11 +184,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     items = ItemSerializer(many=True)
     price = serializers.SerializerMethodField('get_price')
     title = serializers.SerializerMethodField('get_title')
-    description = serializers.SerializerMethodField('get_description')
+    information = serializers.SerializerMethodField('get_information')
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'title', 'description', 
+        fields = ['id', 'category', 'title', 'information', 
                   'price', 'set_creator', 'items', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
@@ -190,9 +211,10 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         name = get_full_value(obj=obj, field='title')
         return name
 
-    def get_description(self, obj):
-        description = get_full_value(obj=obj, field='description')
+    def get_information(self, obj):
+        description = get_full_value(obj=obj, field='information')
         return description
+
 
 class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
@@ -243,12 +265,14 @@ class OrderProductItemSerilaizer(serializers.ModelSerializer):
         model = OrderProductItem
         fields = ['product', 'price', 'quantity']
 
+
 class OrderProductSerializer(serializers.ModelSerializer):
     order_items = OrderProductItemSerilaizer(many=True)
 
     class Meta:
         model = OrderProduct
         fields = ['product', 'price', 'quantity', 'order_items']
+
 
 class OrderSerializer(serializers.ModelSerializer):
     order_products = OrderProductSerializer(many=True)
@@ -284,13 +308,13 @@ class OrderSerializer(serializers.ModelSerializer):
         return order_instance
     
 
+# Serializers related to Cart
 class CartItemSerilaizer(serializers.Serializer):
     id = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
     class Meta:
         fields = ['id', 'quantity']
-    
 
 
 class CartProductSerilaizer(serializers.Serializer):
