@@ -220,6 +220,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
     title = serializers.SerializerMethodField('get_title')
+    category = CategorySerializer()
 
     class Meta:
         model = Product

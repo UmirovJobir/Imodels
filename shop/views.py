@@ -138,12 +138,6 @@ class SubCategoryView(ListAPIView):
     tags=["Product"],
     parameters=[
         OpenApiParameter(
-            name="accept-language",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`uz` or `ru` or `en`. The default value is uz",
-        ),
-        OpenApiParameter(
             name="currency",
             type=str,
             location=OpenApiParameter.HEADER,
@@ -154,13 +148,21 @@ class SubCategoryView(ListAPIView):
 class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    filterset_class = ProductFilter
+    filter_backends = [filters.SearchFilter] #, DjangoFilterBackend]
+    # filterset_class = ProductFilter
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.filter(status="Visible").select_related('category', 'set_creator').order_by('order_by')
-        return get_query_by_heard(self, queryset)
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            category = Category.objects.get(id=category_id)
+            if category.products.all():
+                return category.products.all()
+            else:
+                if category.subcategories.all():
+                    return queryset.filter(category__in=category.subcategories.all())
+        return queryset
 
     def get_serializer(self, *args, **kwargs):
         serializer = super().get_serializer(*args, **kwargs)
