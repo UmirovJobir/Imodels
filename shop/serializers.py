@@ -118,19 +118,29 @@ class ExtraDescImageSerializer(serializers.ModelSerializer):
 
 
 class DescriptionSerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField('get_text')
+
     class Meta:
         model = Description
         fields = ['id', 'text']
+
+    def get_text(self, obj):
+        text = get_full_value(obj=obj, field='text')
+        return text
 
 
 class ExtraDescriptionSerializer(serializers.ModelSerializer):
     extradescription_images = ExtraDescImageSerializer(many=True)
     extradescription = DescriptionSerializer(many=True)
+    title = serializers.SerializerMethodField('get_title')
 
     class Meta:
         model = ExtraDescription
         fields = ['id', 'title', 'extradescription', 'extradescription_images']
 
+    def get_title(self, obj):
+        title = get_full_value(obj=obj, field='title')
+        return title
 
 # Serializers related to Product
 class ProductFeatureOptionSerializer(serializers.ModelSerializer):
@@ -208,8 +218,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return price
 
     def get_title(self, obj):
-        name = get_full_value(obj=obj, field='title')
-        return name
+        title = get_full_value(obj=obj, field='title')
+        return title
 
     def get_information(self, obj):
         description = get_full_value(obj=obj, field='information')
@@ -220,7 +230,6 @@ class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
     title = serializers.SerializerMethodField('get_title')
-    category = CategorySerializer()
 
     class Meta:
         model = Product
@@ -230,14 +239,15 @@ class ProductListSerializer(serializers.ModelSerializer):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
 
     def get_price(self, obj):
-        request = self.context['request']
-        currency = request.META.get('HTTP_CURRENCY', 'usd')
-        price = api.get_currency(currency=currency, obj_price=obj.price)
+        if obj.price:
+            price = api.get_currency(obj_price=obj.price)
+        else:
+            price = obj.price
         return price
 
     def get_title(self, obj):
-        name = get_full_value(obj=obj, field='title')
-        return name
+        title = get_full_value(obj=obj, field='title')
+        return title
 
 
 # Serializers related to Blog

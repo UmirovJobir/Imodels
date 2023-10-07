@@ -136,14 +136,14 @@ class SubCategoryView(ListAPIView):
 # View related to Product
 @extend_schema(
     tags=["Product"],
-    parameters=[
-        OpenApiParameter(
-            name="currency",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`usd` or `eur` or `uzs`. The default value is usd",
-        ),
-    ],
+    # parameters=[
+    #     OpenApiParameter(
+    #         name="currency",
+    #         type=str,
+    #         location=OpenApiParameter.HEADER,
+    #         description="`usd` or `eur` or `uzs`. The default value is usd",
+    #     ),
+    # ],
 )
 class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
@@ -172,20 +172,20 @@ class ProductListAPIView(ListAPIView):
 
 @extend_schema(
     tags=["Product"],
-    parameters=[
-        OpenApiParameter(
-            name="accept-language",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`uz` or `ru` or `en`. The default value is uz",
-        ),
-        OpenApiParameter(
-            name="currency",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`usd` or `eur` or `uzs`. The default value is usd",
-        ),
-    ],
+    # parameters=[
+    #     OpenApiParameter(
+    #         name="accept-language",
+    #         type=str,
+    #         location=OpenApiParameter.HEADER,
+    #         description="`uz` or `ru` or `en`. The default value is uz",
+    #     ),
+    #     OpenApiParameter(
+    #         name="currency",
+    #         type=str,
+    #         location=OpenApiParameter.HEADER,
+    #         description="`usd` or `eur` or `uzs`. The default value is usd",
+    #     ),
+    # ],
 )
 class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
