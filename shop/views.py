@@ -136,20 +136,24 @@ class SubCategoryView(ListAPIView):
 # View related to Product
 @extend_schema(
     tags=["Product"],
-    # parameters=[
-    #     OpenApiParameter(
-    #         name="currency",
-    #         type=str,
-    #         location=OpenApiParameter.HEADER,
-    #         description="`usd` or `eur` or `uzs`. The default value is usd",
-    #     ),
-    # ],
+    parameters=[
+        OpenApiParameter(
+            name="category_id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+        ),
+        # OpenApiParameter(
+        #     name="currency",
+        #     type=str,
+        #     location=OpenApiParameter.HEADER,
+        #     description="`usd` or `eur` or `uzs`. The default value is usd",
+        # ),
+    ],
 )
 class ProductListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     serializer_class = ProductListSerializer
-    filter_backends = [filters.SearchFilter] #, DjangoFilterBackend]
-    # filterset_class = ProductFilter
+    filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
@@ -203,14 +207,6 @@ class ProductRetrieveAPIView(RetrieveAPIView):
 # View related to Blog
 @extend_schema(
     tags=["Blog"],
-    parameters=[
-        OpenApiParameter(
-            name="accept-language",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`uz` or `ru` or `en`. The default value is uz",
-        ),
-    ],
 )
 class BlogView(ListAPIView):
     pagination_class = CustomPageNumberPagination
@@ -223,15 +219,15 @@ class BlogView(ListAPIView):
 
 @extend_schema(
     tags=["Blog"],
-    parameters=[
-        OpenApiParameter(
-            name="accept-language",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`uz` or `ru` or `en`. The default value is uz",
-        ),
-    ],
-    responses=BlogDetailSerializer
+    # parameters=[
+    #     OpenApiParameter(
+    #         name="accept-language",
+    #         type=str,
+    #         location=OpenApiParameter.HEADER,
+    #         description="`uz` or `ru` or `en`. The default value is uz",
+    #     ),
+    # ],
+    # responses=BlogDetailSerializer
 )
 class BlogDetailView(RetrieveAPIView):
     serializer_class = BlogDetailSerializer
