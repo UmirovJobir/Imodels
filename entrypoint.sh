@@ -19,8 +19,8 @@ python3 manage.py migrate account
 python3 manage.py migrate shop
 python3 manage.py migrate
 
-echo "Collect static files"
-python3 manage.py collectstatic
+# echo "Collect static files"
+# python3 manage.py collectstatic
 
 
 exec "$@"
