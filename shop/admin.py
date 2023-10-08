@@ -9,12 +9,12 @@ from .admin_inlines import (
     CategoryInline,
     ProductImageInline,
     ProductVideoInline,
-    ExtraDescriptionInline,
+    DescriptionInline,
+    DescriptionImageInline,
+    DescriptionPointInline,
     ProductFeatureInline,
     ItemInline,
     OrderProductInline,
-    ExtraDescImageInline,
-    DescriptionInline
 )
 from .models import (
     Category,
@@ -26,19 +26,19 @@ from .models import (
     Order,
     ProductVideo,
     ProductImage,
-    ExtraDescription,
-    Description
+    Description,
+    DescriptionPoint
 )
 from django_summernote.admin import SummernoteModelAdmin
 
 admin.site.register(Type)
 
-@admin.register(ExtraDescription)
-class ExtraDescriptionAdmin(TranslationAdmin, NestedModelAdmin  ):
+@admin.register(Description)
+class DescriptionAdmin(TranslationAdmin, NestedModelAdmin  ):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
     }
-    inlines = [ExtraDescImageInline, DescriptionInline]
+    inlines = [DescriptionImageInline, DescriptionPointInline]
 
 
 @admin.register(ContactRequest)

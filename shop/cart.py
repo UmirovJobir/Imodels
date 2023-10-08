@@ -2,6 +2,7 @@ from django.conf import settings
 from decimal import Decimal
 from .models import Product
 from . import api
+from .serializers import ProductListSerializer
 
 class Cart:
     def __init__(self, request):
@@ -39,19 +40,17 @@ class Cart:
             self.save
 
 
-    # def __iter__(self, request):
-    #     currency = request.META.get('HTTP_CURRENCY', 'usd')
+    def __iter__(self, request):
+        product_list = []
+        total_cost = 0
 
-    #     product_list = []
-    #     total_cost = 0
+        product_ids = [id['id'] for id in self.cart]
 
-    #     product_ids = [id['id'] for id in self.cart]
-
-    #     products = Product.objects.filter(id__in=product_ids).select_related('category', 'related_product')
-    #     cart = self.cart.copy()
-    #     for product in products:
-    #         serializer = ProductListSerializer(product, context={'request': request}).data
-    #         print(serializer)
+        products = Product.objects.filter(id__in=product_ids).select_related('category', 'set_creator')
+        cart = self.cart.copy()
+        for product in products:
+            serializer = ProductListSerializer(product, context={'request': request}).data
+            print(serializer)
 
         # for product in products:
         #     cart["test"] = ProductListSerializer(product, context={'request': request}).data
@@ -60,7 +59,7 @@ class Cart:
         #     item["price"] = Decimal(item["price"]) 
         #     item["total_price"] = item["price"] * item["quantity"]
         #     yield item
-        # yield "a"
+        yield "a"
     
 
     def __len__(self):

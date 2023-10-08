@@ -20,7 +20,8 @@ from rest_framework.generics import (
     ListCreateAPIView,
 )
 from . import api
-from .cart import Cart
+# from .cart import Cart
+from .cart_1 import Cart
 from .filter import ProductFilter
 from .pagination import CustomPageNumberPagination
 from .models import (
@@ -45,74 +46,64 @@ from .serializers import (
 )
 
 
-@csrf_exempt
-def upload_image(request):
-    if request.method == "POST":
-        file_obj = request.FILES['file']
-        file_name_suffix = file_obj.name.split(".")[-1]
-        if file_name_suffix not in ["jpg", "png", "gif", "jpeg", ]:
-            return JsonResponse({"message": "Wrong file format"})
+# @csrf_exempt
+# def upload_image(request):
+#     if request.method == "POST":
+#         file_obj = request.FILES['file']
+#         file_name_suffix = file_obj.name.split(".")[-1]
+#         if file_name_suffix not in ["jpg", "png", "gif", "jpeg", ]:
+#             return JsonResponse({"message": "Wrong file format"})
 
-        upload_time = timezone.now()
-        path = os.path.join(
-            settings.MEDIA_ROOT,
-            'tinymce',
-            str(upload_time.year),
-            str(upload_time.month),
-            str(upload_time.day)
-        )
-        # If there is no such path, create
-        if not os.path.exists(path):
-            os.makedirs(path)
+#         upload_time = timezone.now()
+#         path = os.path.join(
+#             settings.MEDIA_ROOT,
+#             'tinymce',
+#             str(upload_time.year),
+#             str(upload_time.month),
+#             str(upload_time.day)
+#         )
+#         # If there is no such path, create
+#         if not os.path.exists(path):
+#             os.makedirs(path)
 
-        file_path = os.path.join(path, file_obj.name)
+#         file_path = os.path.join(path, file_obj.name)
 
-        file_url = f'{settings.MEDIA_URL}tinymce/{upload_time.year}/{upload_time.month}/{upload_time.day}/{file_obj.name}'
+#         file_url = f'{settings.MEDIA_URL}tinymce/{upload_time.year}/{upload_time.month}/{upload_time.day}/{file_obj.name}'
 
-        if os.path.exists(file_path):
-            return JsonResponse({
-                "message": "file already exist",
-                'location': file_url
-            })
+#         if os.path.exists(file_path):
+#             return JsonResponse({
+#                 "message": "file already exist",
+#                 'location': file_url
+#             })
 
-        with open(file_path, 'wb+') as f:
-            for chunk in file_obj.chunks():
-                f.write(chunk)
+#         with open(file_path, 'wb+') as f:
+#             for chunk in file_obj.chunks():
+#                 f.write(chunk)
 
-        return JsonResponse({
-            'message': 'Image uploaded successfully',
-            'location': file_url
-        })
-    return JsonResponse({'detail': "Wrong request"})
+#         return JsonResponse({
+#             'message': 'Image uploaded successfully',
+#             'location': file_url
+#         })
+#     return JsonResponse({'detail': "Wrong request"})
 
 
-def get_query_by_heard(self, queryset):
-    if 'HTTP_ACCEPT_LANGUAGE' in self.request.META:
-        lang = self.request.META.get('HTTP_ACCEPT_LANGUAGE')
-        translation.activate(lang)
-    return queryset
+# def get_query_by_heard(self, queryset):
+#     if 'HTTP_ACCEPT_LANGUAGE' in self.request.META:
+#         lang = self.request.META.get('HTTP_ACCEPT_LANGUAGE')
+#         translation.activate(lang)
+#     return queryset
 
 
 # View related to Category
 @extend_schema(
-    tags=["Category"],
-    parameters=[
-        OpenApiParameter(
-            name="accept-language",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`uz` or `ru` or `en`. The default value is uz",
-        ),
-    ],
+    tags=["Category"]
 )
 class CategoryView(ListAPIView):
     serializer_class = CategorySerializer
 
     def get_queryset(self):
         queryset = Category.objects.filter(parent__isnull=True)
-        print(queryset.values('name'))
         return queryset
-        # return get_query_by_heard(self, queryset)
 
 @extend_schema(
     tags=["Category"],
@@ -126,11 +117,8 @@ class CategoryView(ListAPIView):
     ],
 )
 class SubCategoryView(ListAPIView):
+    queryset = Category.objects.all()
     serializer_class = SubCategorySerializer
-
-    def get_queryset(self):
-        queryset = Category.objects.all()
-        return get_query_by_heard(self, queryset)
 
 
 # View related to Product
@@ -196,7 +184,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
 
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all().select_related('category', 'set_creator').order_by('order_by')
-        return get_query_by_heard(self, queryset)
+        return queryset
 
     def get_serializer(self, *args, **kwargs):
         serializer = super().get_serializer(*args, **kwargs)
@@ -209,12 +197,9 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     tags=["Blog"],
 )
 class BlogView(ListAPIView):
-    pagination_class = CustomPageNumberPagination
+    queryset = Blog.objects.all()
     serializer_class = BlogListSerializer
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = Blog.objects.all()
-        return get_query_by_heard(self, queryset)
+    pagination_class = CustomPageNumberPagination
     
 
 @extend_schema(
@@ -230,12 +215,8 @@ class BlogView(ListAPIView):
     # responses=BlogDetailSerializer
 )
 class BlogDetailView(RetrieveAPIView):
+    queryset = Blog.objects.all()
     serializer_class = BlogDetailSerializer
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = Blog.objects.all()
-        return get_query_by_heard(self, queryset)
-
 
 
 # View related to ContactRequest
@@ -249,9 +230,6 @@ class ContactRequestCreateView(CreateAPIView):
 @extend_schema(tags=["Cart"])
 class CartView(APIView):
     def request_cart(self):
-        currency = self.request.META.get('HTTP_CURRENCY')
-        if currency==None:
-            currency='usd'
 
         product_list = []
         total_cost = 0
@@ -259,10 +237,10 @@ class CartView(APIView):
 
         for cart_product in cart.cart:
             product_queryset = Product.objects.select_related('category', 'set_creator').get(id=cart_product['id'])
-            product =  get_query_by_heard(self, product_queryset)
+            product =  product_queryset
             product_dict = {
                 "id": product.pk,
-                "price": api.get_currency(currency=currency, obj_price=product.price),
+                "price": product.price if product.price!=None else 0, #api.get_currency(obj_price=product.price) if product.price!=None else 0,
                 "title": product.title,
                 "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
                 "quantity": cart_product['quantity']}
@@ -272,15 +250,16 @@ class CartView(APIView):
                 item_list = []
                 for items in cart_product.get('items'):
                     item_queryset = Product.objects.select_related('category', 'set_creator').get(id=items['id'])
-                    item =  get_query_by_heard(self, item_queryset)
+                    item =  item_queryset
                     items = {
                         "id": item.pk,
-                        "price": api.get_currency(currency=currency, obj_price=item.price),
+                        "price": item.price, # if item.price!=None else 0,
                         "title": item.title,
                         "image": self.request.build_absolute_uri(item.product_images.all().first().image.url),
                         "quantity": items['quantity'] * cart_product['quantity']}
                     item_list.append(items)
-                    total_cost += items['price'] * items['quantity']
+                    print(items['price'], items['quantity'])
+                    # total_cost += items['price'] * items['quantity']
 
                 product_dict['items'] = item_list
             product_list.append(product_dict)
@@ -307,8 +286,12 @@ class CartView(APIView):
     )
     def get(self, request, *args, **kwargs):
         cart = Cart(request)
-        # return Response(list(cart.__iter__(request)), status=status.HTTP_200_OK)
-        return Response(self.request_cart(), status=status.HTTP_200_OK)
+        return Response(
+            {"data": list(cart.__iter__(request)), 
+            # "cart_total_price": cart.get_total_price()
+            },
+            status=status.HTTP_200_OK
+            )
 
 
     @extend_schema(
@@ -317,20 +300,35 @@ class CartView(APIView):
     )
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
-        data = request.data
-        product = get_object_or_404(Product, id=data['id'])
+        # data = request.data
+        # product = get_object_or_404(Product, id=data['id'])
         
-        if data['id'] in [item['id'] for item in cart.cart]:
-            for item in cart.cart:
-                if item['id']==data['id']:
-                    item['quantity'] += data['quantity']
-        else:
-            if request.data.get("items")==None:
-                cart.add(product=product, quantity=data['quantity'])
-            else:
-                cart.add(product=product, quantity=data['quantity'], items=request.data.get("items"))
-        cart.save()
-        return Response(self.request_cart(), status=status.HTTP_200_OK)
+        # if data['id'] in [item['id'] for item in cart.cart]:
+        #     for item in cart.cart:
+        #         if item['id']==data['id']:
+        #             item['quantity'] += data['quantity']
+        # else:
+        #     if request.data.get("items")==None:
+        #         cart.add(product=product, quantity=data['quantity'])
+        #     else:
+        #         cart.add(product=product, quantity=data['quantity'], items=request.data.get("items"))
+        # cart.save()
+        # return Response(self.request_cart(), status=status.HTTP_200_OK)
+
+        product = request.data
+
+        cart.add(
+                product=product["product"],
+                quantity=product["quantity"],
+                items = product['items'] if 'items' in product else [],
+                overide_quantity=product["overide_quantity"] if "overide_quantity" in product else False
+            )
+
+        return Response(
+            {"message": "cart updated",
+            #  "data": list(cart.__iter__(request)),
+             },
+            status=status.HTTP_202_ACCEPTED)
 
 
     @extend_schema(
@@ -351,29 +349,55 @@ class CartView(APIView):
         ],
     )
     def delete(self, request):
-        id = request.GET.get('id')
-        quantity = request.GET.get('quantity')
+        # id = request.GET.get('id')
+        # quantity = request.GET.get('quantity')
 
-        if id==None or quantity==None:
-            return Response({"error": "Id or quantity is not given"})
+        # if id==None or quantity==None:
+        #     return Response({"error": "Id or quantity is not given"})
 
-        id = int(id)
-        quantity = int(quantity)
+        # id = int(id)
+        # quantity = int(quantity)
 
-        cart = Cart(request)
-        if id not in [item['id'] for item in cart.cart]:
-            return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
+        # cart = Cart(request)
+        # if id not in [item['id'] for item in cart.cart]:
+        #     return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
         
-        product = get_object_or_404(Product, id=id)
+        # product = get_object_or_404(Product, id=id)
 
-        for items in cart.cart:
-            if items['id']==id:
-                if items['quantity']==quantity or items['quantity'] <= 1:
+        # for items in cart.cart:
+        #     if items['id']==id:
+        #         if items['quantity']==quantity or items['quantity'] <= 1:
+        #             cart.remove(product)
+        #         else:
+        #             items['quantity'] -= 1
+        #     cart.save()
+        # return Response(self.request_cart(), status=status.HTTP_200_OK)
+        
+        cart = Cart(request)
+
+        clear = request.GET.get('clear')
+        if clear:
+            cart.clear()
+            return Response({"detail": "cart cleared"}, status=status.HTTP_202_ACCEPTED)
+        
+        product = request.data.get("product")
+        quantity = request.data.get("quantity")
+
+        for cart_product, value in cart.cart.items():
+            if cart_product==str(product):
+                # print(cart_product, product)
+                if value['quantity']==quantity or value['quantity'] <= 1:
                     cart.remove(product)
                 else:
-                    items['quantity'] -= 1
-            cart.save()
-        return Response(self.request_cart(), status=status.HTTP_200_OK)
+                    value['quantity'] -= 1
+        cart.save()
+        
+        
+        # delete = cart.remove(product)
+        # if delete == True:
+        return Response({"detail": "cart updated"}, status=status.HTTP_202_ACCEPTED)
+        # else:
+        #     return Response({"detail": "product not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @extend_schema(
