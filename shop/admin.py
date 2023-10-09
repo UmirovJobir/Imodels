@@ -65,7 +65,7 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
     summernote_fields = ['text']
 
     def description_short(self, obj: Blog) -> str:
-        if obj.text:
+        if obj.description:
             if len(obj.description) < 48:
                 return obj.description
             else:
