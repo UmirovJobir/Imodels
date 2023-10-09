@@ -204,18 +204,10 @@ class BlogView(ListAPIView):
 
 @extend_schema(
     tags=["Blog"],
-    # parameters=[
-    #     OpenApiParameter(
-    #         name="accept-language",
-    #         type=str,
-    #         location=OpenApiParameter.HEADER,
-    #         description="`uz` or `ru` or `en`. The default value is uz",
-    #     ),
-    # ],
-    # responses=BlogDetailSerializer
+    responses=BlogDetailSerializer
 )
 class BlogDetailView(RetrieveAPIView):
-    queryset = Blog.objects.all()
+    queryset = Blog.objects.all().order_by("-created_at")
     serializer_class = BlogDetailSerializer
 
 
@@ -227,7 +219,9 @@ class ContactRequestCreateView(CreateAPIView):
 
 
 # View related to Cart
-@extend_schema(tags=["Cart"])
+@extend_schema(
+    tags=["Cart"]
+)
 class CartView(APIView):
     def request_cart(self):
 
@@ -268,136 +262,64 @@ class CartView(APIView):
 
 
     @extend_schema(
+        tags=["Cart"],
         responses=CartProductSerilaizer,
-        parameters=[
-            OpenApiParameter(
-                name="accept-language",
-                type=str,
-                location=OpenApiParameter.HEADER,
-                description="`uz` or `ru` or `en`. The default value is uz",
-            ),
-            OpenApiParameter(
-                name="currency",
-                type=str,
-                location=OpenApiParameter.HEADER,
-                description="`usd` or `eur` or `uzs`. The default value is usd",
-            ),
-        ],
     )
     def get(self, request, *args, **kwargs):
         cart = Cart(request)
+        data = list(cart.__iter__(request))
         return Response(
-            {"data": list(cart.__iter__(request)), 
-            # "cart_total_price": cart.get_total_price()
+            {"data": data, 
+            "cart_total_price": cart.get_total_price(data)
             },
             status=status.HTTP_200_OK
             )
 
 
     @extend_schema(
+            tags=["Cart"],
             request=CartProductSerilaizer,
             responses=CartProductSerilaizer,
     )
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
-        # data = request.data
-        # product = get_object_or_404(Product, id=data['id'])
-        
-        # if data['id'] in [item['id'] for item in cart.cart]:
-        #     for item in cart.cart:
-        #         if item['id']==data['id']:
-        #             item['quantity'] += data['quantity']
-        # else:
-        #     if request.data.get("items")==None:
-        #         cart.add(product=product, quantity=data['quantity'])
-        #     else:
-        #         cart.add(product=product, quantity=data['quantity'], items=request.data.get("items"))
-        # cart.save()
-        # return Response(self.request_cart(), status=status.HTTP_200_OK)
-
         product = request.data
-
         cart.add(
                 product=product["product"],
                 quantity=product["quantity"],
                 items = product['items'] if 'items' in product else [],
                 overide_quantity=product["overide_quantity"] if "overide_quantity" in product else False
             )
-
-        return Response(
-            {"message": "cart updated",
-            #  "data": list(cart.__iter__(request)),
-             },
-            status=status.HTTP_202_ACCEPTED)
+        return Response({"message": "cart updated"}, status=status.HTTP_202_ACCEPTED)
 
 
     @extend_schema(
-        description="Delete a product with quantity from the cart by ID.",
-        parameters=[
-            OpenApiParameter(
-                name="id",
-                type=int,
-                location=OpenApiParameter.QUERY,
-                required=True
-            ),
-            OpenApiParameter(
-                name="quantity",
-                type=int,
-                location=OpenApiParameter.QUERY,
-                required=True
-            ),
-        ],
+        tags=["Cart"]
     )
     def delete(self, request):
-        # id = request.GET.get('id')
-        # quantity = request.GET.get('quantity')
-
-        # if id==None or quantity==None:
-        #     return Response({"error": "Id or quantity is not given"})
-
-        # id = int(id)
-        # quantity = int(quantity)
-
-        # cart = Cart(request)
-        # if id not in [item['id'] for item in cart.cart]:
-        #     return Response({"error": "id does not exist in Cart"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # product = get_object_or_404(Product, id=id)
-
-        # for items in cart.cart:
-        #     if items['id']==id:
-        #         if items['quantity']==quantity or items['quantity'] <= 1:
-        #             cart.remove(product)
-        #         else:
-        #             items['quantity'] -= 1
-        #     cart.save()
-        # return Response(self.request_cart(), status=status.HTTP_200_OK)
-        
         cart = Cart(request)
-
-        clear = request.GET.get('clear')
-        if clear:
-            cart.clear()
-            return Response({"detail": "cart cleared"}, status=status.HTTP_202_ACCEPTED)
         
         product = request.data.get("product")
         quantity = request.data.get("quantity")
 
+        if quantity==None:
+            cart.remove(product)
+            return Response({"detail": "product removed"}, status=status.HTTP_202_ACCEPTED)
+
+        keys_to_remove = []
+
         for cart_product, value in cart.cart.items():
             if cart_product==str(product):
-                # print(cart_product, product)
                 if value['quantity']==quantity or value['quantity'] <= 1:
-                    cart.remove(product)
+                    keys_to_remove.append(str(product))
                 else:
                     value['quantity'] -= 1
+
+        if len(keys_to_remove) > 0:
+            for key in keys_to_remove:
+                cart.remove(key)
         cart.save()
-        
-        
-        # delete = cart.remove(product)
-        # if delete == True:
         return Response({"detail": "cart updated"}, status=status.HTTP_202_ACCEPTED)
-        # else:
-        #     return Response({"detail": "product not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @extend_schema(

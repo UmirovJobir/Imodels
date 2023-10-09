@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from .serializers import ProductListSerializer
 from .models import Product
 
+from pprint import pprint
 
 class Cart:
     def __init__(self, request):
@@ -29,30 +30,30 @@ class Cart:
         Add product to the cart or update its quantity
         """
         product = get_object_or_404(Product, pk=product)
-
-        items_data = {}
-        if len(items)!=0:
-            for item in items:
-                product_item = get_object_or_404(Product, pk=item["product"])
-                items_data[str(product_item.pk)] = {"quantity": item["quantity"]}
         
         product_id = str(product.pk)
         if product_id not in self.cart:
+            items_data = {}
+            if len(items)!=0:
+                for item in items:
+                    product_item = get_object_or_404(Product, pk=item["product"])
+                    items_data[str(product_item.pk)] = {"quantity": item["quantity"]}
+
             self.cart[product_id] = {
                 "quantity": 0,
-                "items": items_data
             }
-
+            self.cart[product_id]["items"] = items_data
+        
         if overide_quantity:
             self.cart[product_id]["quantity"] = quantity
         else:
-            product_count = self.cart[product_id]["quantity"]
+            # product_count = self.cart[product_id]["quantity"]
 
             self.cart[product_id]["quantity"] += quantity
 
-            if product_count > 0:
-                for item in self.cart[product_id]["items"].values():
-                    item["quantity"] *= self.cart[product_id]["quantity"]
+            # if product_count > 0:
+            #     for item in self.cart[product_id]["items"].values():
+            #         item["quantity"] *= self.cart[product_id]["quantity"]
             
         self.save()
 
@@ -61,13 +62,19 @@ class Cart:
         """
         Remove a product from the cart
         """
+        # product_id = str(product)
+        # if product_id in self.cart:
+        #     del self.cart[product_id]
+        #     self.save()
+        #     return True
+        # else:
+        #     return False
         product_id = str(product)
+
         if product_id in self.cart:
             del self.cart[product_id]
             self.save()
-            return True
-        else:
-            return False
+
 
 
     def __iter__(self, request):
@@ -82,38 +89,75 @@ class Cart:
             cart[str(product.id)]["product"] = serializer.data
             cart[str(product.id)]["price"] = product.price
 
-        for item in cart.values():
-            json = {}
-            if item["product"]["price"]:
-                for key, value in item["product"]["price"].items():
-                    json[key] = value *  item["quantity"]
-                    item["subtotal_price"] = json
-                item.pop("price")
-                yield item
+        for product in cart.values():
+            if product["items"]:
+                item_list = []
+                
+                for item_id, value in product["items"].items():
+                    item = get_object_or_404(Product, id=item_id)
+                    serializer = ProductListSerializer(item, context={'request': request})
+                    serialized_data_dict = dict(serializer.data)
+                    serialized_data_dict["quantity"] = value["quantity"] * product["quantity"]
+
+                    item_subtotal_price = {}
+                    for price_key, price_value in serialized_data_dict["price"].items():
+                        item_subtotal_price[price_key] = price_value *  value["quantity"]
+                        serialized_data_dict["subtotal_price"] = item_subtotal_price
+
+                    item_list.append(serialized_data_dict)
+
+                product["product"]["items"] = item_list
+
+            product_subtotal_price = {}
+            if product["product"]["price"]:
+                for key, value in product["product"]["price"].items():
+                    product_subtotal_price[key] = value *  product["quantity"]
+                    product["subtotal_price"] = product_subtotal_price
+                
+                product.pop("price")
+                product.pop("items")
+                yield product
             else:
-                item["subtotal_price"] = json
-                item.pop('price')
-                yield item
+                product["subtotal_price"] = None
+                product.pop('price')
+                product.pop("items")
+                yield product
 
 
 
-    def __len__(self):
-        """
-        Count all items in the cart
-        """
-        return sum(item["quantity"] for item in self.cart.values())
+    # def __len__(self):
+    #     """
+    #     Count all items in the cart
+    #     """
+    #     return sum(item["quantity"] for item in self.cart.values())
 
 
-    def get_total_price(self):
-        prices = [item["subtotal_price"] for item in self.cart.values()]
-        json = {}
-        for price in prices:
-            for key, value in price.items():
-                if key in json:
-                    json[key] += value
-                else:
-                    json[key] = value
-        return json
+    def get_total_price(self, data):
+        prices = []
+
+        for product in data:
+            if product["subtotal_price"]:
+                    prices.append(product["subtotal_price"])
+
+            if "items" in product["product"]: 
+                for item_price in product["product"]["items"]:
+                    prices.append(item_price["subtotal_price"])
+
+        total_usd = 0
+        total_eur = 0
+        total_uzs = 0
+
+        for group_data in prices:
+            total_usd += group_data["usd"]
+            total_eur += group_data["eur"]
+            total_uzs += group_data["uzs"]
+
+        sum = {
+            "total_usd": total_usd,
+            "total_eur": total_eur,
+            "total_uzs": total_uzs
+        }          
+        return sum
 
 
     def clear(self):
