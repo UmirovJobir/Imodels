@@ -181,6 +181,14 @@ class BlogView(ListAPIView):
     serializer_class = BlogListSerializer
     pagination_class = CustomPageNumberPagination
 
+@extend_schema(
+    tags=["Blog"],
+)
+class PopularBlogView(ListAPIView):
+    queryset = Blog.objects.filter(popular=True).order_by("-created_at")
+    serializer_class = BlogListSerializer
+    pagination_class = CustomPageNumberPagination
+
 
 @extend_schema(
     tags=["Blog"],

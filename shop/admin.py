@@ -60,9 +60,20 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
     }
 
-    list_display = ['id', 'title', 'description_short']
+    list_display = ['id', 'title', 'description_short', 'popular']
     list_display_links = ['id', 'title']
     summernote_fields = ['text']
+    fieldsets = [
+        (None, {
+            "fields": [
+                "popular",
+                "title",
+                "description",
+                "text"
+            ]
+        }
+        )
+    ]
 
     def description_short(self, obj: Blog) -> str:
         if obj.description:

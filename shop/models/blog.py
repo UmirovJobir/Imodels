@@ -13,6 +13,7 @@ class Blog(models.Model):
     title = models.CharField(max_length=500)
     description = models.TextField(null=True, blank=True)
     text = models.TextField(null=True, blank=True)
+    popular = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
