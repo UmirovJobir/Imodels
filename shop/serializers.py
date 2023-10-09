@@ -253,6 +253,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 # Serializers related to Blog
 class BlogListSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField('get_title')
+    description = serializers.SerializerMethodField('get_description')
 
     class Meta:
         model = Blog
@@ -261,18 +262,28 @@ class BlogListSerializer(serializers.ModelSerializer):
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
+    
+    def get_description(self, obj):
+        description = get_full_value(obj=obj, field='description')
+        return description
+    
 
 class BlogDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField('get_title')
+    description = serializers.SerializerMethodField('get_description')
     text = serializers.SerializerMethodField('get_text')
 
     class Meta:
         model = Blog
-        fields = ['id', 'preview_image', 'title', 'text', 'created_at']
+        fields = ['id', 'preview_image', 'title', 'description', 'text', 'created_at']
 
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
+    
+    def get_description(self, obj):
+        description = get_full_value(obj=obj, field='description')
+        return description
     
     def get_text(self, obj):
         text = get_full_value(obj=obj, field='text')
