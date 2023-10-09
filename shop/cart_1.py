@@ -153,9 +153,9 @@ class Cart:
             total_uzs += group_data["uzs"]
 
         sum = {
-            "total_usd": total_usd,
-            "total_eur": total_eur,
-            "total_uzs": total_uzs
+            "usd": total_usd,
+            "eur": total_eur,
+            "uzs": total_uzs
         }          
         return sum
 

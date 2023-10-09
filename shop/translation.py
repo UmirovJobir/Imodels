@@ -58,4 +58,4 @@ class DescriptionPointTranslationOptions(TranslationOptions):
 
 @register(Blog)
 class BlogTranslationOptions(TranslationOptions):
-    fields = ['title', 'text']
+    fields = ['title', 'description', 'text']

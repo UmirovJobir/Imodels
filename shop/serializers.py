@@ -337,7 +337,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 # Serializers related to Cart
 class CartItemSerilaizer(serializers.Serializer):
-    id = serializers.IntegerField()
+    product = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
     class Meta:
@@ -345,7 +345,7 @@ class CartItemSerilaizer(serializers.Serializer):
 
 
 class CartProductSerilaizer(serializers.Serializer):
-    id = serializers.IntegerField()
+    product = serializers.IntegerField()
     quantity = serializers.IntegerField()
     items = CartItemSerilaizer(many=True, required=False, allow_null=True)
 

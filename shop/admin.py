@@ -62,15 +62,16 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
 
     list_display = ['id', 'title', 'description_short']
     list_display_links = ['id', 'title']
+    summernote_fields = ['text']
 
     def description_short(self, obj: Blog) -> str:
         if obj.text:
-            if len(obj.text) < 48:
-                return obj.text
+            if len(obj.description) < 48:
+                return obj.description
             else:
-                return obj.text[:48] + "..."
+                return obj.description[:48] + "..."
         else:
-            return obj.text
+            return obj.description
     
     # class Media:
     #     js = ('js/uploader.js',)

@@ -130,12 +130,6 @@ class SubCategoryView(ListAPIView):
             type=int,
             location=OpenApiParameter.QUERY,
         ),
-        # OpenApiParameter(
-        #     name="currency",
-        #     type=str,
-        #     location=OpenApiParameter.HEADER,
-        #     description="`usd` or `eur` or `uzs`. The default value is usd",
-        # ),
     ],
 )
 class ProductListAPIView(ListAPIView):
@@ -164,20 +158,6 @@ class ProductListAPIView(ListAPIView):
 
 @extend_schema(
     tags=["Product"],
-    # parameters=[
-    #     OpenApiParameter(
-    #         name="accept-language",
-    #         type=str,
-    #         location=OpenApiParameter.HEADER,
-    #         description="`uz` or `ru` or `en`. The default value is uz",
-    #     ),
-    #     OpenApiParameter(
-    #         name="currency",
-    #         type=str,
-    #         location=OpenApiParameter.HEADER,
-    #         description="`usd` or `eur` or `uzs`. The default value is usd",
-    #     ),
-    # ],
 )
 class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
@@ -197,17 +177,17 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     tags=["Blog"],
 )
 class BlogView(ListAPIView):
-    queryset = Blog.objects.all()
+    queryset = Blog.objects.all().order_by("-created_at")
     serializer_class = BlogListSerializer
     pagination_class = CustomPageNumberPagination
-    
+
 
 @extend_schema(
     tags=["Blog"],
     responses=BlogDetailSerializer
 )
 class BlogDetailView(RetrieveAPIView):
-    queryset = Blog.objects.all().order_by("-created_at")
+    queryset = Blog.objects.all()
     serializer_class = BlogDetailSerializer
 
 
@@ -223,44 +203,6 @@ class ContactRequestCreateView(CreateAPIView):
     tags=["Cart"]
 )
 class CartView(APIView):
-    def request_cart(self):
-
-        product_list = []
-        total_cost = 0
-        cart = Cart(self.request)
-
-        for cart_product in cart.cart:
-            product_queryset = Product.objects.select_related('category', 'set_creator').get(id=cart_product['id'])
-            product =  product_queryset
-            product_dict = {
-                "id": product.pk,
-                "price": product.price if product.price!=None else 0, #api.get_currency(obj_price=product.price) if product.price!=None else 0,
-                "title": product.title,
-                "image": self.request.build_absolute_uri(product.product_images.all().first().image.url),
-                "quantity": cart_product['quantity']}
-            total_cost += product_dict['price']
-
-            if cart_product.get('items'):
-                item_list = []
-                for items in cart_product.get('items'):
-                    item_queryset = Product.objects.select_related('category', 'set_creator').get(id=items['id'])
-                    item =  item_queryset
-                    items = {
-                        "id": item.pk,
-                        "price": item.price, # if item.price!=None else 0,
-                        "title": item.title,
-                        "image": self.request.build_absolute_uri(item.product_images.all().first().image.url),
-                        "quantity": items['quantity'] * cart_product['quantity']}
-                    item_list.append(items)
-                    print(items['price'], items['quantity'])
-                    # total_cost += items['price'] * items['quantity']
-
-                product_dict['items'] = item_list
-            product_list.append(product_dict)
-        data = {"products": product_list, "total_cost":total_cost}
-        return data
-
-
     @extend_schema(
         tags=["Cart"],
         responses=CartProductSerilaizer,
@@ -268,12 +210,10 @@ class CartView(APIView):
     def get(self, request, *args, **kwargs):
         cart = Cart(request)
         data = list(cart.__iter__(request))
-        return Response(
-            {"data": data, 
+        return Response({
+            "data": data, 
             "cart_total_price": cart.get_total_price(data)
-            },
-            status=status.HTTP_200_OK
-            )
+            }, status=status.HTTP_200_OK)
 
 
     @extend_schema(
@@ -290,23 +230,44 @@ class CartView(APIView):
                 items = product['items'] if 'items' in product else [],
                 overide_quantity=product["overide_quantity"] if "overide_quantity" in product else False
             )
-        return Response({"message": "cart updated"}, status=status.HTTP_202_ACCEPTED)
+        return Response({"detail": "cart updated"}, status=status.HTTP_202_ACCEPTED)
 
 
     @extend_schema(
-        tags=["Cart"]
+        tags=["Cart"],
+        description="Delete a product with quantity from the cart by ID.",
+        parameters=[
+            OpenApiParameter(
+                name="product",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                required=True
+            ),
+            OpenApiParameter(
+                name="quantity",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                required=False
+            ),
+        ],
     )
     def delete(self, request):
         cart = Cart(request)
         
-        product = request.data.get("product")
-        quantity = request.data.get("quantity")
+        product = request.GET.get("product")
+        quantity = request.GET.get("quantity")
+
+        if product==None:
+            return Response({"error": "product is not given"})
 
         if quantity==None:
             cart.remove(product)
             return Response({"detail": "product removed"}, status=status.HTTP_202_ACCEPTED)
 
         keys_to_remove = []
+
+        if str(product) not in cart.cart.keys():
+            return Response({"error": "product not found"}, status=status.HTTP_404_NOT_FOUND)
 
         for cart_product, value in cart.cart.items():
             if cart_product==str(product):
@@ -363,3 +324,8 @@ class OrderView(ListCreateAPIView):
 
     #     return Response(OrderSerializer(order, many=True).data, status=status.HTTP_201_CREATED)
 
+
+
+def index(request):
+    blog = Blog.objects.get(id=2)
+    return render(request, 'blog.html', context={'blog':blog})
