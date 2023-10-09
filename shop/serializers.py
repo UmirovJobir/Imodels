@@ -4,17 +4,17 @@ from django.shortcuts import get_object_or_404
 from .translation import get_full_value
 # from account.serializers import UserSerializer
 from . import api
-from .cart import Cart
+# from .cart import Cart
 from .models import (
     Category,
     Product,
     ProductImage,
     ProductVideo,
-    ExtraDescription,
     Description,
-    ExtraDescImage,
+    DescriptionPoint,
+    DescriptionImage,
     ProductFeature,
-    ProductFeatureOption,
+    ProductFeaturePoint,
     Blog,
     ContactRequest,
     Type,
@@ -111,17 +111,17 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 # Serializers related to Extra Description
-class ExtraDescImageSerializer(serializers.ModelSerializer):
+class DescriptionImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ExtraDescImage
+        model = DescriptionImage
         fields = ['id', 'image']
 
 
-class DescriptionSerializer(serializers.ModelSerializer):
+class DescriptionPointSerializer(serializers.ModelSerializer):
     text = serializers.SerializerMethodField('get_text')
 
     class Meta:
-        model = Description
+        model = DescriptionPoint
         fields = ['id', 'text']
 
     def get_text(self, obj):
@@ -129,25 +129,25 @@ class DescriptionSerializer(serializers.ModelSerializer):
         return text
 
 
-class ExtraDescriptionSerializer(serializers.ModelSerializer):
-    extradescription_images = ExtraDescImageSerializer(many=True)
-    extradescription = DescriptionSerializer(many=True)
+class DescriptionSerializer(serializers.ModelSerializer):
+    description_images = DescriptionImageSerializer(many=True)
+    description_points = DescriptionPointSerializer(many=True)
     title = serializers.SerializerMethodField('get_title')
 
     class Meta:
-        model = ExtraDescription
-        fields = ['id', 'title', 'extradescription', 'extradescription_images']
+        model = Description
+        fields = ['id', 'title', 'description_images', 'description_points',]
 
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
 
 # Serializers related to Product
-class ProductFeatureOptionSerializer(serializers.ModelSerializer):
+class ProductFeaturePointSerializer(serializers.ModelSerializer):
     feature = serializers.SerializerMethodField('get_feature')
 
     class Meta:
-        model = ProductFeatureOption
+        model = ProductFeaturePoint
         fields = ['id', 'feature']
     
     def get_feature(self, obj):
@@ -156,7 +156,7 @@ class ProductFeatureOptionSerializer(serializers.ModelSerializer):
 
 
 class ProductFeatureSerializer(serializers.ModelSerializer):
-   features = ProductFeatureOptionSerializer(many=True)
+   features = ProductFeaturePointSerializer(many=True)
 
    class Meta:
         model = ProductFeature
@@ -188,7 +188,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     product_features = ProductFeatureSerializer()
-    product_description = ExtraDescriptionSerializer()
+    product_description = DescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
     items = ItemSerializer(many=True)
@@ -337,7 +337,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 # Serializers related to Cart
 class CartItemSerilaizer(serializers.Serializer):
-    id = serializers.IntegerField()
+    product = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
     class Meta:
@@ -345,7 +345,7 @@ class CartItemSerilaizer(serializers.Serializer):
 
 
 class CartProductSerilaizer(serializers.Serializer):
-    id = serializers.IntegerField()
+    product = serializers.IntegerField()
     quantity = serializers.IntegerField()
     items = CartItemSerilaizer(many=True, required=False, allow_null=True)
 
@@ -360,3 +360,4 @@ class CartProductSerilaizer(serializers.Serializer):
     #     print
     #     if items==None and quantity < 1:
     #         raise serializers.ValidationError("field1 cannot be greater than field2")
+

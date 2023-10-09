@@ -19,11 +19,9 @@ from django.urls import path, include, re_path
 from django.views.static import serve
 from django.conf.urls.static import static
 
-from rest_framework import permissions
-
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-from shop.views import upload_image
+# from shop.views import upload_image
 
 
 urlpatterns = [   

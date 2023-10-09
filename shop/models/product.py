@@ -92,7 +92,7 @@ class ProductFeature(models.Model):
     image_tag.short_description = 'Image'
 
 
-class ProductFeatureOption(models.Model):
+class ProductFeaturePoint(models.Model):
     feature = models.CharField(max_length=300)
     product = models.ForeignKey(ProductFeature, on_delete=models.CASCADE, related_name='features')
     created_at = models.DateTimeField(auto_now_add=True)

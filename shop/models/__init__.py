@@ -2,16 +2,16 @@ from .blog import Blog
 from .category import Category
 from .contact import ContactRequest
 from .description import (
-    ExtraDescription,
     Description,
-    ExtraDescImage
+    DescriptionPoint,
+    DescriptionImage
 )
 from .product import (
     Product,
     ProductImage,
     ProductVideo,
     ProductFeature,
-    ProductFeatureOption,
+    ProductFeaturePoint,
     Type,
     Item,
 )

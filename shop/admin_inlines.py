@@ -13,10 +13,10 @@ from .models import (
     ProductImage,
     ProductVideo,
     Description,
-    ExtraDescImage,
-    ExtraDescription,
+    DescriptionImage,
+    DescriptionPoint,
     ProductFeature,
-    ProductFeatureOption,
+    ProductFeaturePoint,
     Type,
     Item,
     Order,
@@ -48,40 +48,40 @@ class ProductImageInline(NestedTabularInline): #admin.TabularInline):
     readonly_fields = ['image_tag']
 
 
-class ProductFeatureOptionsInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
+class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
     extra = 0
-    model = ProductFeatureOption
+    model = ProductFeaturePoint
 
 
 class ProductFeatureInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = ProductFeature
-    inlines = [ProductFeatureOptionsInline]
+    inlines = [ProductFeaturePointInline]
     classes = ['collapse']
     readonly_fields = ['image_tag']
 
 
-class DescriptionInline(TranslationTabularInline, NestedTabularInline, SummernoteInlineModelAdmin):
+class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, SummernoteInlineModelAdmin):
     extra = 0
-    model = Description
+    model = DescriptionPoint
 
 
-class ExtraDescImageInline(NestedTabularInline): #admin.TabularInline):
+class DescriptionImageInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
-    model = ExtraDescImage
+    model = DescriptionImage
     readonly_fields = ['image_tag']
 
 
-class ExtraDescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
+class DescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
     # formfield_overrides = {
     #     # models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     # }
     extra = 0
-    model = ExtraDescription
-    inlines = [ExtraDescImageInline, DescriptionInline]
+    model = Description
+    inlines = [DescriptionImageInline, DescriptionPointInline]
     classes = ['collapse']
 
 
