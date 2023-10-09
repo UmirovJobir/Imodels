@@ -257,7 +257,7 @@ class BlogListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['id', 'preview_image', 'title', 'created_at']
+        fields = ['id', 'preview_image', 'title', 'description', 'created_at']
 
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
