@@ -66,19 +66,19 @@ class CategorySerializer(serializers.ModelSerializer):
 # Serializers related to Configurator
 class ItemDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField('get_title')
-    # image = serializers.SerializerMethodField('get_first_image')
+    image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'price'] #, 'image']
+        fields = ['id', 'title', 'price', 'image']
     
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
 
-    # def get_first_image(self, obj):
-    #     return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+    def get_first_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
     
     def get_price(self, obj):
         if obj.price:
@@ -96,7 +96,6 @@ class TypeSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     product = ItemDetailSerializer()
-    # type = TypeSerializer()
     type = serializers.SerializerMethodField('get_type')
 
     class Meta:
@@ -111,6 +110,9 @@ class ItemSerializer(serializers.ModelSerializer):
         
         return type_name
         
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data['product']
 
 
 # Serializers related to Extra Description
