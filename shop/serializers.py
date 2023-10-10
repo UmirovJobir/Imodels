@@ -66,31 +66,24 @@ class CategorySerializer(serializers.ModelSerializer):
 # Serializers related to Configurator
 class ItemDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField('get_title')
-    image = serializers.SerializerMethodField('get_first_image')
+    # image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'price', 'image']
+        fields = ['id', 'title', 'price'] #, 'image']
     
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
 
-    def get_first_image(self, obj):
-        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+    # def get_first_image(self, obj):
+    #     return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
     
     def get_price(self, obj):
-        request = self.context['request']
-        currency = request.META.get('HTTP_CURRENCY', 'usd')
-        if currency=='uzs':
-            kurs = api.get_usd_currency()
-            price = round(obj.price * kurs, 2)
-        elif currency=='eur':
-            usd = api.get_usd_currency()
-            eur = api.get_eur_currency()
-            price = round(obj.price * usd / eur, 2)
-        elif currency=='usd':
+        if obj.price:
+            price = api.get_currency(obj_price=obj.price)
+        else:
             price = obj.price
         return price
 
@@ -103,11 +96,21 @@ class TypeSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     product = ItemDetailSerializer()
-    type = TypeSerializer()
+    # type = TypeSerializer()
+    type = serializers.SerializerMethodField('get_type')
 
     class Meta:
         model = Item
         fields = ['type', 'product']
+    
+    def get_type(self, obj):
+        try:
+            type_name = obj.type.name
+        except AttributeError:
+            type_name = None
+        
+        return type_name
+        
 
 
 # Serializers related to Extra Description
