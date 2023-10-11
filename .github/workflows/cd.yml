@@ -1,0 +1,21 @@
+name: Imodels
+
+on: 
+  push:
+    branches: [master]
+
+jobs:
+  deploy: 
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: 37.140.241.70
+        username: root
+        key: ${{ secrets.KEY }}
+        script: | 
+          cd Imodels
+          git pull
+          docker compose up -d --build

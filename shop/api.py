@@ -27,17 +27,7 @@ def get_currency(obj_price):
 
     price = {}
     price['usd'] = obj_price
-    price['uzs'] = round(obj_price * usd_kurs, 2)
+    price['uzs'] = round(obj_price * usd_kurs, -3)
     price['eur'] = round(obj_price * usd_kurs / eur_kurs, 2)
-
-    # if currency=='uzs':
-    #     kurs = get_usd_currency()
-    #     price = round(obj_price * kurs, 2)
-    # elif currency=='eur':
-    #     usd = get_usd_currency()
-    #     eur = get_eur_currency()
-    #     price = round(obj_price * usd / eur, 2)
-    # elif currency=='usd':
-    #     price = obj_price
 
     return price
