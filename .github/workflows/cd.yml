@@ -17,5 +17,4 @@ jobs:
         script: | 
           cd Imodels
           git pull
-
           docker compose up -d --build
