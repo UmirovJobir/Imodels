@@ -1,6 +1,11 @@
 {% extends "admin/base.html" %}
 {% load static %}
 {% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrahead %}
+  <link rel="icon" type="image/png" href="{% static 'img/round_imodels.png' %}">
+{% endblock %}
+
 {% block branding %}
     <style>
         .rounded-image {
@@ -11,7 +16,8 @@
     </style>
    <h1 id="site-name">
       <a href="{% url 'admin:index' %}">
-        <img src="{% static 'img/imodels.jpg' %}" class="rounded-image"/>
+        <!-- <img src="{% static 'img/imodels.jpg' %}" class="rounded-image"/> -->
+        <img src="{% static 'img/round_imodels.png'%}" width="60">
         Imodels adminpanel
       </a>
    </h1>
