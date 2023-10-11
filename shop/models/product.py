@@ -25,7 +25,7 @@ class Product(models.Model):
         ('Visible', 'Visible'),
         ('Invisible', 'Invisible'),
     )
-    set_creator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
+    configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
     information = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')

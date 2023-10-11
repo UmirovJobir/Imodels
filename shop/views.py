@@ -80,7 +80,11 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.filter(status="Visible").select_related('category', 'set_creator').order_by('order_by')
+        queryset = Product.objects.filter(status="Visible") \
+            .order_by('order_by') \
+            .prefetch_related('product_images', 'item') \
+            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
+
         category_id = self.request.query_params.get('category_id')
         if category_id:
             category = Category.objects.get(id=category_id)
@@ -104,7 +108,10 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.all().select_related('category', 'set_creator').order_by('order_by')
+        queryset = Product.objects.all() \
+            .order_by('order_by') \
+            .prefetch_related('product_images', 'item') \
+            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
     def get_serializer(self, *args, **kwargs):

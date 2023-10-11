@@ -112,7 +112,10 @@ class ItemSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        return data['product']
+        product_data = data.pop('product', None)
+        if product_data:
+            data.update(product_data)
+        return data
 
 
 # Serializers related to Extra Description
@@ -204,21 +207,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'category', 'title', 'information', 
-                  'price', 'set_creator', 'items', 'product_images', 'product_video', 
+                  'price', 'configurator', 'items', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
     
     def get_price(self, obj):
-        request = self.context['request']
-        currency = request.META.get('HTTP_CURRENCY', 'usd')
-        if currency=='uzs':
-            kurs = api.get_usd_currency()
-            price = round(obj.price * kurs, 2)
-        elif currency=='eur':
-            usd = api.get_usd_currency()
-            eur = api.get_eur_currency()
-            price = round(obj.price * usd / eur, 2)
-        elif currency=='usd':
+        if obj.price:
+            price = api.get_currency(obj_price=obj.price)
+        else:
             price = obj.price
         return price
 
