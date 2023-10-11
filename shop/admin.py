@@ -114,7 +114,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
     list_per_page = 20
     list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
     list_display_links = ['id', 'title']
-    raw_id_fields = ['category', 'set_creator']
+    raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
     inlines = [
         ProductImageInline,
@@ -126,7 +126,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
     fieldsets = [
         ("Продукт", {
             "fields": [
-                "set_creator",
+                "configurator",
                 "title",
                 "order_by",
                 "information",
