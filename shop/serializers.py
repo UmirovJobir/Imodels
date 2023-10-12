@@ -78,8 +78,12 @@ class ItemDetailSerializer(serializers.ModelSerializer):
         return title
 
     def get_first_image(self, obj):
-        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
-    
+        first_image = obj.product_images.first()
+        if first_image:
+            return self.context['request'].build_absolute_uri(first_image.image.url)
+        else:
+            return None
+
     def get_price(self, obj):
         if obj.price:
             price = api.get_currency(obj_price=obj.price)
@@ -96,26 +100,14 @@ class TypeSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     product = ItemDetailSerializer()
-    type = serializers.SerializerMethodField('get_type')
 
     class Meta:
         model = Item
-        fields = ['type', 'product']
-    
-    def get_type(self, obj):
-        try:
-            type_name = obj.type.name
-        except AttributeError:
-            type_name = None
-        
-        return type_name
+        fields = ['product']
         
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        product_data = data.pop('product', None)
-        if product_data:
-            data.update(product_data)
-        return data
+        return data['product']
 
 
 # Serializers related to Extra Description
@@ -199,7 +191,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_description = DescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
-    items = ItemSerializer(many=True)
+    items = serializers.SerializerMethodField('get_items')
     price = serializers.SerializerMethodField('get_price')
     title = serializers.SerializerMethodField('get_title')
     information = serializers.SerializerMethodField('get_information')
@@ -225,6 +217,24 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_information(self, obj):
         description = get_full_value(obj=obj, field='information')
         return description
+
+    def get_items(self, obj):
+        items = Item.objects.filter(item=obj).select_related('type')
+        type_names = items.values_list('type__name', flat=True).distinct()
+
+        request = self.context.get('request')
+
+        type_data = []
+        for type_name in type_names:
+            type_items = items.filter(type__name=type_name)
+            type_serializer = ItemSerializer(type_items, many=True, context={'request': request})
+            type_data.append({
+                'type': type_name,
+                'product': type_serializer.data
+            })
+
+        return type_data
+
 
 
 class ProductListSerializer(serializers.ModelSerializer):

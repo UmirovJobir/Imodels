@@ -41,14 +41,6 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Mahsulot'
         verbose_name_plural = 'Mahsulotlar'
-    
-    def image_tag(self):
-        try:
-            first_image = self.product_images.first().image.url
-        except AttributeError:
-            first_image = "/media/no-image.png"
-        return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
-    image_tag.short_description = 'Image'
 
 
 class ProductImage(models.Model):

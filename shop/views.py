@@ -1,7 +1,7 @@
+from django.db.models import Count
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-
 from rest_framework.views import APIView
 from rest_framework import filters, status, permissions, serializers
 from rest_framework.response import Response
@@ -110,8 +110,8 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all() \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'item') \
-            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
+            .prefetch_related('product_images', 'items') \
+            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description', 'item')
         return queryset
 
     def get_serializer(self, *args, **kwargs):
