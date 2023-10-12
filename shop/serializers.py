@@ -79,11 +79,8 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 
     def get_first_image(self, obj):
         first_image = obj.product_images.first()
-        # return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
-
         if first_image:
-            # Use the ProductImageSerializer to serialize the image
-            return ProductImageSerializer(first_image).data
+            return self.context['request'].build_absolute_uri(first_image.image.url)
         else:
             return None
 
@@ -225,10 +222,12 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         items = Item.objects.filter(item=obj).select_related('type')
         type_names = items.values_list('type__name', flat=True).distinct()
 
+        request = self.context.get('request')
+
         type_data = []
         for type_name in type_names:
             type_items = items.filter(type__name=type_name)
-            type_serializer = ItemSerializer(type_items, many=True)
+            type_serializer = ItemSerializer(type_items, many=True, context={'request': request})
             type_data.append({
                 'type': type_name,
                 'product': type_serializer.data

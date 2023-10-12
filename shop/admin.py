@@ -1,6 +1,7 @@
 from django import forms
 from django.db import models
 from django.contrib import admin
+from django.utils.html import mark_safe
 
 from nested_admin import NestedModelAdmin
 from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
@@ -83,9 +84,6 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
                 return obj.description[:48] + "..."
         else:
             return obj.description
-    
-    # class Media:
-    #     js = ('js/uploader.js',)
 
 
 @admin.register(Category)
@@ -112,7 +110,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
     summernote_fields = ['information']
 
     list_per_page = 20
-    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status'] #description_short
+    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status']
     list_display_links = ['id', 'title']
     raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
@@ -147,6 +145,20 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
             return obj.description
         else:
             return obj.description[:48] + "..."
+    
+    def image_tag(self, obj):
+        try:
+            first_image = obj.product_images.first().image.url
+        except AttributeError:
+            first_image = "/media/no-image.png"
+        return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
+        
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('category').prefetch_related('product_images')
+        # queryset = queryset.prefetch_related('product_images', 'items') \
+        #     .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description', 'item')
+        return queryset
 
 
 
