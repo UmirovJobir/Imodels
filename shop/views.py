@@ -11,7 +11,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     ListCreateAPIView,
 )
-from .cart_1 import Cart
+from .cart import Cart
 from .pagination import CustomPageNumberPagination
 from .models import (
     Category,
@@ -82,7 +82,7 @@ class ProductListAPIView(ListAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.filter(status="Visible") \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'item') \
+            .prefetch_related('product_images', 'item', 'items') \
             .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
 
         category_id = self.request.query_params.get('category_id')
@@ -110,8 +110,8 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all() \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'items') \
-            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description', 'item')
+            .prefetch_related('product_images', 'item','items') \
+            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
     def get_serializer(self, *args, **kwargs):
