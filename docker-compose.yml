@@ -18,7 +18,7 @@ services:
       - .env
     volumes:
        - media:/usr/src/app/media
-       - static:/usr/src/app/static/
+      #  - static:/usr/src/app/static/
 
   pgdb:
     restart: always
@@ -48,5 +48,5 @@ services:
 volumes:
   pgdb:
   media:
-  static:
+  # static:
 
