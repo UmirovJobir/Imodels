@@ -191,6 +191,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_description = DescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
+    main_item = serializers.SerializerMethodField('get_main_item')
     items = serializers.SerializerMethodField('get_items')
     price = serializers.SerializerMethodField('get_price')
     title = serializers.SerializerMethodField('get_title')
@@ -199,7 +200,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'category', 'title', 'information', 
-                  'price', 'configurator', 'items', 'product_images', 'product_video', 
+                  'price', 'configurator', 'main_item','items', 'product_images', 'product_video', 
                   'product_description', 'product_features'
                 ]
     
@@ -217,9 +218,16 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_information(self, obj):
         description = get_full_value(obj=obj, field='information')
         return description
+    
+    def get_main_item(self, obj):
+        request = self.context.get('request')
+        item = Item.objects.filter(item=obj, type__isnull=True).select_related('type').first()
+        item_serializer = ItemDetailSerializer(item.product, context={'request': request})
+        return item_serializer.data
+
 
     def get_items(self, obj):
-        items = Item.objects.filter(item=obj).select_related('type')
+        items = Item.objects.filter(item=obj, type__isnull=False).select_related('type')
         type_names = items.values_list('type__name', flat=True).distinct()
 
         request = self.context.get('request')
@@ -227,10 +235,10 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         type_data = []
         for type_name in type_names:
             type_items = items.filter(type__name=type_name)
-            type_serializer = ItemSerializer(type_items, many=True, context={'request': request})
+            item_serializer = ItemSerializer(type_items, many=True, context={'request': request})
             type_data.append({
                 'type': type_name,
-                'product': type_serializer.data
+                'product': item_serializer.data
             })
 
         return type_data

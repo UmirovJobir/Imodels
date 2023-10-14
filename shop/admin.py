@@ -28,7 +28,7 @@ from .models import (
     ProductVideo,
     ProductImage,
     Description,
-    DescriptionPoint
+    DescriptionPoint,
 )
 from django_summernote.admin import SummernoteModelAdmin
 
@@ -119,7 +119,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         ProductVideoInline,
         # ExtraDescriptionInline,
         ProductFeatureInline,
-        ItemInline
+        ItemInline,
     ]
     fieldsets = [
         ("Продукт", {
@@ -168,3 +168,4 @@ class OrderAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'customer']
     readonly_fields = ['total_price']
     inlines = [OrderProductInline]
+

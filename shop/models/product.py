@@ -98,11 +98,14 @@ class Type(models.Model):
         return self.name
 
 
+
 class Item(models.Model):
     type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='item')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='item')
     item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='items')
     
+    class Meta:
+        unique_together = ('product', 'item')
 
     def image_tag(self):
         return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
