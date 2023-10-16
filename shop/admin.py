@@ -115,9 +115,9 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
     raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
     inlines = [
+        # ExtraDescriptionInline,
         ProductImageInline,
         ProductVideoInline,
-        # ExtraDescriptionInline,
         ProductFeatureInline,
         ItemInline,
     ]
@@ -150,14 +150,13 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         try:
             first_image = obj.product_images.first().image.url
         except AttributeError:
-            first_image = "/media/no-image.png"
+            first_image = "/static/img/no-image.png"
         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
         
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.select_related('category').prefetch_related('product_images')
-        # queryset = queryset.prefetch_related('product_images', 'items') \
-        #     .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description', 'item')
+        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type') \
+            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
 

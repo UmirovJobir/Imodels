@@ -30,6 +30,11 @@ class CategoryInline(TranslationTabularInline):
     verbose_name = "Подкатегория"
     verbose_name_plural = "Подкатегории"
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('parent')
+        return queryset
+
 
 class ProductVideoInline(TranslationStackedInline, NestedStackedInline, SummernoteInlineModelAdmin): #admin.StackedInline):
     formfield_overrides = {
@@ -40,12 +45,22 @@ class ProductVideoInline(TranslationStackedInline, NestedStackedInline, Summerno
     classes = ['collapse']
     # readonly_fields = ['video_tag']
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product')
+        return queryset
+
 
 class ProductImageInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = ProductImage
     classes = ['collapse']
     readonly_fields = ['image_tag']
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product')
+        return queryset
 
 
 class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
@@ -55,6 +70,11 @@ class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline): 
     extra = 0
     model = ProductFeaturePoint
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product')
+        return queryset
+
 
 class ProductFeatureInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
@@ -63,16 +83,32 @@ class ProductFeatureInline(NestedTabularInline): #admin.TabularInline):
     classes = ['collapse']
     readonly_fields = ['image_tag']
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product').prefetch_related('features')
+        return queryset
+
 
 class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, SummernoteInlineModelAdmin):
     extra = 0
     model = DescriptionPoint
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('description')
+        return queryset
+
 
 
 class DescriptionImageInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
     model = DescriptionImage
     readonly_fields = ['image_tag']
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('description')
+        return queryset
 
 
 class DescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
@@ -84,6 +120,11 @@ class DescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin
     inlines = [DescriptionImageInline, DescriptionPointInline]
     classes = ['collapse']
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product').prefetch_related('description_points', 'description_images')
+        return queryset
+
 
 class ItemInline(NestedTabularInline): #admin.TabularInline):
     extra = 0
@@ -92,6 +133,11 @@ class ItemInline(NestedTabularInline): #admin.TabularInline):
     raw_id_fields = ['type', 'product']
     readonly_fields = ['price', 'image_tag']
     classes = ['collapse']
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('type', 'product', 'item')
+        return queryset
 
 
 class OrderItemInline(NestedTabularInline): #admin.TabularInline):

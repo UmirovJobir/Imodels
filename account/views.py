@@ -62,8 +62,7 @@ class ResendView(views.APIView):
         user = get_object_or_404(User, phone=request.data.get('phone'))
         
         auth_sms = user.authsms
-        # auth_sms.secure_code = generate_code()
-        auth_sms.secure_code = "111111"
+        auth_sms.secure_code = generate_code()
         auth_sms.created_at = timezone.now()
         auth_sms.save()
 
@@ -105,8 +104,10 @@ class PasswordResetTokenAPI(generics.GenericAPIView):
 
 
 @extend_schema(
-        request=PhoneResetSerializer,
-        responses="test",
+        request=ResetPasswordSerializer,
+        responses={
+            200: OpenApiResponse(description="Password reset complete"),
+        }
 )
 class ResetPasswordAPI(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer

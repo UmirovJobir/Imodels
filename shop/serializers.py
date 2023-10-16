@@ -222,9 +222,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_main_item(self, obj):
         request = self.context.get('request')
         item = Item.objects.filter(item=obj, type__isnull=True).select_related('type').first()
-        item_serializer = ItemDetailSerializer(item.product, context={'request': request})
-        return item_serializer.data
-
+        if item:
+            item_serializer = ItemDetailSerializer(item.product, context={'request': request})
+            return item_serializer.data
+        else:
+            return None
 
     def get_items(self, obj):
         items = Item.objects.filter(item=obj, type__isnull=False).select_related('type')
@@ -240,8 +242,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
                 'type': type_name,
                 'product': item_serializer.data
             })
-
-        return type_data
+        
+        if type_data:
+            return type_data
+        else:
+            return None
 
 
 
