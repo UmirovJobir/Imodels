@@ -160,11 +160,30 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         return queryset
 
 
-
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'customer', 'total_price']
+class OrderAdmin(NestedModelAdmin):
+    list_display = ['id', 'customer', 'total_price', 'order_status']
     list_display_links = ['id', 'customer']
     readonly_fields = ['total_price']
     inlines = [OrderProductInline]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('customer')
+        return queryset
+    
+    def order_status(self, obj):
+        return mark_safe(
+            """<b style="
+                    padding: 5px;
+                    border-radius: 10px;
+                    border: 2px;
+                    background:{};">
+                {}</b>"""
+            .format(
+                '#09E502' if obj.status=="To'langan" else 'yellow',
+                obj.status)
+            )
+
+    
 

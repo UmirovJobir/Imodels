@@ -262,23 +262,47 @@ class OrderView(ListCreateAPIView):
 
 
 
-    # def create(self, request, *args, **kwargs):
-    #     # Deserialize the request data using the OrderSerializer
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
+class OrderCreate(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-    #     # Create Order instance
-    #     order = serializer.save()
+    def post(self, request):
+        
+        order = Order.objects.create(customer=request.user)
+        for product in request.data:
 
-    #     # Create OrderProducts and OrderItems
-    #     order_products_data = serializer.validated_data.pop('order_products')
-    #     for order_product_data in order_products_data:
-    #         order_items_data = order_product_data.pop('order_items')
-    #         order_product = OrderProduct.objects.create(order=order, **order_product_data)
-    #         for order_item_data in order_items_data:
-    #             OrderProductItem.objects.create(order_product=order_product, **order_item_data)
+            order_product = OrderProduct.objects.create(
+                    order=order,
+                    quantity  = product['quantity'],
+                    product   = get_object_or_404(Product, pk=product['product']),
+                    price     = product['price']['uzs'] if product['price']!=None else None,
+                    price_usd = product['price']['usd'] if product['price']!=None else None,
+                    price_eur = product['price']['eur'] if product['price']!=None else None)
 
-    #     return Response(OrderSerializer(order, many=True).data, status=status.HTTP_201_CREATED)
+            if product.get('main_item'):
+                product_price = product['main_item']['price']
+                order_item = OrderProductItem.objects.create(
+                                order_product = order_product,
+                                quantity      = product['main_item']['quantity'],
+                                product       = get_object_or_404(Product, pk=product['main_item']['product']),
+                                price         = product_price['uzs'] if product_price['uzs']!=None else None,
+                                price_usd     = product_price['usd'] if product_price['usd']!=None else None,
+                                price_eur     = product_price['eur'] if product_price['eur']!=None else None)
+            
+            if product.get('order_items'):
+                for item in product['order_items']:
+                    item_price = item['price']
+                    order_item = OrderProductItem.objects.create(
+                            order_product = order_product,
+                            quantity      = item['quantity'],
+                            product       = get_object_or_404(Product, pk=item['product']),
+                            price         = item_price['uzs'] if item_price['uzs']!=None else None,
+                            price_usd     = item_price['usd'] if item_price['usd']!=None else None,
+                            price_eur     = item_price['eur'] if item_price['eur']!=None else None)
+            
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 
 
