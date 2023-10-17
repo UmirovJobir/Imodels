@@ -329,11 +329,11 @@ class OrderProductItemSerilaizer(serializers.ModelSerializer):
 
 
 class OrderProductSerializer(serializers.ModelSerializer):
-    order_items = OrderProductItemSerilaizer(many=True)
+    # order_items = OrderProductItemSerilaizer(many=True)
 
     class Meta:
         model = OrderProduct
-        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity', 'order_items']
+        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity'] #, 'order_items']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -342,31 +342,6 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'order_products']
-    
-    @transaction.atomic
-    def create(self, validated_data):
-        order_instance = Order.objects.create(customer=validated_data['customer'])
-        order_products = validated_data.pop('order_products')
-
-        # print(validated_data)
-
-        # for order_product in order_products:
-        #     order_items_data = order_product.pop('order_items')
-
-        #     order_product, created = OrderProduct.objects.get_or_create(order = order_instance, **order_product)
-        #     if created==False:
-        #         order_product.price += order_product.get('price')
-        #         order_product.quantity += order_product.get('quantity')
-        #         order_product.save()
-
-        #     for order_item_data in order_items_data:
-        #         order_product_item, created = OrderProductItem.objects.get_or_create(order_product = order_product, **order_item_data)
-        #         if created==False:
-        #             order_product_item.price += order_item_data.get('price')
-        #             order_product_item.quantity += order_product_item.get('quantity')
-        #             order_product_item.save()
-
-        return order_instance
     
 
 # Serializers related to Cart

@@ -3,6 +3,7 @@ from django.db import models
 from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
+from django.utils.html import format_html
 
 from nested_admin import NestedModelAdmin
 from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
@@ -36,7 +37,7 @@ from django_summernote.admin import SummernoteModelAdmin
 admin.site.register(Type)
 
 @admin.register(Description)
-class DescriptionAdmin(TranslationAdmin, NestedModelAdmin  ):
+class DescriptionAdmin(TranslationAdmin, NestedModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
     }
@@ -103,7 +104,7 @@ class CategoryAdmin(TranslationAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #, admin.ModelAdmin):
+class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
         models.BooleanField: {
@@ -142,6 +143,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
             "classes": ["wide"],
         }),
     ]
+
     
     def category_name(self, obj: Product) -> str:
         return obj.category.name
@@ -167,22 +169,26 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         return queryset
 
 
-from django.utils.html import format_html
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
     list_display = ['id', 'customer', 'total_price', 'order_status']
     list_display_links = ['id', 'customer']
-    readonly_fields = ['total_price', 'order_status']
+    readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
     inlines = [OrderProductInline]
     fieldsets = [
         ("Order", {
             "fields": [
                 "customer",
-                "order_status"
+                "order_status",
+                "formatted_total_price",
+                "created_at"
             ],
-            "classes": ["wide"],
         }),
     ]
+    
+    def formatted_total_price(self, obj):
+        return "{:,.2f} So'm".format(obj.total_price)
+    formatted_total_price.short_description = 'Total Price'
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -190,21 +196,8 @@ class OrderAdmin(NestedModelAdmin):
         return queryset
     
     def order_status(self, obj):
-        # return mark_safe(
-            # """<b style="
-            #         padding: 5px;
-            #         border-radius: 10px;
-            #         border: 2px;
-            #         background:{};">
-            #     {}</b>"""
-            # .format(
-            #     '#09E502' if obj.status=="To'langan" else 'yellow',
-            #     obj.status)
-            # )
-
         #ff0000; /* Red */
-
-        css = "color: white; padding: 4px 8px; border-radius: 5px; background-color: {}"
+        # css = "color: white; padding: 4px 8px; border-radius: 5px; background-color: {}"
         return format_html(
             """<span 
                 style="

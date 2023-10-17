@@ -1,5 +1,6 @@
 from django import forms
 from django.db import models
+from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
 from nested_admin import NestedStackedInline, NestedTabularInline
@@ -154,12 +155,41 @@ class OrderItemInline(NestedTabularInline):
 
 
 class OrderProductInline(NestedTabularInline):
+    formfield_overrides = {
+        models.PositiveIntegerField: {
+            'widget': widgets.NumberInput(attrs={
+                'style':  'width: 50px;'  #'padding: 4px 8px; border-radius: 5px;'
+            })
+        },
+        models.DecimalField: {
+            'widget': widgets.NumberInput(attrs={
+                'style':  'width: 100px;'  #'padding: 4px 8px; border-radius: 5px;'
+            })
+        }
+    }
     extra = 0
     model = OrderProduct
-    inlines = [OrderItemInline]
-    # classes = ['collapse']
-    raw_id_fields = ['product']
-    readonly_fields = ['image_tag', 'subtotal', 'total_price']
+    # inlines = [OrderItemInline]
+    raw_id_fields = ['product', 'configurator']
+    readonly_fields = ['product', 'configurator', 'image_tag', 'formatted_subtotal_price', 'product_name']
+    fieldsets = [
+        (None, {
+            "fields": [
+                'product',
+                'configurator',
+                'price',
+                'price_usd',
+                'price_eur',
+                'quantity',
+                'image_tag',
+                'formatted_subtotal_price',
+            ],
+        }),
+    ]
+
+    def formatted_subtotal_price(self, obj):
+        return "{:,.2f}".format(obj.subtotal)
+    formatted_subtotal_price.short_description = 'Subtotal'
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

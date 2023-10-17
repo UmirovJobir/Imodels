@@ -1,9 +1,9 @@
-from django.db.models import Count
+from django.db import transaction
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.views import APIView
-from rest_framework import filters, status, permissions, serializers
+from rest_framework import filters, status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
@@ -257,50 +257,62 @@ class OrderView(ListCreateAPIView):
         context['customer'] = self.request.user
         return context
 
-    def perform_create(self, serializer):
-        serializer.save(customer=self.request.user)
-
-
-
-class OrderCreate(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
         order = Order.objects.create(customer=request.user)
         for product in request.data:
-
             order_product = OrderProduct.objects.create(
                     order=order,
-                    quantity  = product['quantity'],
-                    product   = get_object_or_404(Product, pk=product['product']),
-                    price     = product['price']['uzs'] if product['price']!=None else None,
-                    price_usd = product['price']['usd'] if product['price']!=None else None,
-                    price_eur = product['price']['eur'] if product['price']!=None else None)
-
-            if product.get('main_item'):
-                product_price = product['main_item']['price']
-                order_item = OrderProductItem.objects.create(
-                                order_product = order_product,
-                                quantity      = product['main_item']['quantity'],
-                                product       = get_object_or_404(Product, pk=product['main_item']['product']),
-                                price         = product_price['uzs'] if product_price['uzs']!=None else None,
-                                price_usd     = product_price['usd'] if product_price['usd']!=None else None,
-                                price_eur     = product_price['eur'] if product_price['eur']!=None else None)
-            
-            if product.get('order_items'):
-                for item in product['order_items']:
-                    item_price = item['price']
-                    order_item = OrderProductItem.objects.create(
-                            order_product = order_product,
-                            quantity      = item['quantity'],
-                            product       = get_object_or_404(Product, pk=item['product']),
-                            price         = item_price['uzs'] if item_price['uzs']!=None else None,
-                            price_usd     = item_price['usd'] if item_price['usd']!=None else None,
-                            price_eur     = item_price['eur'] if item_price['eur']!=None else None)
+                    quantity     = product['quantity'],
+                    product      = get_object_or_404(Product, pk=product['product']),
+                    configurator = get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
+                    price        = product['price']['uzs'] if product['price']!=None else None,
+                    price_usd    = product['price']['usd'] if product['price']!=None else None,
+                    price_eur    = product['price']['eur'] if product['price']!=None else None)
             
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# class OrderCreate(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+        
+#         order = Order.objects.create(customer=request.user)
+#         for product in request.data:
+
+#             order_product = OrderProduct.objects.create(
+#                     order=order,
+#                     quantity  = product['quantity'],
+#                     product   = get_object_or_404(Product, pk=product['product']),
+#                     price     = product['price']['uzs'] if product['price']!=None else None,
+#                     price_usd = product['price']['usd'] if product['price']!=None else None,
+#                     price_eur = product['price']['eur'] if product['price']!=None else None)
+
+#             if product.get('main_item'):
+#                 product_price = product['main_item']['price']
+#                 order_item = OrderProductItem.objects.create(
+#                                 order_product = order_product,
+#                                 quantity      = product['main_item']['quantity'],
+#                                 product       = get_object_or_404(Product, pk=product['main_item']['product']),
+#                                 price         = product_price['uzs'] if product_price['uzs']!=None else None,
+#                                 price_usd     = product_price['usd'] if product_price['usd']!=None else None,
+#                                 price_eur     = product_price['eur'] if product_price['eur']!=None else None)
+            
+#             if product.get('order_items'):
+#                 for item in product['order_items']:
+#                     item_price = item['price']
+#                     order_item = OrderProductItem.objects.create(
+#                             order_product = order_product,
+#                             quantity      = item['quantity'],
+#                             product       = get_object_or_404(Product, pk=item['product']),
+#                             price         = item_price['uzs'] if item_price['uzs']!=None else None,
+#                             price_usd     = item_price['usd'] if item_price['usd']!=None else None,
+#                             price_eur     = item_price['eur'] if item_price['eur']!=None else None)
+            
+#         serializer = OrderSerializer(order)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 

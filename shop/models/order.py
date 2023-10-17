@@ -15,6 +15,7 @@ class Order(models.Model):
 
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=pending)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         verbose_name = 'Buyurtma'
@@ -32,8 +33,7 @@ class OrderProduct(models.Model):
     price_usd = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     price_eur = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
-    # configurator = models.PositiveBigIntegerField(null=True, blank=True)
-    # configurator = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_configurator')
+    configurator = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_configurator', null=True, blank=True)
 
     def image_tag(self):
         try:
@@ -42,6 +42,10 @@ class OrderProduct(models.Model):
             first_image = "/static/img/no-image.png"
         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
     image_tag.short_description = 'Image'
+
+    @property
+    def product_name(self):
+        return self.product.title
 
     @property
     def total_price(self):

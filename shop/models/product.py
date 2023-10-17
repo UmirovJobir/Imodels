@@ -39,6 +39,9 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Mahsulot'
         verbose_name_plural = 'Mahsulotlar'
+    
+    def __str__(self) -> str:
+        return self.title
 
 
 class ProductImage(models.Model):

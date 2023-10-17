@@ -10,7 +10,7 @@ from .views import (
     ContactRequestCreateView,
     CartView,
     OrderView,
-    OrderCreate,
+    # OrderCreate,
     index
 )
 
@@ -30,7 +30,7 @@ urlpatterns = [
     path('cart/', CartView.as_view(), name='cart'),
 
     path('order/', OrderView.as_view(), name='order'),
-    path('order-create/', OrderCreate.as_view(), name='order'),
+    # path('order-create/', OrderCreate.as_view(), name='order'),
 
     path('index/', index, name='index'),
     ]
