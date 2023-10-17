@@ -25,6 +25,7 @@ class Product(models.Model):
         ('Visible', 'Visible'),
         ('Invisible', 'Invisible'),
     )
+    is_configurator = models.BooleanField(default=False)
     configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
     information = models.TextField(null=True, blank=True)

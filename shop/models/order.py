@@ -32,6 +32,8 @@ class OrderProduct(models.Model):
     price_usd = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     price_eur = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
+    # configurator = models.PositiveBigIntegerField(null=True, blank=True)
+    # configurator = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_configurator')
 
     def image_tag(self):
         try:

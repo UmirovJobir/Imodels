@@ -1,5 +1,6 @@
 from django import forms
 from django.db import models
+from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
 
@@ -105,6 +106,11 @@ class CategoryAdmin(TranslationAdmin):
 class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #, admin.ModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+        models.BooleanField: {
+            'widget': widgets.NullBooleanSelect(attrs={
+                'style': 'padding: 4px 8px; border-radius: 5px;'
+            })
+        },
     }
 
     summernote_fields = ['information']
@@ -124,6 +130,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
     fieldsets = [
         ("Продукт", {
             "fields": [
+                "is_configurator",
                 "configurator",
                 "title",
                 "order_by",
@@ -160,12 +167,22 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         return queryset
 
 
+from django.utils.html import format_html
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
     list_display = ['id', 'customer', 'total_price', 'order_status']
     list_display_links = ['id', 'customer']
-    readonly_fields = ['total_price']
+    readonly_fields = ['total_price', 'order_status']
     inlines = [OrderProductInline]
+    fieldsets = [
+        ("Order", {
+            "fields": [
+                "customer",
+                "order_status"
+            ],
+            "classes": ["wide"],
+        }),
+    ]
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -173,17 +190,32 @@ class OrderAdmin(NestedModelAdmin):
         return queryset
     
     def order_status(self, obj):
-        return mark_safe(
-            """<b style="
-                    padding: 5px;
-                    border-radius: 10px;
-                    border: 2px;
-                    background:{};">
-                {}</b>"""
-            .format(
-                '#09E502' if obj.status=="To'langan" else 'yellow',
+        # return mark_safe(
+            # """<b style="
+            #         padding: 5px;
+            #         border-radius: 10px;
+            #         border: 2px;
+            #         background:{};">
+            #     {}</b>"""
+            # .format(
+            #     '#09E502' if obj.status=="To'langan" else 'yellow',
+            #     obj.status)
+            # )
+
+        #ff0000; /* Red */
+
+        css = "color: white; padding: 4px 8px; border-radius: 5px; background-color: {}"
+        return format_html(
+            """<span 
+                style="
+                color: black;
+                padding: 4px 8px;
+                border-radius: 5px;
+                background-color: {}
+                ">{}
+            </span>""",
+                '#09E502' if obj.status=="To'langan" else '#FFF404',
                 obj.status)
-            )
 
     
 
