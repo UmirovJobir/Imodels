@@ -22,7 +22,6 @@ from .models import (
     Item,
     Order,
     OrderProduct,
-    OrderProductItem,
 )
 
 class CategoryInline(TranslationTabularInline):
@@ -141,19 +140,6 @@ class ItemInline(NestedTabularInline):
         return queryset
 
 
-class OrderItemInline(NestedTabularInline):
-    extra = 0
-    model = OrderProductItem
-    # classes = ['collapse']
-    raw_id_fields = ['product']
-    readonly_fields = ['image_tag', 'subtotal']
-
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.select_related('order_product', 'product').prefetch_related('product__product_images')
-        return queryset
-
-
 class OrderProductInline(NestedTabularInline):
     formfield_overrides = {
         models.PositiveIntegerField: {
@@ -169,7 +155,6 @@ class OrderProductInline(NestedTabularInline):
     }
     extra = 0
     model = OrderProduct
-    # inlines = [OrderItemInline]
     raw_id_fields = ['product', 'configurator']
     readonly_fields = ['product', 'configurator', 'image_tag', 'formatted_subtotal_price', 'product_name']
     fieldsets = [
@@ -193,7 +178,7 @@ class OrderProductInline(NestedTabularInline):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.select_related('order', 'product').prefetch_related('order_items', 'product__product_images')
+        queryset = queryset.select_related('order', 'product').prefetch_related('product__product_images')
         return queryset
 
 

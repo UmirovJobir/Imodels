@@ -171,15 +171,24 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
-    list_display = ['id', 'customer', 'total_price', 'order_status']
+    formfield_overrides = {
+        models.BooleanField: {
+            'widget': widgets.NullBooleanSelect(attrs={
+                'style':  'width: 100px; background-color: red;'  #'padding: 4px 8px; border-radius: 5px;'
+            })
+        }
+    }
+
+    list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
     list_display_links = ['id', 'customer']
     readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
     inlines = [OrderProductInline]
+    list_filter = ['created_at', 'status']
     fieldsets = [
         ("Order", {
             "fields": [
                 "customer",
-                "order_status",
+                "status",
                 "formatted_total_price",
                 "created_at"
             ],

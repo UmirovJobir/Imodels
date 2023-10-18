@@ -21,7 +21,6 @@ from .models import (
     Item,
     Order,
     OrderProduct,
-    OrderProductItem,
 )
 
 
@@ -322,12 +321,6 @@ class ContactRequestSerializer(serializers.ModelSerializer):
 
 
 # Serializers related to Order
-class OrderProductItemSerilaizer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderProductItem
-        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity']
-
-
 class OrderProductSerializer(serializers.ModelSerializer):
     # order_items = OrderProductItemSerilaizer(many=True)
 
@@ -338,10 +331,11 @@ class OrderProductSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     order_products = OrderProductSerializer(many=True)
+    created_at = serializers.DateTimeField(required=False, format="%d-%m-%Y %H:%M:%S", input_formats=["%d-%m-%Y %H:%M:%S"])
 
     class Meta:
         model = Order
-        fields = ['id', 'order_products']
+        fields = ['id', 'created_at', 'order_products']
     
 
 # Serializers related to Cart
