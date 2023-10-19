@@ -4,15 +4,14 @@ from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
 from django.utils.html import format_html
+from django_summernote.admin import SummernoteModelAdmin
 
 from nested_admin import NestedModelAdmin
-from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
+from modeltranslation.admin import TranslationAdmin
 from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
-    CategoryInline,
     ProductImageInline,
     ProductVideoInline,
-    DescriptionInline,
     DescriptionImageInline,
     DescriptionPointInline,
     ProductFeatureInline,
@@ -25,14 +24,13 @@ from .models import (
     Blog,
     ContactRequest,
     Type,
-    Item,
     Order,
-    ProductVideo,
-    ProductImage,
     Description,
-    DescriptionPoint,
 )
-from django_summernote.admin import SummernoteModelAdmin
+
+admin.site.site_header = "Imodels adminpanel"
+admin.site.site_title = "Imodels adminpanel"
+admin.site.index_title = "Imodels"
 
 admin.site.register(Type)
 
@@ -178,7 +176,6 @@ class OrderAdmin(NestedModelAdmin):
             })
         }
     }
-
     list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
     list_display_links = ['id', 'customer']
     readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
@@ -188,6 +185,7 @@ class OrderAdmin(NestedModelAdmin):
         ("Order", {
             "fields": [
                 "customer",
+                "order_status",
                 "status",
                 "formatted_total_price",
                 "created_at"
@@ -201,23 +199,39 @@ class OrderAdmin(NestedModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.select_related('customer')
+        queryset = queryset.select_related('customer').prefetch_related('order_products')
         return queryset
     
     def order_status(self, obj):
-        #ff0000; /* Red */
-        # css = "color: white; padding: 4px 8px; border-radius: 5px; background-color: {}"
+        if obj.status=="To'langan":
+            background_color = '#2ea44f'
+            color = '#fff'
+
+        elif obj.status=="Kutish":
+            background_color = '#fff000'
+            color = '#000'
+    
+        elif obj.status=="Rad etilgan":
+            background_color = '#ff0000'
+            color = '#fff'
+        else:
+            background_color = None
+            color = None
+ 
         return format_html(
             """<span 
                 style="
-                color: black;
-                padding: 4px 8px;
-                border-radius: 5px;
-                background-color: {}
+                display: block;
+                align-items: center;
+                background-color: {};
+                border-radius: 6px;
+                color: {};
+                cursor: pointer;
+                padding: 6px 16px;
+                text-align: center;
                 ">{}
             </span>""",
-                '#09E502' if obj.status=="To'langan" else '#FFF404',
-                obj.status)
+                background_color, color, obj.status)
 
     
 

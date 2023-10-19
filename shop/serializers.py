@@ -322,11 +322,9 @@ class ContactRequestSerializer(serializers.ModelSerializer):
 
 # Serializers related to Order
 class OrderProductSerializer(serializers.ModelSerializer):
-    # order_items = OrderProductItemSerilaizer(many=True)
-
     class Meta:
         model = OrderProduct
-        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity'] #, 'order_items']
+        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -336,10 +334,29 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'created_at', 'order_products']
+
+
+class OrderPriceRequest(serializers.Serializer):
+    usd = serializers.DecimalField(decimal_places=2, max_digits=10)
+    uzs = serializers.DecimalField(decimal_places=2, max_digits=10)
+    eur = serializers.DecimalField(decimal_places=2, max_digits=10)
+
+    class Meta:
+        fields = ['usd', 'uzs', 'eur']
+
+
+class OrderRequest(serializers.Serializer):
+    configurator = serializers.IntegerField()
+    product = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+    price = OrderPriceRequest()
+
+    class Meta:
+        fields = ['configurator', 'product', 'quantity', 'price']
     
 
 # Serializers related to Cart
-class CartItemSerilaizer(serializers.Serializer):
+class CartItemRequest(serializers.Serializer):
     product = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
@@ -347,20 +364,11 @@ class CartItemSerilaizer(serializers.Serializer):
         fields = ['id', 'quantity']
 
 
-class CartProductSerilaizer(serializers.Serializer):
+class CartProductRequest(serializers.Serializer):
     product = serializers.IntegerField()
     quantity = serializers.IntegerField()
-    items = CartItemSerilaizer(many=True, required=False, allow_null=True)
+    items = CartItemRequest(many=True, required=False, allow_null=True)
 
     class Meta:
         fields = ['id', 'quantity', "items"]
-
-    # def validate(self, data):
-    #     id = data.get('id')
-    #     quantity = data.get('quantity')
-    #     items = data.get('items')
-        
-    #     print
-    #     if items==None and quantity < 1:
-    #         raise serializers.ValidationError("field1 cannot be greater than field2")
 

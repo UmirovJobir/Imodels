@@ -6,15 +6,14 @@ from .product import Product
 
 
 class Order(models.Model):
-    paid = "To'langan"
-    pending = "Kutish" 
     STATUS_CHOICES = (
-        (paid, "To'langan"),
-        (pending, "Kutish"),
+        ("To'langan", "To'langan"),
+        ("Kutish", "Kutish"),
+        ("Rad etilgan", "Rad etilgan"),
     )
 
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order')
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=pending)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=STATUS_CHOICES[1][1])
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

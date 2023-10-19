@@ -160,8 +160,8 @@ class OrderProductInline(NestedTabularInline):
     fieldsets = [
         (None, {
             "fields": [
-                'product',
                 'configurator',
+                'product',
                 'price',
                 'price_usd',
                 'price_eur',
@@ -178,7 +178,7 @@ class OrderProductInline(NestedTabularInline):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.select_related('order', 'product').prefetch_related('product__product_images')
+        queryset = queryset.select_related('order', 'product').prefetch_related('product__product_images', 'configurator').order_by('configurator')
         return queryset
 
 

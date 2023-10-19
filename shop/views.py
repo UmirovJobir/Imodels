@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRequest
 from rest_framework.views import APIView
 from rest_framework import filters, status, permissions
 from rest_framework.response import Response
@@ -30,7 +30,8 @@ from .serializers import (
     BlogDetailSerializer,
     ContactRequestSerializer,
     OrderSerializer,
-    CartProductSerilaizer
+    OrderRequest,
+    CartProductRequest
 )
 
 
@@ -160,7 +161,7 @@ class ContactRequestCreateView(CreateAPIView):
 class CartView(APIView):
     @extend_schema(
         tags=["Cart"],
-        responses=CartProductSerilaizer,
+        responses=CartProductRequest,
     )
     def get(self, request, *args, **kwargs):
         cart = Cart(request)
@@ -173,8 +174,8 @@ class CartView(APIView):
 
     @extend_schema(
             tags=["Cart"],
-            request=CartProductSerilaizer,
-            responses=CartProductSerilaizer,
+            request=CartProductRequest,
+            responses=CartProductRequest,
     )
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
@@ -240,22 +241,22 @@ class CartView(APIView):
 
 @extend_schema(
     tags=["Order"],
-    request=OrderSerializer,
+    request=OrderRequest(many=True),
     responses=OrderSerializer,
 )
 class OrderView(ListCreateAPIView):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Order.objects.filter(customer=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['customer'] = self.request.user
         return context
-
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Order.objects.filter(customer=user)
+    
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         order = Order.objects.create(customer=request.user)
@@ -271,10 +272,3 @@ class OrderView(ListCreateAPIView):
             
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-def index(request):
-    blog = Blog.objects.get(id=2)
-    return render(request, 'blog.html', context={'blog':blog})
