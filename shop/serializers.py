@@ -21,7 +21,6 @@ from .models import (
     Item,
     Order,
     OrderProduct,
-    OrderProductItem,
 )
 
 
@@ -322,56 +321,42 @@ class ContactRequestSerializer(serializers.ModelSerializer):
 
 
 # Serializers related to Order
-class OrderProductItemSerilaizer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderProductItem
-        fields = ['product', 'price', 'quantity']
-
-
 class OrderProductSerializer(serializers.ModelSerializer):
-    order_items = OrderProductItemSerilaizer(many=True)
-
     class Meta:
         model = OrderProduct
-        fields = ['product', 'price', 'quantity', 'order_items']
+        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity']
 
 
 class OrderSerializer(serializers.ModelSerializer):
     order_products = OrderProductSerializer(many=True)
+    created_at = serializers.DateTimeField(required=False, format="%d-%m-%Y %H:%M:%S", input_formats=["%d-%m-%Y %H:%M:%S"])
 
     class Meta:
         model = Order
-        fields = ['id', 'order_products']
-    
-    @transaction.atomic
-    def create(self, validated_data):
-        order_instance = Order.objects.create(customer=validated_data['customer'])
-        order_products_data = validated_data.pop('order_products')
+        fields = ['id', 'created_at', 'order_products']
 
-        for order_product_data in order_products_data:
-            order_items_data = order_product_data.pop('order_items')
 
-            order_product, created = OrderProduct.objects.get_or_create(order = order_instance, **order_product_data)
-            if created==False:
-                order_product.price += order_product_data.get('price')
-                order_product.quantity += order_product_data.get('quantity')
-                order_product.save()
+class OrderPriceRequest(serializers.Serializer):
+    usd = serializers.DecimalField(decimal_places=2, max_digits=10)
+    uzs = serializers.DecimalField(decimal_places=2, max_digits=10)
+    eur = serializers.DecimalField(decimal_places=2, max_digits=10)
 
-            for order_item_data in order_items_data:
-                order_product_item, created = OrderProductItem.objects.get_or_create(order_product = order_product, **order_item_data)
-                if created==False:
-                    order_product_item.price += order_item_data.get('price')
-                    order_product_item.quantity += order_product_item.get('quantity')
-                    order_product_item.save()
-        
-        cart = Cart(self.context.get('request'))
-        cart.clear()
+    class Meta:
+        fields = ['usd', 'uzs', 'eur']
 
-        return order_instance
+
+class OrderRequest(serializers.Serializer):
+    configurator = serializers.IntegerField()
+    product = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+    price = OrderPriceRequest()
+
+    class Meta:
+        fields = ['configurator', 'product', 'quantity', 'price']
     
 
 # Serializers related to Cart
-class CartItemSerilaizer(serializers.Serializer):
+class CartItemRequest(serializers.Serializer):
     product = serializers.IntegerField()
     quantity = serializers.IntegerField()
 
@@ -379,20 +364,11 @@ class CartItemSerilaizer(serializers.Serializer):
         fields = ['id', 'quantity']
 
 
-class CartProductSerilaizer(serializers.Serializer):
+class CartProductRequest(serializers.Serializer):
     product = serializers.IntegerField()
     quantity = serializers.IntegerField()
-    items = CartItemSerilaizer(many=True, required=False, allow_null=True)
+    items = CartItemRequest(many=True, required=False, allow_null=True)
 
     class Meta:
         fields = ['id', 'quantity', "items"]
-
-    # def validate(self, data):
-    #     id = data.get('id')
-    #     quantity = data.get('quantity')
-    #     items = data.get('items')
-        
-    #     print
-    #     if items==None and quantity < 1:
-    #         raise serializers.ValidationError("field1 cannot be greater than field2")
 

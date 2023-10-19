@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+
+{% load static %}
+
+{% block extrahead %}
+    <style>
+        select[name=status] option[value="Kutish"] {
+            background-color: yellow;
+            color: black;
+        }
+
+        select[name=status] option[value="To'langan"] {
+            background-color: green;
+            color: white;
+        }
+
+        select[name=status] option[value="Rad etilgan"] {
+            background-color: red;
+            color: white;
+        }
+
+    </style>
+{% endblock %}

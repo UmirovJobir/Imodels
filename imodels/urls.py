@@ -21,8 +21,6 @@ from django.conf.urls.static import static
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-# from shop.views import upload_image
-
 
 urlpatterns = [   
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -36,10 +34,6 @@ urlpatterns = [
     path('summernote/', include('django_summernote.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
     path('_nested_admin/', include('nested_admin.urls')),
-    
-    # path('tinymce/', include('tinymce.urls')),
-    # path('upload_image/', upload_image, name="upload_image"),
-
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

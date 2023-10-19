@@ -1,16 +1,17 @@
 from django import forms
 from django.db import models
+from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
+from django.utils.html import format_html
+from django_summernote.admin import SummernoteModelAdmin
 
 from nested_admin import NestedModelAdmin
-from modeltranslation.admin import TranslationAdmin, TranslationTabularInline
+from modeltranslation.admin import TranslationAdmin
 from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
-    CategoryInline,
     ProductImageInline,
     ProductVideoInline,
-    DescriptionInline,
     DescriptionImageInline,
     DescriptionPointInline,
     ProductFeatureInline,
@@ -23,19 +24,18 @@ from .models import (
     Blog,
     ContactRequest,
     Type,
-    Item,
     Order,
-    ProductVideo,
-    ProductImage,
     Description,
-    DescriptionPoint,
 )
-from django_summernote.admin import SummernoteModelAdmin
+
+admin.site.site_header = "Imodels adminpanel"
+admin.site.site_title = "Imodels adminpanel"
+admin.site.index_title = "Imodels"
 
 admin.site.register(Type)
 
 @admin.register(Description)
-class DescriptionAdmin(TranslationAdmin, NestedModelAdmin  ):
+class DescriptionAdmin(TranslationAdmin, NestedModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
     }
@@ -102,9 +102,14 @@ class CategoryAdmin(TranslationAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #, admin.ModelAdmin):
+class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+        models.BooleanField: {
+            'widget': widgets.NullBooleanSelect(attrs={
+                'style': 'padding: 4px 8px; border-radius: 5px;'
+            })
+        },
     }
 
     summernote_fields = ['information']
@@ -124,6 +129,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
     fieldsets = [
         ("Продукт", {
             "fields": [
+                "is_configurator",
                 "configurator",
                 "title",
                 "order_by",
@@ -135,6 +141,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
             "classes": ["wide"],
         }),
     ]
+
     
     def category_name(self, obj: Product) -> str:
         return obj.category.name
@@ -160,11 +167,71 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin): #,
         return queryset
 
 
-
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'customer', 'total_price']
+class OrderAdmin(NestedModelAdmin):
+    formfield_overrides = {
+        models.BooleanField: {
+            'widget': widgets.NullBooleanSelect(attrs={
+                'style':  'width: 100px; background-color: red;'  #'padding: 4px 8px; border-radius: 5px;'
+            })
+        }
+    }
+    list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
     list_display_links = ['id', 'customer']
-    readonly_fields = ['total_price']
+    readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
     inlines = [OrderProductInline]
+    list_filter = ['created_at', 'status']
+    fieldsets = [
+        ("Order", {
+            "fields": [
+                "customer",
+                "order_status",
+                "status",
+                "formatted_total_price",
+                "created_at"
+            ],
+        }),
+    ]
+    
+    def formatted_total_price(self, obj):
+        return "{:,.2f} So'm".format(obj.total_price)
+    formatted_total_price.short_description = 'Total Price'
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('customer').prefetch_related('order_products')
+        return queryset
+    
+    def order_status(self, obj):
+        if obj.status=="To'langan":
+            background_color = '#2ea44f'
+            color = '#fff'
+
+        elif obj.status=="Kutish":
+            background_color = '#fff000'
+            color = '#000'
+    
+        elif obj.status=="Rad etilgan":
+            background_color = '#ff0000'
+            color = '#fff'
+        else:
+            background_color = None
+            color = None
+ 
+        return format_html(
+            """<span 
+                style="
+                display: block;
+                align-items: center;
+                background-color: {};
+                border-radius: 6px;
+                color: {};
+                cursor: pointer;
+                padding: 6px 16px;
+                text-align: center;
+                ">{}
+            </span>""",
+                background_color, color, obj.status)
+
+    
 

@@ -25,6 +25,7 @@ class Product(models.Model):
         ('Visible', 'Visible'),
         ('Invisible', 'Invisible'),
     )
+    is_configurator = models.BooleanField(default=False)
     configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
     information = models.TextField(null=True, blank=True)
@@ -34,13 +35,13 @@ class Product(models.Model):
     order_by = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    # def __str__(self) -> str:
-    #     return self.title
     
     class Meta:
         verbose_name = 'Mahsulot'
         verbose_name_plural = 'Mahsulotlar'
+    
+    def __str__(self) -> str:
+        return self.title
 
 
 class ProductImage(models.Model):
@@ -64,9 +65,6 @@ class ProductVideo(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return self.product.title
     
     # def video_tag(self):
     #     return f'<iframe width="560" height="315" src="{self.video_link}" frameborder="0" allowfullscreen></iframe>'
@@ -98,7 +96,6 @@ class Type(models.Model):
         return self.name
 
 
-
 class Item(models.Model):
     type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='item')
@@ -108,7 +105,7 @@ class Item(models.Model):
         unique_together = ('product', 'item')
 
     def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.all().first().image.url))
+        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.first().image.url))
     image_tag.short_description = 'Image'
 
     def price(self):

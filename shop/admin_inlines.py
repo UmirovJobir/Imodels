@@ -1,7 +1,8 @@
 from django import forms
 from django.db import models
+from django.forms import widgets
 from django.contrib import admin
-from embed_video.admin import AdminVideoMixin
+from django.utils.html import mark_safe
 from nested_admin import NestedStackedInline, NestedTabularInline
 from modeltranslation.admin import TranslationStackedInline, TranslationTabularInline
 
@@ -21,7 +22,6 @@ from .models import (
     Item,
     Order,
     OrderProduct,
-    OrderProductItem,
 )
 
 class CategoryInline(TranslationTabularInline):
@@ -36,7 +36,7 @@ class CategoryInline(TranslationTabularInline):
         return queryset
 
 
-class ProductVideoInline(TranslationStackedInline, NestedStackedInline, SummernoteInlineModelAdmin): #admin.StackedInline):
+class ProductVideoInline(TranslationStackedInline, NestedStackedInline, SummernoteInlineModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -51,7 +51,7 @@ class ProductVideoInline(TranslationStackedInline, NestedStackedInline, Summerno
         return queryset
 
 
-class ProductImageInline(NestedTabularInline): #admin.TabularInline):
+class ProductImageInline(NestedTabularInline):
     extra = 0
     model = ProductImage
     classes = ['collapse']
@@ -63,7 +63,7 @@ class ProductImageInline(NestedTabularInline): #admin.TabularInline):
         return queryset
 
 
-class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
+class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -76,7 +76,7 @@ class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline): 
         return queryset
 
 
-class ProductFeatureInline(NestedTabularInline): #admin.TabularInline):
+class ProductFeatureInline(NestedTabularInline):
     extra = 0
     model = ProductFeature
     inlines = [ProductFeaturePointInline]
@@ -100,7 +100,7 @@ class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, Summ
 
 
 
-class DescriptionImageInline(NestedTabularInline): #admin.TabularInline):
+class DescriptionImageInline(NestedTabularInline):
     extra = 0
     model = DescriptionImage
     readonly_fields = ['image_tag']
@@ -111,7 +111,7 @@ class DescriptionImageInline(NestedTabularInline): #admin.TabularInline):
         return queryset
 
 
-class DescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin.StackedInline):
+class DescriptionInline(TranslationStackedInline, NestedStackedInline):
     # formfield_overrides = {
     #     # models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     # }
@@ -126,7 +126,7 @@ class DescriptionInline(TranslationStackedInline, NestedStackedInline): #, admin
         return queryset
 
 
-class ItemInline(NestedTabularInline): #admin.TabularInline):
+class ItemInline(NestedTabularInline):
     extra = 0
     model = Item
     fk_name = 'item'
@@ -140,17 +140,46 @@ class ItemInline(NestedTabularInline): #admin.TabularInline):
         return queryset
 
 
-class OrderItemInline(NestedTabularInline): #admin.TabularInline):
-    extra = 0
-    model = OrderProductItem
-    raw_id_fields = ['product']
-    readonly_fields = ['image_tag', 'subtotal']
-
-
-class OrderProductInline(NestedTabularInline): #admin.TabularInline):
+class OrderProductInline(NestedTabularInline):
+    formfield_overrides = {
+        models.PositiveIntegerField: {
+            'widget': widgets.NumberInput(attrs={
+                'style':  'width: 50px;'  #'padding: 4px 8px; border-radius: 5px;'
+            })
+        },
+        models.DecimalField: {
+            'widget': widgets.NumberInput(attrs={
+                'style':  'width: 100px;'  #'padding: 4px 8px; border-radius: 5px;'
+            })
+        }
+    }
     extra = 0
     model = OrderProduct
-    inlines = [OrderItemInline]
-    # classes = ['collapse']
-    raw_id_fields = ['product']
-    readonly_fields = ['image_tag', 'subtotal', 'total_price']
+    raw_id_fields = ['product', 'configurator']
+    readonly_fields = ['product', 'configurator', 'image_tag', 'formatted_subtotal_price', 'product_name']
+    fieldsets = [
+        (None, {
+            "fields": [
+                'configurator',
+                'product',
+                'price',
+                'price_usd',
+                'price_eur',
+                'quantity',
+                'image_tag',
+                'formatted_subtotal_price',
+            ],
+        }),
+    ]
+
+    def formatted_subtotal_price(self, obj):
+        return "{:,.2f}".format(obj.subtotal)
+    formatted_subtotal_price.short_description = 'Subtotal'
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('order', 'product').prefetch_related('product__product_images', 'configurator').order_by('configurator')
+        return queryset
+
+
+ 

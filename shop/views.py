@@ -1,9 +1,9 @@
-from django.db.models import Count
+from django.db import transaction
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRequest
 from rest_framework.views import APIView
-from rest_framework import filters, status, permissions, serializers
+from rest_framework import filters, status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListAPIView,
@@ -20,7 +20,6 @@ from .models import (
     ContactRequest,
     Order,
     OrderProduct,
-    OrderProductItem,
 )
 from .serializers import (
     CategorySerializer,
@@ -31,7 +30,8 @@ from .serializers import (
     BlogDetailSerializer,
     ContactRequestSerializer,
     OrderSerializer,
-    CartProductSerilaizer
+    OrderRequest,
+    CartProductRequest
 )
 
 
@@ -161,7 +161,7 @@ class ContactRequestCreateView(CreateAPIView):
 class CartView(APIView):
     @extend_schema(
         tags=["Cart"],
-        responses=CartProductSerilaizer,
+        responses=CartProductRequest,
     )
     def get(self, request, *args, **kwargs):
         cart = Cart(request)
@@ -174,8 +174,8 @@ class CartView(APIView):
 
     @extend_schema(
             tags=["Cart"],
-            request=CartProductSerilaizer,
-            responses=CartProductSerilaizer,
+            request=CartProductRequest,
+            responses=CartProductRequest,
     )
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
@@ -241,47 +241,34 @@ class CartView(APIView):
 
 @extend_schema(
     tags=["Order"],
-    request=OrderSerializer,
+    request=OrderRequest(many=True),
     responses=OrderSerializer,
 )
 class OrderView(ListCreateAPIView):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Order.objects.filter(customer=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['customer'] = self.request.user
         return context
-
-    def perform_create(self, serializer):
-        serializer.save(customer=self.request.user)
-
-
-
-    # def create(self, request, *args, **kwargs):
-    #     # Deserialize the request data using the OrderSerializer
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-
-    #     # Create Order instance
-    #     order = serializer.save()
-
-    #     # Create OrderProducts and OrderItems
-    #     order_products_data = serializer.validated_data.pop('order_products')
-    #     for order_product_data in order_products_data:
-    #         order_items_data = order_product_data.pop('order_items')
-    #         order_product = OrderProduct.objects.create(order=order, **order_product_data)
-    #         for order_item_data in order_items_data:
-    #             OrderProductItem.objects.create(order_product=order_product, **order_item_data)
-
-    #     return Response(OrderSerializer(order, many=True).data, status=status.HTTP_201_CREATED)
-
-
-
-def index(request):
-    blog = Blog.objects.get(id=2)
-    return render(request, 'blog.html', context={'blog':blog})
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Order.objects.filter(customer=user)
+    
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        order = Order.objects.create(customer=request.user)
+        for product in request.data:
+            order_product = OrderProduct.objects.create(
+                    order=order,
+                    quantity     = product['quantity'],
+                    product      = get_object_or_404(Product, pk=product['product']),
+                    configurator = get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
+                    price        = product['price']['uzs'] if product['price']!=None else None,
+                    price_usd    = product['price']['usd'] if product['price']!=None else None,
+                    price_eur    = product['price']['eur'] if product['price']!=None else None)
+            
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)

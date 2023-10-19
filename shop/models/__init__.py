@@ -17,6 +17,5 @@ from .product import (
 )
 from .order import (
     Order,
-    OrderProduct,
-    OrderProductItem,
+    OrderProduct
 )
