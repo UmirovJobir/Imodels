@@ -4,10 +4,9 @@ services:
   web:
     restart: always
     container_name: django
-    build: .
-    # build:
-    #   context: ./app
-    #   dockerfile: Dockerfile
+    # build: .
+    build: 
+      dockerfile: Dockerfile.prod
     command: 
       - gunicorn imodels.wsgi:application --bind 0.0.0.0:8000
     ports:
@@ -24,10 +23,6 @@ services:
     restart: always
     image: postgres:15-alpine
     container_name: db
-    # environment:
-    #   - POSTGRES_DB=Imodels
-    #   - POSTGRES_USER=postgres
-      # - POSTGRES_PASSWORD=123
     ports:
       - "5430:5432"
     depends_on:
@@ -47,21 +42,8 @@ services:
     depends_on:
       - web
 
-  # pgadmin:
-  #     restart: always
-  #     image: dpage/pgadmin4:latest
-  #     container_name: pgadmin
-  #     depends_on:
-  #       - pgdb
-  #     environment:
-  #       PGADMIN_DEFAULT_EMAIL: jobirumirovmoliya@gmail.com
-  #       PGADMIN_DEFAULT_PASSWORD: pgadmin
-  #     ports:
-  #       - "8080:80"
-
 volumes:
   postgres_data:
-  data:
   media:
   # static:
 
