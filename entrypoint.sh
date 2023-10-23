@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$DATABASE" = "Imodels" ]
+if [ "$DATABASE" = "imodels" ]
 then
     echo "Waiting for postgres..."
 
