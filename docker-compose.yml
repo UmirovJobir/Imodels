@@ -29,7 +29,7 @@ services:
     ports:
       - "5430:5432"
     environment:
-      POSTGRES_DB: Imodels
+      POSTGRES_DB: imodels
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
     volumes:
