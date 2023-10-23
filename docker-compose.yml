@@ -4,10 +4,10 @@ services:
   web:
     restart: always
     container_name: django
-    # build: .
-    build:
-      context: ./app
-      dockerfile: Dockerfile
+    build: .
+    # build:
+    #   context: ./app
+    #   dockerfile: Dockerfile
     command: 
       - gunicorn imodels.wsgi:application --bind 0.0.0.0:8000
     ports:
