@@ -279,8 +279,8 @@ PASSWORD_RESET_TIMEOUT = 10800
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 CORS_ALLOWED_ORIGINS = [
-    "http://jobir.com",
-    "https://jobir.com",
+    "http://jobir.uz",
+    "https://jobir.uz",
     "http://localhost:8080",
     "http://127.0.0.1:9000"
     ]

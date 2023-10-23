@@ -34,7 +34,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
   
   nginx:
-    build: ./nginx
+    image: nginx
     container_name: web_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
