@@ -18,7 +18,7 @@ services:
       - .env
     volumes:
        - media:/usr/src/app/media
-       - static:/usr/src/app/staticfiles/
+      #  - static:/usr/src/app/staticfiles/
 
   db:
     restart: always
@@ -35,12 +35,12 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data/
   
   nginx:
     build: ./nginx
     volumes:
-      - static_volume:/home/app/web/staticfiles
+      # - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/media
     ports:
       - 1337:80
@@ -60,7 +60,7 @@ services:
   #       - "8080:80"
 
 volumes:
-  pgdb:
+  postgres_data:
   data:
   media:
   # static:
