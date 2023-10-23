@@ -26,12 +26,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str('SECRET_KEY')
+# SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG')
+# DEBUG = env.bool('DEBUG')
 
-ALLOWED_HOSTS = ['jobir.uz', '37.140.241.70', 'localhost', '127.0.0.1',]
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
+DEBUG = bool(os.environ.get("DEBUG", default=0))
+
+# ALLOWED_HOSTS = ['jobir.uz', '37.140.241.70', 'localhost', '127.0.0.1',]
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 INTERNAL_IPS = [
@@ -110,15 +116,26 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#    'default': {
+#         'ENGINE': env.str('POSTGRES_ENGINE'),
+#         'NAME': env.str('POSTGRES_DB'), 
+#         'USER': env.str('POSTGRES_USER'), 
+#         'PASSWORD': env.str('POSTGRES_PASSWORD'),
+#         'HOST': env.str('POSTGRES_HOST'),    
+#         'PORT': env.str('POSTGRES_PORT')
+#    }
+# }
+
 DATABASES = {
-   'default': {
-        'ENGINE': env.str('POSTGRES_ENGINE'),
-        'NAME': env.str('POSTGRES_DB'), 
-        'USER': env.str('POSTGRES_USER'), 
-        'PASSWORD': env.str('POSTGRES_PASSWORD'),
-        'HOST': env.str('POSTGRES_HOST'),    
-        'PORT': env.str('POSTGRES_PORT')
-   }
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
+    }
 }
 
 
