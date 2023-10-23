@@ -38,7 +38,7 @@ services:
     container_name: web_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      # - static_volume:/home/app/web/staticfiles
+      - ./staticfiles:/usr/src/app/staticfiles
       - media:/home/app/web/media
     ports:
       - 80:80
