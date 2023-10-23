@@ -32,6 +32,8 @@ services:
       - postgres_data:/var/lib/postgresql/data/
   
   nginx:
+    restart: always
+    container_name: webapp_nginx
     build: ./nginx
     volumes:
       # - static_volume:/home/app/web/staticfiles
