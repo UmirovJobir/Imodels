@@ -1,9 +1,6 @@
 FROM python:3.10-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update && apt-get install -y netcat
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /usr/src/app
 COPY requirements.txt ./
@@ -14,6 +11,7 @@ RUN pip install -r requirements.txt
 
 RUN chmod +x entrypoint.sh
 
+EXPOSE 8000
 
 COPY entrypoint.sh .
-ENTRYPOINT ["sh", "entrypoint.prod.sh"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
