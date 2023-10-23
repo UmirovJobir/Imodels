@@ -28,7 +28,7 @@ services:
     container_name: db
     ports:
       - "5430:5432"
-    nvironment:
+    environment:
       POSTGRES_DB: Imodels
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
