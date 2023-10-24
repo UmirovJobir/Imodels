@@ -16,7 +16,8 @@ services:
     env_file:
       - .env
     volumes:
-       - ./mediafiles:/usr/src/app/mediafiles
+      - /var/certbot/conf:/etc/letsencrypt/:ro
+      - ./mediafiles:/usr/src/app/mediafiles
 
   db:
     restart: always
