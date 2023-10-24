@@ -6,11 +6,11 @@ services:
     container_name: web
     build: .
     command: 
-      - gunicorn --config gunicorn_config.py imodels.wsgi:application
-      # - gunicorn 
-      # - imodels.wsgi:application 
-      # - --bind
-      # - 0.0.0.0:8000
+      # - gunicorn --config gunicorn_config.py imodels.wsgi:application
+      - gunicorn 
+      - imodels.wsgi:application 
+      - --bind
+      - 0.0.0.0:8000
     depends_on:
       - db
     env_file:
