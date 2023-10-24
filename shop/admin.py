@@ -68,6 +68,7 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
         (None, {
             "fields": [
                 "popular",
+                "preview_image",
                 "title",
                 "description",
                 "text"
