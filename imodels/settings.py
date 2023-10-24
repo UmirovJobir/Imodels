@@ -33,7 +33,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+DEBUG = bool(os.environ.get("DEBUG", False))
+# DEBUG = False
 
 # ALLOWED_HOSTS = ['jobir.uz', '37.140.241.70', 'localhost', '127.0.0.1',]
 
@@ -276,7 +277,7 @@ MYSERVICE = {
 
 PASSWORD_RESET_TIMEOUT = 10800
 
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 CORS_ALLOWED_ORIGINS = [
     "http://jobir.uz",
