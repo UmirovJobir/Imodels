@@ -26,17 +26,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = env.str('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = env.bool('DEBUG')
-
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", False))
-# DEBUG = False
-
-# ALLOWED_HOSTS = ['jobir.uz', '37.140.241.70', 'localhost', '127.0.0.1',]
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
@@ -68,7 +61,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_spectacular',
     'embed_video',
-    # 'tinymce',
     'django_summernote',
     'nested_admin',
     'debug_toolbar',
@@ -112,23 +104,6 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#    'default': {
-#         'ENGINE': env.str('POSTGRES_ENGINE'),
-#         'NAME': env.str('POSTGRES_DB'), 
-#         'USER': env.str('POSTGRES_USER'), 
-#         'PASSWORD': env.str('POSTGRES_PASSWORD'),
-#         'HOST': env.str('POSTGRES_HOST'),    
-#         'PORT': env.str('POSTGRES_PORT')
-#    }
-# }
 
 DATABASES = {
     "default": {
@@ -196,7 +171,6 @@ LANGUAGES = (
 )
 
 LANGUAGE_CODE = 'uz'
-# MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru', 'en')
 MODELTRANSLATION_FALLBACK_LANGUAGES = {
     'default': ('uz', 'ru', 'en'),
     'ru': ('ru',),
@@ -239,17 +213,17 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.template.context_processors.request',
 )
 
-JAZZMIN_SETTINGS = {
-    "site_title": "Imodels Admin Panel",
-    "site_header": "Imodels",
-    "site_brand": "Imodels",
-    "site_logo": "img/imodels.jpg",
-    "login_logo": None,
-    "login_logo_dark": None,
-    "site_logo_classes": "img-circle",
-    "site_icon": "img/imodels.jpg",
-    "welcome_sign": "Welcome to the Imodels Admin Panel"
-}
+# JAZZMIN_SETTINGS = {
+#     "site_title": "Imodels Admin Panel",
+#     "site_header": "Imodels",
+#     "site_brand": "Imodels",
+#     "site_logo": "img/imodels.jpg",
+#     "login_logo": None,
+#     "login_logo_dark": None,
+#     "site_logo_classes": "img-circle",
+#     "site_icon": "img/imodels.jpg",
+#     "welcome_sign": "Welcome to the Imodels Admin Panel"
+# }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1), #minutes=60),
@@ -267,21 +241,18 @@ MYSERVICE = {
         }
     },
     'sms_service': {
-        'base_url': env.str('SMS_URL'),
+        'api_url': env.str('SMS_URL'),
         'email': env.str('SMS_EMAIL'),
-        'password': env.str('SMS_PASSWORD'),
-        'group': env.str('SMS_GROUP'),
-        'callback_url': env.str('SMS_CALLBACK_URL'),
+        'password': env.str('SMS_PASSWORD')
     }
 }
 
 PASSWORD_RESET_TIMEOUT = 10800
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 CORS_ALLOWED_ORIGINS = [
     "http://jobir.uz",
     "https://jobir.uz",
-    "http://localhost:8080",
+    "http://localhost:8000",
     "http://127.0.0.1:9000"
     ]

@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 from .validators import phone_regex
 from .managers import UserManager
 
-# from django.contrib.auth.models import User
 
 class User(AbstractUser):
+    INVALID_PASSWORD = "Invalid password. Password must be at least 8 characters long."
     USER_ERROR_MESSAGE = "User not found"
     PASSWORD_REST = "Password reset complete"
     

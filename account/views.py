@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework import generics, views, status
 from rest_framework.permissions import IsAuthenticated
 
+from django.conf import settings
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -11,6 +12,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from libs.telegram import telebot
+from libs.sms import client
+
 from .utils import generate_code
 from .models import User, AuthSms
 from .serializers import (
@@ -66,7 +69,14 @@ class ResendView(views.APIView):
         auth_sms.created_at = timezone.now()
         auth_sms.save()
 
-        telebot.send_message(text = AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code), _type='chat_id_orders')
+        if settings.DEBUG==False:
+            client._send_sms(
+                phone_number=user.phone,
+                message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
+
+        telebot.send_message(
+                _type='chat_id_orders',
+                text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
 
         return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
 
@@ -79,7 +89,7 @@ class UserDetailView(generics.RetrieveAPIView):
         return self.request.user
     
 
-class PasswordResetTokenAPI(generics.GenericAPIView):
+class PasswordResetTokenView(generics.GenericAPIView):
     serializer_class = PhoneRequestSerializer
 
     def post(self, request):
@@ -109,7 +119,7 @@ class PasswordResetTokenAPI(generics.GenericAPIView):
             200: OpenApiResponse(description="Password reset complete"),
         }
 )
-class ResetPasswordAPI(generics.GenericAPIView):
+class ResetPasswordView(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
 
     def patch(self, request, *args, **kwargs):

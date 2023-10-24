@@ -1,14 +1,17 @@
 from rest_framework import serializers
 
+from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
+
 from libs.telegram import telebot
+from libs.sms import client
 from .utils import generate_code
 from .models import User, AuthSms
-from .validators import phone_regex
+from .validators import phone_regex, is_valid_password
 
 
 class RegisterSerializer(serializers.ModelSerializer):  
@@ -19,9 +22,24 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     @transaction.atomic
     def create(self, validated_data):
+        password = validated_data.get('password')
+
+        if not is_valid_password(password):
+            raise serializers.ValidationError(User.INVALID_PASSWORD)
+
         user = User.objects.create_user(is_active=False, **validated_data)
+
         auth_sms = AuthSms.objects.create(user=user, secure_code=generate_code())
-        telebot.send_message(text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code), _type='chat_id_orders')
+
+        if settings.DEBUG==False:
+            client._send_sms(
+                phone_number=user.phone,
+                message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
+        
+        telebot.send_message(
+            _type='chat_id_orders',
+            text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
+        
         return user
 
 
@@ -54,6 +72,9 @@ class ResetPasswordSerializer(serializers.Serializer):
 
     def validate(self, data):
         password = data.get("password")
+        if not is_valid_password(password):
+            raise serializers.ValidationError(User.INVALID_PASSWORD)
+        
         token = self.context.get("kwargs").get("token")
         encoded_pk = self.context.get("kwargs").get("encoded_pk")
 
