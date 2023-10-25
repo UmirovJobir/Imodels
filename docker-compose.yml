@@ -6,7 +6,6 @@ services:
     container_name: web
     build: .
     command: 
-      # - gunicorn --config gunicorn_config.py imodels.wsgi:application
       - gunicorn 
       - imodels.wsgi:application 
       - --bind
@@ -16,7 +15,6 @@ services:
     env_file:
       - .env
     volumes:
-      - /var/certbot/conf:/etc/letsencrypt/:ro
       - ./mediafiles:/usr/src/app/mediafiles
 
   db:
@@ -42,16 +40,9 @@ services:
       - ./mediafiles:/usr/src/app/mediafiles
     ports:
       - 80:80
+      - 443:443
     depends_on:
       - web
-  
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - /var/certbot/conf:/etc/letsencrypt/:rw
-      - /var/certbot/www/:/var/www/certbot/:rw
-    depends_on:
-      - nginx
 
 volumes:
   postgres_data:

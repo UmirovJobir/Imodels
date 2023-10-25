@@ -38,7 +38,19 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
+CORS_ALLOWED_ORIGINS = [
+    "http://jobir.uz",
+    "https://jobir.uz",
+    "http://localhost:8000",
+    "http://127.0.0.1:9000"
+]
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -248,11 +260,3 @@ MYSERVICE = {
 }
 
 PASSWORD_RESET_TIMEOUT = 10800
-
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-CORS_ALLOWED_ORIGINS = [
-    "http://jobir.uz",
-    "https://jobir.uz",
-    "http://localhost:8000",
-    "http://127.0.0.1:9000"
-    ]
