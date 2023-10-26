@@ -9,15 +9,17 @@ from .category import Category
 def product_image_directory_path(instance: "ProductImage", filename: str) -> str:
     return "product_images/product_{pk}__{filename}".format(
         pk=instance.product.pk,
-        filename=filename
-    )
-
+        filename=filename)
 
 def product_feature_image_directory_path(instance: "ProductFeature", filename: str) -> str:
     return "product_feature/product_{pk}__{filename}".format(
         pk=instance.product.pk,
-        filename=filename
-    )
+        filename=filename)
+
+def product_gallery_directory_path(instance: "ProductGallery", filename: str) -> str:
+    return "product_gallery/product_{pk}__{filename}".format(
+        pk=instance.product.pk,
+        filename=filename)
 
 
 class Product(models.Model):
@@ -87,6 +89,17 @@ class ProductFeaturePoint(models.Model):
     product = models.ForeignKey(ProductFeature, on_delete=models.CASCADE, related_name='features')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class ProductGallery(models.Model):
+    image = models.ImageField(upload_to=product_gallery_directory_path)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_galleries')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def image_tag(self):
+        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+    image_tag.short_description = 'Image'
 
 
 class Type(models.Model):

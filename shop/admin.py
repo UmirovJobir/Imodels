@@ -12,11 +12,12 @@ from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
     ProductImageInline,
     ProductVideoInline,
-    DescriptionImageInline,
-    DescriptionPointInline,
     ProductFeatureInline,
+    ProductGalleryInline,
+    DescriptionPointInline,
     ItemInline,
     OrderProductInline,
+    DescriptionInline
 )
 from .models import (
     Category,
@@ -33,13 +34,6 @@ admin.site.site_title = "Imodels adminpanel"
 admin.site.index_title = "Imodels"
 
 admin.site.register(Type)
-
-@admin.register(Description)
-class DescriptionAdmin(TranslationAdmin, NestedModelAdmin):
-    formfield_overrides = {
-        models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
-    }
-    inlines = [DescriptionImageInline, DescriptionPointInline]
 
 
 @admin.register(ContactRequest)
@@ -116,15 +110,16 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     summernote_fields = ['information']
 
     list_per_page = 20
-    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'image_tag', 'status']
+    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'status', 'image_tag']
     list_display_links = ['id', 'title']
     raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
     inlines = [
-        # ExtraDescriptionInline,
         ProductImageInline,
         ProductVideoInline,
         ProductFeatureInline,
+        ProductGalleryInline,
+        DescriptionInline,
         ItemInline,
     ]
     fieldsets = [
@@ -145,7 +140,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
 
     
     def category_name(self, obj: Product) -> str:
-        return obj.category.name
+        return [category.name for category in obj.category.all()]
 
     def description_short(self, obj: Product) -> str:
         print(obj.description)
@@ -163,7 +158,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category') \
+        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
             .select_related('configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 

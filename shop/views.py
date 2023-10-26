@@ -82,7 +82,7 @@ class ProductListAPIView(ListAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.filter(status="Visible") \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'items', 'item', 'item__type', 'category') \
+            .prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
             .select_related('configurator', 'product_video', 'product_features', 'product_description')
 
         category_id = self.request.query_params.get('category_id')
@@ -110,7 +110,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all() \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'items', 'item', 'item__type', 'category') \
+            .prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
             .select_related('configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
@@ -272,3 +272,8 @@ class OrderView(ListCreateAPIView):
             
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def index(request):
+    blog = Blog.objects.get(id=2)
+    return render(request, 'blog.html', context={'blog':blog}) 

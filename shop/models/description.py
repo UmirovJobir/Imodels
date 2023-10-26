@@ -27,13 +27,3 @@ class DescriptionPoint(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-
-class DescriptionImage(models.Model):
-    image = models.ImageField(upload_to=product_extradesc_image_directory_path)
-    description = models.ForeignKey(Description, on_delete=models.CASCADE, related_name='description_images')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
-    image_tag.short_description = 'Image'

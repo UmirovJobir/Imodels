@@ -4,7 +4,6 @@ from .contact import ContactRequest
 from .description import (
     Description,
     DescriptionPoint,
-    DescriptionImage
 )
 from .product import (
     Product,
@@ -12,6 +11,7 @@ from .product import (
     ProductVideo,
     ProductFeature,
     ProductFeaturePoint,
+    ProductGallery,
     Type,
     Item,
 )

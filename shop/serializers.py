@@ -12,9 +12,9 @@ from .models import (
     ProductVideo,
     Description,
     DescriptionPoint,
-    DescriptionImage,
     ProductFeature,
     ProductFeaturePoint,
+    ProductGallery,
     Blog,
     ContactRequest,
     Type,
@@ -110,12 +110,6 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 # Serializers related to Extra Description
-class DescriptionImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DescriptionImage
-        fields = ['id', 'image']
-
-
 class DescriptionPointSerializer(serializers.ModelSerializer):
     text = serializers.SerializerMethodField('get_text')
 
@@ -129,19 +123,23 @@ class DescriptionPointSerializer(serializers.ModelSerializer):
 
 
 class DescriptionSerializer(serializers.ModelSerializer):
-    description_images = DescriptionImageSerializer(many=True)
     description_points = DescriptionPointSerializer(many=True)
     title = serializers.SerializerMethodField('get_title')
 
     class Meta:
         model = Description
-        fields = ['id', 'title', 'description_images', 'description_points',]
+        fields = ['id', 'title', 'description_points',]
 
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
 
 # Serializers related to Product
+class ProductGallerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductGallery
+        fields = ['id', 'image']
+
 class ProductFeaturePointSerializer(serializers.ModelSerializer):
     feature = serializers.SerializerMethodField('get_feature')
 
@@ -186,10 +184,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    product_features = ProductFeatureSerializer()
-    product_description = DescriptionSerializer()
     product_images = ProductImageSerializer(many=True)
     product_video = ProductVideoSerializer()
+    product_features = ProductFeatureSerializer()
+    product_galleries = ProductGallerySerializer(many=True)
+    product_description = DescriptionSerializer()
+
     main_item = serializers.SerializerMethodField('get_main_item')
     items = serializers.SerializerMethodField('get_items')
     price = serializers.SerializerMethodField('get_price')
@@ -200,7 +200,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'category', 'title', 'information', 
                   'price', 'is_configurator', 'configurator', 'main_item','items', 'product_images', 'product_video', 
-                  'product_description', 'product_features'
+                  'product_galleries', 'product_description', 'product_features'
                 ]
     
     def get_price(self, obj):

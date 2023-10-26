@@ -236,7 +236,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 #     "login_logo_dark": None,
 #     "site_logo_classes": "img-circle",
 #     "site_icon": "img/imodels.jpg",
-#     "welcome_sign": "Welcome to the Imodels Admin Panel"
+#     "welcome_sign": "Welcome to the Imodels Admin Panel",
+#     "changeform_format": "single",
 # }
 
 SIMPLE_JWT = {
@@ -291,5 +292,11 @@ ADMIN_REORDER = (
      'models': (
         {'model': 'shop.ContactRequest', 'label': 'Murojatlar'},
         {'model': 'shop.Order', 'label': 'Buyurtmalar'},
+    )},
+
+    {'app': 'django_summernote', 'label': 'Summernote',
+    'models': (
+        'django_summernote.Image',
+        'django_summernote.Attachment',
     )},
 )

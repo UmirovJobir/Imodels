@@ -14,10 +14,10 @@ from .models import (
     ProductImage,
     ProductVideo,
     Description,
-    DescriptionImage,
     DescriptionPoint,
     ProductFeature,
     ProductFeaturePoint,
+    ProductGallery,
     Type,
     Item,
     Order,
@@ -36,7 +36,7 @@ class CategoryInline(TranslationTabularInline):
         return queryset
 
 
-class ProductVideoInline(TranslationStackedInline, NestedStackedInline, SummernoteInlineModelAdmin):
+class ProductVideoInline(NestedStackedInline, TranslationStackedInline, SummernoteInlineModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -63,7 +63,7 @@ class ProductImageInline(NestedTabularInline):
         return queryset
 
 
-class ProductFeaturePointInline(TranslationStackedInline, NestedStackedInline):
+class ProductFeaturePointInline(NestedStackedInline, TranslationStackedInline):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
     }
@@ -89,6 +89,18 @@ class ProductFeatureInline(NestedTabularInline):
         return queryset
 
 
+class ProductGalleryInline(NestedTabularInline):
+    extra = 0
+    model = ProductGallery
+    readonly_fields = ['image_tag']
+    classes = ['collapse']
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product')
+        return queryset
+
+
 class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, SummernoteInlineModelAdmin):
     extra = 0
     model = DescriptionPoint
@@ -99,30 +111,18 @@ class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, Summ
         return queryset
 
 
-
-class DescriptionImageInline(NestedTabularInline):
-    extra = 0
-    model = DescriptionImage
-    readonly_fields = ['image_tag']
-
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.select_related('description')
-        return queryset
-
-
-class DescriptionInline(TranslationStackedInline, NestedStackedInline):
-    # formfield_overrides = {
-    #     # models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
-    # }
+class DescriptionInline(NestedStackedInline, TranslationStackedInline):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 200})},
+    }
     extra = 0
     model = Description
-    inlines = [DescriptionImageInline, DescriptionPointInline]
+    inlines = [DescriptionPointInline]
     classes = ['collapse']
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.select_related('product').prefetch_related('description_points', 'description_images')
+        queryset = queryset.select_related('product').prefetch_related('description_points')
         return queryset
 
 
