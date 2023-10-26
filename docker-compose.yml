@@ -23,10 +23,12 @@ services:
     container_name: db
     ports:
       - "5430:5432"
-    environment:
-      POSTGRES_DB: Imodels
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
+    env_file:
+      - .env
+    # environment:
+    #   POSTGRES_DB: Imodels
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: 123
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
   
