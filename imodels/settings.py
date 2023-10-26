@@ -78,11 +78,13 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_filters',
     'django_cleanup',
+    'admin_reorder',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware', #debug_toolbar
+    'imodels.middleware.ModelAdminReorderWithNav', #admin_reorder
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware', #cors
     'django.middleware.common.CommonMiddleware',
@@ -260,3 +262,29 @@ MYSERVICE = {
 }
 
 PASSWORD_RESET_TIMEOUT = 10800
+
+
+ADMIN_REORDER = (
+    {'app': 'account', 'label': 'Admin',
+     'models': (
+        {'model': 'auth.Group', 'label': 'Adminstratorlar guruhlari'},
+        {'model': 'account.User', 'label': 'Foydalanuvchilar'},
+    )},
+
+    {'app': 'shop', 'label': "Blog",
+     'models': ('shop.Blog',)
+    },
+
+    {'app': 'shop', 'label': "Product",
+     'models': (
+        {'model': 'shop.Category', 'label': 'Kategoriyalar'},
+        {'model': 'shop.Product', 'label': 'Maxsulotlar'},
+        {'model': 'shop.Description', 'label': "Qo'shimcha tavsiflar"},
+    )},
+
+    {'app': 'shop', 'label': 'Order and Contact',
+     'models': (
+        {'model': 'shop.ContactRequest', 'label': 'Murojatlar'},
+        {'model': 'shop.Order', 'label': 'Buyurtmalar'},
+    )},
+)

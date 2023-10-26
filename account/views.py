@@ -64,7 +64,8 @@ class ResendView(views.APIView):
     def post(self, request):
         user = get_object_or_404(User, phone=request.data.get('phone'))
         
-        auth_sms = user.authsms
+        auth_sms = AuthSms.objects.get_or_create(user=user)
+
         auth_sms.secure_code = generate_code()
         auth_sms.created_at = timezone.now()
         auth_sms.save()
