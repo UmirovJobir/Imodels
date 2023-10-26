@@ -34,7 +34,7 @@ class AuthSms(models.Model):
     USER_ACTIVETED = "User activated"
     SECURE_CODE_RESENT = "The security code has been resent"
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='authsms')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='authsms')
     secure_code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
 

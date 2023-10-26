@@ -271,6 +271,11 @@ ADMIN_REORDER = (
         {'model': 'account.User', 'label': 'Foydalanuvchilar'},
     )},
 
+    {'app': 'account', 'label': 'Yuborilgan SMS lar',
+     'models': (
+        {'model': 'account.AuthSms', 'label': 'Tasdiqlash kodlar'},
+    )},
+
     {'app': 'shop', 'label': "Blog",
      'models': ('shop.Blog',)
     },

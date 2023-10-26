@@ -39,12 +39,14 @@ class RegisterView(generics.CreateAPIView):
 class ConfirmView(views.APIView):
     def post(self, request):
         user = get_object_or_404(User, phone=request.data.get('phone'))
-        auth_sms = user.authsms
+        last_auth_sms = user.authsms.last()
 
-        if auth_sms.secure_code != request.data.get('secure_code'):
+        print(last_auth_sms)
+
+        if last_auth_sms.secure_code != request.data.get('secure_code'):
             return Response({"error": AuthSms.WRONG_SECURE_CODE}, status=status.HTTP_400_BAD_REQUEST)
 
-        time_difference = timezone.now() - auth_sms.created_at
+        time_difference = timezone.now() - last_auth_sms.created_at
         if time_difference.total_seconds() > 120:
             return Response({"error": AuthSms.SECURE_CODE_EXPIRED}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -64,11 +66,10 @@ class ResendView(views.APIView):
     def post(self, request):
         user = get_object_or_404(User, phone=request.data.get('phone'))
         
-        auth_sms = AuthSms.objects.get_or_create(user=user)
-
-        auth_sms.secure_code = generate_code()
-        auth_sms.created_at = timezone.now()
-        auth_sms.save()
+        auth_sms = AuthSms.objects.create(
+                    user=user,
+                    secure_code = generate_code(),
+                    created_at = timezone.now())
 
         if settings.DEBUG==False:
             client._send_sms(

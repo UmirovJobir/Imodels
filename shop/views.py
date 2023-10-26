@@ -82,8 +82,8 @@ class ProductListAPIView(ListAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.filter(status="Visible") \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'item', 'items') \
-            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
+            .prefetch_related('product_images', 'items', 'item', 'item__type', 'category') \
+            .select_related('configurator', 'product_video', 'product_features', 'product_description')
 
         category_id = self.request.query_params.get('category_id')
         if category_id:
@@ -110,8 +110,8 @@ class ProductRetrieveAPIView(RetrieveAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = Product.objects.all() \
             .order_by('order_by') \
-            .prefetch_related('product_images', 'item','items') \
-            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
+            .prefetch_related('product_images', 'items', 'item', 'item__type', 'category') \
+            .select_related('configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
     def get_serializer(self, *args, **kwargs):

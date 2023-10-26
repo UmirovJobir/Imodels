@@ -163,8 +163,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type') \
-            .select_related('category', 'configurator', 'product_video', 'product_features', 'product_description')
+        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category') \
+            .select_related('configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
 
@@ -234,5 +234,5 @@ class OrderAdmin(NestedModelAdmin):
             </span>""",
                 background_color, color, obj.status)
 
-    
+
 

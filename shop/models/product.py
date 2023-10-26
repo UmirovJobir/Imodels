@@ -29,7 +29,7 @@ class Product(models.Model):
     configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
     title = models.CharField(max_length=300)
     information = models.TextField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    category = models.ManyToManyField(Category, related_name='products')
     price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Visible')
     order_by = models.PositiveIntegerField(default=1)
