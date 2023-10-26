@@ -28,7 +28,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./postgres_data:/var/lib/postgresql/data/
   
   nginx:
     restart: unless-stopped
@@ -43,5 +43,5 @@ services:
     depends_on:
       - web
 
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
