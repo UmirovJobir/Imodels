@@ -54,7 +54,6 @@ CORS_ALLOWED_ORIGINS = [
 
 # Application definition
 INSTALLED_APPS = [
-    # 'jazzmin',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -79,6 +78,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_cleanup',
     'admin_reorder',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [

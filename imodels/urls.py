@@ -23,17 +23,17 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 
 urlpatterns = [   
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('backend/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('backend/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('backend/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
-    path('admin/', admin.site.urls),
-    path('account/', include('account.urls')),
-    path('shop/', include('shop.urls')),
+    path('backend/admin/', admin.site.urls),
+    path('backend/account/', include('account.urls')),
+    path('backend/shop/', include('shop.urls')),
 
-    path('summernote/', include('django_summernote.urls')),
-    path('__debug__/', include('debug_toolbar.urls')),
-    path('_nested_admin/', include('nested_admin.urls')),
+    path('backend/summernote/', include('django_summernote.urls')),
+    path('backend/__debug__/', include('debug_toolbar.urls')),
+    path('backend/_nested_admin/', include('nested_admin.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

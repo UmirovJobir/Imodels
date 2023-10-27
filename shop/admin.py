@@ -4,9 +4,16 @@ from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
 from django.utils.html import format_html
+from datetime import datetime, timedelta
 from django_summernote.admin import SummernoteModelAdmin
 
 from nested_admin import NestedModelAdmin
+from rangefilter.filters import (
+    DateRangeFilterBuilder,
+    DateTimeRangeFilterBuilder,
+    NumericRangeFilterBuilder,
+    DateRangeQuickSelectListFilterBuilder,
+)
 from modeltranslation.admin import TranslationAdmin
 from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
@@ -176,7 +183,14 @@ class OrderAdmin(NestedModelAdmin):
     list_display_links = ['id', 'customer']
     readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
     inlines = [OrderProductInline]
-    list_filter = ['created_at', 'status']
+    list_filter = (
+        ('status'),
+        ("created_at", DateRangeQuickSelectListFilterBuilder(
+            title="Kun bo'yichas salarash",
+            default_start=datetime.now(), # - timedelta(days=1),
+            default_end=datetime.now()
+        )),
+    )
     fieldsets = [
         ("Order", {
             "fields": [
