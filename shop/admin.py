@@ -65,18 +65,25 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
     list_display = ['id', 'title', 'description_short', 'popular']
     list_display_links = ['id', 'title']
     summernote_fields = ['text']
+    readonly_fields = ['image_tag']
     fieldsets = [
         (None, {
             "fields": [
                 "popular",
+                "image_tag",
                 "preview_image",
                 "title",
                 "description",
-                "text"
+                "text",
             ]
         }
         )
     ]
+
+    def image_tag(self, obj):
+        return mark_safe('<img src="%s" width="100px" />'%(obj.preview_image.url))
+    image_tag.short_description = 'Image'
+
 
     def description_short(self, obj: Blog) -> str:
         if obj.description:
