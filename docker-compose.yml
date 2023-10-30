@@ -22,13 +22,13 @@ services:
     image: postgres:15-alpine
     container_name: db
     ports:
-      - "54310:54320"
+      - "54310:5432"
     env_file:
       - .env
-    # environment:
-    #   POSTGRES_DB: Imodels
-    #   POSTGRES_USER: postgres
-    #   POSTGRES_PASSWORD: 123
+    environment:
+      POSTGRES_DB: Imodels_prod
+      POSTGRES_USER: imodels_user
+      POSTGRES_PASSWORD: Imodels_db_2023.!
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
   
