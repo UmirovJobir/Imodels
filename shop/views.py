@@ -11,6 +11,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     ListCreateAPIView,
 )
+from libs.telegram import telebot
 from .cart import Cart
 from .pagination import CustomPageNumberPagination
 from .models import (
@@ -48,14 +49,6 @@ class CategoryView(ListAPIView):
 
 @extend_schema(
     tags=["Category"],
-    parameters=[
-        OpenApiParameter(
-            name="accept-language",
-            type=str,
-            location=OpenApiParameter.HEADER,
-            description="`uz` or `ru` or `en`. The default value is uz",
-        ),
-    ],
 )
 class SubCategoryView(ListAPIView):
     queryset = Category.objects.all()
@@ -92,7 +85,9 @@ class ProductListAPIView(ListAPIView):
                 return category.products.all()
             else:
                 if category.subcategories.all():
-                    return queryset.filter(category__in=category.subcategories.all())
+                    queryset = queryset.filter(category__in=category.subcategories.all())
+                else:
+                    queryset = Product.objects.none()
         return queryset
 
     def get_serializer(self, *args, **kwargs):
@@ -152,6 +147,24 @@ class BlogDetailView(RetrieveAPIView):
 class ContactRequestCreateView(CreateAPIView):
     queryset = ContactRequest.objects.all()
     serializer_class = ContactRequestSerializer
+
+    def create(self, request, *args, **kwargs):
+        message = """
+📩 Yangi murojaat❗️\n
+<code>📞 +{}</code>\n
+👤 {}\n
+📧 {}\n
+📄 {}\n
+"""
+        telebot.send_message(
+                _type="chat_id_orders",
+                text=message.format(
+                    request.data.get('phone'),
+                    request.data.get('name'),
+                    request.data.get('email'),
+                    request.data.get('message')                    
+                    ))
+        return super().create(request, *args, **kwargs)
 
 
 # View related to Cart
@@ -255,23 +268,32 @@ class OrderView(ListCreateAPIView):
     
     def get_queryset(self):
         user = self.request.user
-        return Order.objects.filter(customer=user)
+        return Order.objects.filter(customer=user).order_by("-created_at")
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         order = Order.objects.create(customer=request.user)
         for product in request.data:
+            
+            if 'configurator' in product:
+                configurator_id = get_object_or_404(Product, pk=product['configurator']) if product['configurator']!=None else None,
+                configurator_id = list(configurator_id)[0]
+            else:
+                configurator_id = None
+
             order_product = OrderProduct.objects.create(
                     order=order,
+                    configurator = configurator_id,         #get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
                     quantity     = product['quantity'],
                     product      = get_object_or_404(Product, pk=product['product']),
-                    configurator = get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
                     price        = product['price']['uzs'] if product['price']!=None else None,
                     price_usd    = product['price']['usd'] if product['price']!=None else None,
                     price_eur    = product['price']['eur'] if product['price']!=None else None)
             
-        serializer = OrderSerializer(order)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # serializer = OrderSerializer(order, context = {"request": request})
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
+
 
 
 def index(request):

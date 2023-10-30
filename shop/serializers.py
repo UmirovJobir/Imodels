@@ -320,20 +320,77 @@ class ContactRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'email', 'phone', 'message']
 
 
+class OrderProductDetailSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_first_image')
+    title = serializers.SerializerMethodField('get_title')
+    quantity = serializers.SerializerMethodField('get_quantity')
+    price = serializers.SerializerMethodField('get_price')
+    configurator = serializers.SerializerMethodField('get_configurator')
+
+    class Meta:
+        model = Product
+        fields = ['id', 'configurator', 'title', 'image', 'quantity', 'price']
+
+    def get_first_image(self, obj):
+        return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
+
+    def get_title(self, obj):
+        title = get_full_value(obj=obj, field='title')
+        return title
+
+    def get_quantity(self, obj):
+        return self.context.get('request').data['quantity']
+
+    def get_price(self, obj):
+        return self.context.get('request').data['price']
+    
+    def get_configurator(self, obj):
+        return self.context.get('request').data['configurator']
+
+
 # Serializers related to Order
 class OrderProductSerializer(serializers.ModelSerializer):
+    product = serializers.SerializerMethodField('get_product')
+
     class Meta:
         model = OrderProduct
-        fields = ['product', 'price', 'price_usd', 'price_eur', 'quantity']
+        fields = ['product']
+    
+    def get_product(self, obj):
+        request = self.context.get('request')
+        if request and request.method == 'GET':
+            request.data['configurator'] = obj.configurator.pk if obj.configurator else None
+            request.data['quantity'] = obj.quantity
+            request.data['price'] = {
+                "usd": obj.price_usd,
+                "uzd": obj.price,
+                "eur": obj.price_eur,
+            }
+        return OrderProductDetailSerializer(
+                Product.objects.get(pk=obj.product.pk),
+                context = {"request": request}).data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data['product']
+    
+
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_products = OrderProductSerializer(many=True)
+    order_products = serializers.SerializerMethodField('get_order_products')
     created_at = serializers.DateTimeField(required=False, format="%d-%m-%Y %H:%M:%S", input_formats=["%d-%m-%Y %H:%M:%S"])
 
     class Meta:
         model = Order
         fields = ['id', 'created_at', 'order_products']
+
+    def get_order_products(self, obj):
+        request = self.context.get('request')
+        order_products = OrderProduct.objects.filter(order=obj.pk)
+        return OrderProductSerializer(order_products,
+                                        context = {"request": request},
+                                        many=True).data
 
 
 class OrderPriceRequest(serializers.Serializer):

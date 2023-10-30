@@ -99,7 +99,7 @@ class PasswordResetTokenView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         
         user = get_object_or_404(User, phone=serializer.data["phone"])
-        auth_sms = user.authsms
+        auth_sms = user.authsms.last()
 
         if auth_sms.secure_code == serializer.data['secure_code']:
             time_difference = timezone.now() - auth_sms.created_at
