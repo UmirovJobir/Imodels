@@ -37,7 +37,7 @@ class RegisterSerializer(serializers.ModelSerializer):
                 message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
         
         telebot.send_message(
-            _type='chat_id_orders',
+            type='chat_id_orders',
             text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
         
         return user

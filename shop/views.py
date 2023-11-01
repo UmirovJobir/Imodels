@@ -157,7 +157,7 @@ class ContactRequestCreateView(CreateAPIView):
 📄 {}\n
 """
         telebot.send_message(
-                _type="chat_id_orders",
+                type="chat_id_orders",
                 text=message.format(
                     request.data.get('phone'),
                     request.data.get('name'),

@@ -77,7 +77,7 @@ class ResendView(views.APIView):
                 message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
 
         telebot.send_message(
-                _type='chat_id_orders',
+                type='chat_id_orders',
                 text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
 
         return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)

@@ -123,3 +123,4 @@ class Item(models.Model):
 
     def price(self):
         return self.product.price
+
