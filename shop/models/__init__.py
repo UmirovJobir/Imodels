@@ -14,6 +14,7 @@ from .product import (
     ProductGallery,
     Type,
     Item,
+    Sale
 )
 from .order import (
     Order,

@@ -15,6 +15,7 @@ from rangefilter.filters import (
     DateRangeQuickSelectListFilterBuilder,
 )
 from modeltranslation.admin import TranslationAdmin
+from . import api
 from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
     ProductImageInline,
@@ -34,6 +35,7 @@ from .models import (
     Type,
     Order,
     Description,
+    Sale
 )
 
 admin.site.site_header = "Imodels adminpanel"
@@ -42,6 +44,85 @@ admin.site.index_title = "Imodels"
 
 admin.site.register(Type)
 
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'old_price', 'new','discount', 'image_tag']
+    readonly_fields = ['new', 'old_price', 'discount', 'image_tag']
+    list_display_links = ['id', 'product']
+    raw_id_fields = ['product']
+
+    def new(self, obj):
+        if obj.new_price:
+            price = api.get_currency(obj_price=obj.new_price)
+            return format_html(f"""  
+                                <table>
+                                    <tr>
+                                        <th>USD</th>
+                                        <th>{int(price['usd']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>EUR</th>
+                                        <th>{int(price['eur']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>UZS</th>
+                                        <th>{int(price['uzs']):,.2f}</th>
+                                    </tr>
+                                </table>
+                                """
+                                )
+
+    new.short_description = format_html('<i class="fa-solid fa-tags"></i>Discount price')
+
+    def old_price(self, obj):
+        price = api.get_currency(obj_price=obj.product.price)
+        return format_html(f""" 
+                            <table>
+                                <tr>
+                                    <th>USD</th>
+                                    <th>{int(price['usd']):,.2f}</th>
+                                </tr>
+                                <tr>
+                                    <th>EUR</th>
+                                    <th>{int(price['eur']):,.2f}</th>
+                                </tr>
+                                <tr>
+                                    <th>UZS</th>
+                                    <th>{int(price['uzs']):,.2f}</th>
+                                </tr>
+                            </table>
+                            """
+                            )
+                            
+
+    def discount(self, obj):
+        if obj.new_price:
+            part = 100*obj.new_price/obj.product.price
+            return format_html(f"""
+                            <script src="https://kit.fontawesome.com/850b43de8f.js" crossorigin="anonymous"></script>
+                            <i class="fa-solid fa-tags">{round(100-part)}%</i>""")
+
+    def image_tag(self, obj):
+        if obj:
+            try:
+                first_image = obj.product.product_images.first().image.url
+            except AttributeError:
+                first_image = "/static/img/no-image.png"
+        else:
+            first_image = "/static/img/no-image.png"
+        return mark_safe('<img src="%s" width="100px" height="100px"/>'%(first_image))
+    
+    # def images(self, obj):
+    #     try:
+    #         product_images = obj.product.product_images.all()
+    #         if product_images:
+    #             image_html = ''
+    #             for product_image in product_images:
+    #                 image_html += f'<img src="{product_image.image.url}" width="100" height="100" style="margin-right: 10px;">'
+    #             return format_html(image_html)
+    #     except AttributeError:
+    #         first_image = "/static/img/no-image.png"
+    #         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
 
 @admin.register(ContactRequest)
 class ContactRequestAdmin(admin.ModelAdmin):

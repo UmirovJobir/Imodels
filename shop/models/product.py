@@ -121,6 +121,11 @@ class Item(models.Model):
         return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.first().image.url))
     image_tag.short_description = 'Image'
 
+
     def price(self):
         return self.product.price
 
+
+class Sale(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_sale')
+    new_price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
