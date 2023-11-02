@@ -297,6 +297,9 @@ class OrderView(ListCreateAPIView):
         return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=["Sale"],
+)
 class SaleView(ListAPIView):
     serializer_class = SaleSerializer
 

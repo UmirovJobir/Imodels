@@ -42,6 +42,7 @@ admin.site.register(Type)
 class ContactRequestAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'email', 'phone', 'message_short']
     list_display_links = ['id', 'name']
+    list_per_page = 10
 
     def message_short(self, obj: ContactRequest) -> str:
         if obj.message:
@@ -61,6 +62,7 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
     list_display_links = ['id', 'title']
     summernote_fields = ['text']
     readonly_fields = ['image_tag']
+    list_per_page = 10
     fieldsets = [
         (None, {
             "fields": [
@@ -92,7 +94,7 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(TranslationAdmin):
-    list_display = ['id', 'name_uz', 'name_ru', 'name_en', 'parent']
+    list_display = ['id', 'name_uz', 'name_ru', 'name_en', 'parent', 'product_count']
     list_display_links = ['id', 'name_uz']
     raw_id_fields = ['parent']
     list_filter = [CategoryFilter]
@@ -103,6 +105,11 @@ class CategoryAdmin(TranslationAdmin):
             "description":"Родительская категория",
         }),
     ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('parent').prefetch_related('products')
+        return queryset
 
 
 @admin.register(Product)
@@ -123,6 +130,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     list_display_links = ['id', 'title']
     raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
+    list_per_page = 10
     inlines = [
         ProductImageInline,
         ProductVideoInline,
@@ -185,6 +193,7 @@ class OrderAdmin(NestedModelAdmin):
     list_display_links = ['id', 'customer']
     readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
     inlines = [OrderProductInline]
+    list_per_page = 10
     list_filter = (
         ('status'),
         ("created_at", DateRangeQuickSelectListFilterBuilder(
@@ -252,6 +261,12 @@ class SaleAdmin(admin.ModelAdmin):
     readonly_fields = ['new', 'old_price', 'discount', 'image_tag']
     list_display_links = ['id', 'product']
     raw_id_fields = ['product']
+    list_per_page = 10
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related('product')
+        return queryset
 
     def new(self, obj):
         if obj.new_price:
