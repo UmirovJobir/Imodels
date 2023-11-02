@@ -21,6 +21,7 @@ from .models import (
     ContactRequest,
     Order,
     OrderProduct,
+    Sale
 )
 from .serializers import (
     CategorySerializer,
@@ -32,7 +33,8 @@ from .serializers import (
     ContactRequestSerializer,
     OrderSerializer,
     OrderRequest,
-    CartProductRequest
+    CartProductRequest,
+    SaleSerializer
 )
 
 
@@ -73,19 +75,19 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.filter(status="Visible") \
+        queryset = Product.objects.filter(status=True) \
             .order_by('order_by') \
             .prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
-            .select_related('configurator', 'product_video', 'product_features', 'product_description')
+            .select_related('configurator', 'product_video', 'product_features', 'product_description', 'product_sale')
 
         category_id = self.request.query_params.get('category_id')
         if category_id:
             category = Category.objects.get(id=category_id)
             if category.products.all():
-                return category.products.all()
+                return category.products.all().order_by('order_by')
             else:
                 if category.subcategories.all():
-                    queryset = queryset.filter(category__in=category.subcategories.all())
+                    queryset = queryset.filter(category__in=category.subcategories.all()).order_by('order_by')
                 else:
                     queryset = Product.objects.none()
         return queryset
@@ -294,6 +296,21 @@ class OrderView(ListCreateAPIView):
         # return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
 
+
+class SaleView(ListAPIView):
+    serializer_class = SaleSerializer
+
+    def get_queryset(self):
+        # queryset = Sale.objects.all().select_related('product')
+        queryset = Sale.get_sales_ordered_by_discount().select_related('product')
+
+        return queryset #.order_by("discount")
+        
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['customer'] = self.request.user
+        return context
 
 
 def index(request):

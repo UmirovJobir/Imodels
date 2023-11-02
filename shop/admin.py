@@ -8,20 +8,15 @@ from datetime import datetime, timedelta
 from django_summernote.admin import SummernoteModelAdmin
 
 from nested_admin import NestedModelAdmin
-from rangefilter.filters import (
-    DateRangeFilterBuilder,
-    DateTimeRangeFilterBuilder,
-    NumericRangeFilterBuilder,
-    DateRangeQuickSelectListFilterBuilder,
-)
+from rangefilter.filters import DateRangeQuickSelectListFilterBuilder
 from modeltranslation.admin import TranslationAdmin
+from . import api
 from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
     ProductImageInline,
     ProductVideoInline,
     ProductFeatureInline,
     ProductGalleryInline,
-    DescriptionPointInline,
     ItemInline,
     OrderProductInline,
     DescriptionInline
@@ -33,7 +28,7 @@ from .models import (
     ContactRequest,
     Type,
     Order,
-    Description,
+    Sale
 )
 
 admin.site.site_header = "Imodels adminpanel"
@@ -114,9 +109,9 @@ class CategoryAdmin(TranslationAdmin):
 class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
-        models.BooleanField: {
-            'widget': widgets.NullBooleanSelect(attrs={
-                'style': 'padding: 4px 8px; border-radius: 5px;'
+        models.IntegerField: {'widget': forms.TextInput(attrs={'size': 10})},
+        models.BooleanField: {'widget': widgets.NullBooleanSelect(attrs={
+                'style': 'padding: 4px 8px; border-radius: 5px; width: 100px'
             })
         },
     }
@@ -124,7 +119,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     summernote_fields = ['information']
 
     list_per_page = 20
-    list_display = ['id', 'title', 'order_by', 'category_name', 'price', 'status', 'image_tag']
+    list_display = ['image_tag', 'id', 'title', 'order_by', 'category_name', 'price', 'status']
     list_display_links = ['id', 'title']
     raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
@@ -141,12 +136,12 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
             "fields": [
                 "is_configurator",
                 "configurator",
-                "title",
-                "order_by",
-                "information",
                 "category",
                 "price",
-                "status"
+                "status",
+                "order_by",
+                "title",
+                "information",
             ],
             "classes": ["wide"],
         }),
@@ -251,4 +246,83 @@ class OrderAdmin(NestedModelAdmin):
                 background_color, color, obj.status)
 
 
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ['image_tag', 'id', 'product', 'discount', 'old_price', 'new']
+    readonly_fields = ['new', 'old_price', 'discount', 'image_tag']
+    list_display_links = ['id', 'product']
+    raw_id_fields = ['product']
 
+    def new(self, obj):
+        if obj.new_price:
+            price = api.get_currency(obj_price=obj.new_price)
+            return format_html(f"""  
+                                <table>
+                                    <tr>
+                                        <th>USD</th>
+                                        <th>{int(price['usd']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>EUR</th>
+                                        <th>{int(price['eur']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>UZS</th>
+                                        <th>{int(price['uzs']):,.2f}</th>
+                                    </tr>
+                                </table>
+                                """
+                                )
+
+    new.short_description = format_html('<i class="fa-solid fa-tags"></i>Discount price')
+
+    def old_price(self, obj):
+        price = api.get_currency(obj_price=obj.product.price)
+        return format_html(f""" 
+                            <table>
+                                <tr>
+                                    <th>USD</th>
+                                    <th>{int(price['usd']):,.2f}</th>
+                                </tr>
+                                <tr>
+                                    <th>EUR</th>
+                                    <th>{int(price['eur']):,.2f}</th>
+                                </tr>
+                                <tr>
+                                    <th>UZS</th>
+                                    <th>{int(price['uzs']):,.2f}</th>
+                                </tr>
+                            </table>
+                            """
+                            )
+                            
+
+    def discount(self, obj):
+        if obj.new_price:
+            # discount = round((obj.product.price - obj.new_price) / obj.product.price * 100)
+            return format_html(f"""
+                            <script src="https://kit.fontawesome.com/850b43de8f.js" crossorigin="anonymous"></script>
+                            <i class="fa-solid fa-tags"></i>{obj.discount}%""")
+
+    def image_tag(self, obj):
+        if obj:
+            try:
+                first_image = obj.product.product_images.first().image.url
+            except AttributeError:
+                first_image = "/static/img/no-image.png"
+        else:
+            first_image = "/static/img/no-image.png"
+        return mark_safe('<img src="%s" width="100px" height="100px"/>'%(first_image))
+
+
+    # def images(self, obj):
+    #     try:
+    #         product_images = obj.product.product_images.all()
+    #         if product_images:
+    #             image_html = ''
+    #             for product_image in product_images:
+    #                 image_html += f'<img src="{product_image.image.url}" width="100" height="100" style="margin-right: 10px;">'
+    #             return format_html(image_html)
+    #     except AttributeError:
+    #         first_image = "/static/img/no-image.png"
+    #         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))

@@ -285,13 +285,13 @@ ADMIN_REORDER = (
      'models': (
         {'model': 'shop.Category', 'label': 'Kategoriyalar'},
         {'model': 'shop.Product', 'label': 'Maxsulotlar'},
-        {'model': 'shop.Description', 'label': "Qo'shimcha tavsiflar"},
+        {'model': 'shop.Sale', 'label': 'Chegirma Maxsulotlar'},
     )},
 
     {'app': 'shop', 'label': 'Order and Contact',
      'models': (
-        {'model': 'shop.ContactRequest', 'label': 'Murojatlar'},
         {'model': 'shop.Order', 'label': 'Buyurtmalar'},
+        {'model': 'shop.ContactRequest', 'label': 'Murojatlar'},
     )},
 
     {'app': 'django_summernote', 'label': 'Summernote',
