@@ -21,6 +21,7 @@ from .models import (
     Item,
     Order,
     OrderProduct,
+    Sale
 )
 
 
@@ -67,11 +68,28 @@ class ItemDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField('get_title')
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
+    new_price = serializers.SerializerMethodField('get_new_price')
+    discount = serializers.SerializerMethodField('get_discount')
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'price', 'image']
+        fields = ['id', 'title', 'price', 'new_price', 'discount', 'image']
     
+    def get_discount(self, obj):
+        try:
+            discount = obj.product_sale.discount
+        except Sale.DoesNotExist:
+            discount = None
+        return discount
+
+    def get_new_price(self, obj):
+        try:
+            new_price = api.get_currency(obj.product_sale.new_price)
+        except Sale.DoesNotExist:
+            new_price = None
+        return new_price
+
+
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
@@ -195,14 +213,30 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField('get_price')
     title = serializers.SerializerMethodField('get_title')
     information = serializers.SerializerMethodField('get_information')
+    new_price = serializers.SerializerMethodField('get_new_price')
+    discount = serializers.SerializerMethodField('get_discount')
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'title', 'information', 
-                  'price', 'is_configurator', 'configurator', 'main_item','items', 'product_images', 'product_video', 
+        fields = ['id', 'category', 'is_configurator', 'configurator', 'price', 'new_price', 'discount',
+                  'title', 'information', 'main_item','items', 'product_images', 'product_video', 
                   'product_galleries', 'product_description', 'product_features'
                 ]
-    
+
+    def get_discount(self, obj):
+        try:
+            discount = obj.product_sale.discount
+        except Sale.DoesNotExist:
+            discount = None
+        return discount
+
+    def get_new_price(self, obj):
+        try:
+            new_price = api.get_currency(obj.product_sale.new_price)
+        except Sale.DoesNotExist:
+            new_price = None
+        return new_price
+
     def get_price(self, obj):
         if obj.price:
             price = api.get_currency(obj_price=obj.price)
@@ -248,15 +282,30 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             return None
 
 
-
 class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField('get_first_image')
     price = serializers.SerializerMethodField('get_price')
+    new_price = serializers.SerializerMethodField('get_new_price')
+    discount = serializers.SerializerMethodField('get_discount')
     title = serializers.SerializerMethodField('get_title')
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'title', 'image', 'price']
+        fields = ['id', 'order_by', 'category', 'title', 'image', 'price', 'new_price', 'discount']
+
+    def get_discount(self, obj):
+        try:
+            discount = obj.product_sale.discount
+        except Sale.DoesNotExist:
+            discount = None
+        return discount
+
+    def get_new_price(self, obj):
+        try:
+            new_price = api.get_currency(obj.product_sale.new_price)
+        except Sale.DoesNotExist:
+            new_price = None
+        return new_price
 
     def get_first_image(self, obj):
         return self.context['request'].build_absolute_uri(obj.product_images.all().first().image.url)
@@ -372,9 +421,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        return data['product']
-    
-
+        return data['product']    
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -429,3 +476,26 @@ class CartProductRequest(serializers.Serializer):
     class Meta:
         fields = ['id', 'quantity', "items"]
 
+
+class SaleSerializer(serializers.ModelSerializer):
+    product = serializers.SerializerMethodField('get_product')
+
+    class Meta:
+        model = Sale
+        fields = ['product', 'new_price']
+
+    def get_product(self, obj):
+        request = self.context.get('request')
+        product_serializer = ProductListSerializer(obj.product, context = {"request": request})
+        return product_serializer.data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        price = data['product']['price']['usd']
+        # discount = round((price - instance.new_price) / price * 100)
+                
+        data['product']['new_price'] = api.get_currency(instance.new_price)
+        data['product']['discount'] = instance.discount
+        
+        return data['product']

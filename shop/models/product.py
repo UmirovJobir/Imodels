@@ -24,8 +24,8 @@ def product_gallery_directory_path(instance: "ProductGallery", filename: str) ->
 
 class Product(models.Model):
     STATUS_CHOICES = (
-        ('Visible', 'Visible'),
-        ('Invisible', 'Invisible'),
+        ('True', 'True'),
+        ('False', 'False'),
     )
     is_configurator = models.BooleanField(default=False)
     configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
@@ -33,7 +33,7 @@ class Product(models.Model):
     information = models.TextField(null=True, blank=True)
     category = models.ManyToManyField(Category, related_name='products')
     price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Visible')
+    status = models.BooleanField(default=True)
     order_by = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -127,5 +127,16 @@ class Item(models.Model):
 
 
 class Sale(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_sale')
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_sale')
     new_price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+
+    @property
+    def discount(self):
+        return round((self.product.price - self.new_price) / self.product.price * 100, 1)
+
+    @classmethod
+    def get_sales_ordered_by_discount(cls):
+        return cls.objects.annotate(discount_percentage=models.ExpressionWrapper(
+            models.F('product__price') - models.F('new_price'),
+            output_field=models.DecimalField(max_digits=5, decimal_places=2)
+        ) / models.F('product__price')).order_by('-discount_percentage')
