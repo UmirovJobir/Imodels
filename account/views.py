@@ -41,8 +41,6 @@ class ConfirmView(views.APIView):
         user = get_object_or_404(User, phone=request.data.get('phone'))
         last_auth_sms = user.authsms.last()
 
-        print(last_auth_sms)
-
         if last_auth_sms.secure_code != request.data.get('secure_code'):
             return Response({"error": AuthSms.WRONG_SECURE_CODE}, status=status.HTTP_400_BAD_REQUEST)
 
