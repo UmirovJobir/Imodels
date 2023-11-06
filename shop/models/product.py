@@ -27,14 +27,33 @@ class Product(models.Model):
         ('True', 'True'),
         ('False', 'False'),
     )
-    is_configurator = models.BooleanField(default=False)
-    configurator = models.ForeignKey('self', on_delete=models.CASCADE, related_name='create_own_set', null=True, blank=True)
-    title = models.CharField(max_length=300)
-    information = models.TextField(null=True, blank=True)
-    category = models.ManyToManyField(Category, related_name='products')
-    price = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True)
+    is_configurator = models.BooleanField(default=False,
+                                          verbose_name="Ushbu mahsulot kanfiguratormi?",
+                                          help_text="Agar kanfigurator yaratayotgan bo'lsangir `Ha` ni belgilang")
+    configurator = models.ForeignKey('self', 
+                                     null=True,
+                                     blank=True,
+                                     on_delete=models.CASCADE,
+                                     related_name='create_own_set',
+                                     verbose_name="Kanfigurator ID",
+                                     help_text="Mahsulot qaysidir kafiguratorga tegishli bo'lsa kanfigurator ID ni kiriting")
+    title = models.CharField(max_length=300,
+                             verbose_name="Sarlavha")
+    information = models.TextField(null=True,
+                                   blank=True,
+                                   verbose_name="Informatsiya")
+    category = models.ManyToManyField(Category,
+                                      related_name='products',
+                                      verbose_name="Kategoriya")
+    price = models.DecimalField(decimal_places=2,
+                                max_digits=10,
+                                null=True,
+                                blank=True,
+                                verbose_name="Narx",
+                                help_text="Narx AQSH dollarda (USD)")
     status = models.BooleanField(default=True)
-    order_by = models.PositiveIntegerField(default=1)
+    order_by = models.PositiveIntegerField(default=1,
+                                           verbose_name="Tartib raqam")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -47,7 +66,7 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    image   = models.ImageField(upload_to=product_image_directory_path)
+    image   = models.ImageField(upload_to=product_image_directory_path, verbose_name="Rasm")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

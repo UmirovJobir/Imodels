@@ -284,8 +284,8 @@ ADMIN_REORDER = (
     {'app': 'shop', 'label': "Product",
      'models': (
         {'model': 'shop.Category', 'label': 'Kategoriyalar'},
-        {'model': 'shop.Product', 'label': 'Maxsulotlar'},
-        {'model': 'shop.Sale', 'label': 'Chegirma Maxsulotlar'},
+        {'model': 'shop.Product', 'label': 'Mahsulotlar'},
+        {'model': 'shop.Sale', 'label': 'Chegirma Mahsulotlar'},
     )},
 
     {'app': 'shop', 'label': 'Order and Contact',
