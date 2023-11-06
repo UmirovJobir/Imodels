@@ -1,5 +1,6 @@
 from django import forms
 from django.db import models
+from django.urls import reverse
 from django.forms import widgets
 from django.contrib import admin
 from django.utils.html import mark_safe
@@ -94,7 +95,7 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(TranslationAdmin):
-    list_display = ['id', 'name_uz', 'name_ru', 'name_en', 'parent', 'product_count']
+    list_display = ['id', 'name_uz', 'name_ru', 'name_en', 'parent_name', 'product_count']
     list_display_links = ['id', 'name_uz']
     raw_id_fields = ['parent']
     list_filter = [CategoryFilter]
@@ -105,6 +106,9 @@ class CategoryAdmin(TranslationAdmin):
             "description":"Родительская категория",
         }),
     ]
+    
+    def parent_name(self, obj):
+        return obj.parent.name_uz if obj.parent else None
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -126,8 +130,9 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     summernote_fields = ['information']
 
     list_per_page = 20
-    list_display = ['image_tag', 'id', 'title', 'order_by', 'category_name', 'price', 'status']
+    list_display = ['first_image', 'id', 'title', 'order_by', 'category_name', 'price_table', 'status']
     list_display_links = ['id', 'title']
+    readonly_fields = ['id', 'price_table', 'first_image']
     raw_id_fields = ['category', 'configurator']
     list_filter = [ProductFilter]
     list_per_page = 10
@@ -140,38 +145,86 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         ItemInline,
     ]
     fieldsets = [
-        ("Продукт", {
+        (None, {
             "fields": [
-                "is_configurator",
+                "id",
+                "price_table",
+                "first_image"
+            ]
+        }),
+        ("Konfigurator", {
+            "fields": [
                 "configurator",
-                "category",
-                "price",
+                "is_configurator",
+            ]
+        }),
+        ("Mahsulot", {
+            "fields": [
                 "status",
                 "order_by",
-                "title",
-                "information",
+                "category",
+                "price",
             ],
             "classes": ["wide"],
         }),
+        ("Sarlavha", {
+            "fields": [
+                "title",
+            ]
+        }),
+        ("Informatsiya", {
+            "fields": [
+                "information",
+            ]
+        }),
     ]
+
+    def price_table(self, obj):
+        if obj.price:
+            price = api.get_currency(obj_price=obj.price)
+            return format_html(f""" 
+                                <table>
+                                    <tr>
+                                        <th>USD</th>
+                                        <th>{int(price['usd']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>EUR</th>
+                                        <th>{int(price['eur']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>UZS</th>
+                                        <th>{int(price['uzs']):,.2f}</th>
+                                    </tr>
+                                </table>
+                                """
+                                )
+        else:
+            return "-"
+    price_table.short_description = "Narx jadvali"
 
     
     def category_name(self, obj: Product) -> str:
-        return [category.name for category in obj.category.all()]
+        category_tags = ''.join([
+            '<a href="{}">{}</a><br>'.format(reverse('admin:shop_category_change', args=[category.pk]), category.name)
+            for category in obj.category.all()])
+        return format_html(category_tags)
+    category_name.short_description = "Kategoriya nomi"
 
     def description_short(self, obj: Product) -> str:
-        print(obj.description)
         if len(obj.description) < 48:
             return obj.description
         else:
             return obj.description[:48] + "..."
     
-    def image_tag(self, obj):
+    def first_image(self, obj):
         try:
             first_image = obj.product_images.first().image.url
         except AttributeError:
             first_image = "/static/img/no-image.png"
         return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
+    first_image.short_description = "Rasm"
+
         
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -288,7 +341,6 @@ class SaleAdmin(admin.ModelAdmin):
                                 </table>
                                 """
                                 )
-
     new.short_description = format_html('<i class="fa-solid fa-tags"></i>Discount price')
 
     def old_price(self, obj):
