@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, views, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from django.conf import settings
 from django.utils import timezone
@@ -25,12 +26,29 @@ from .serializers import (
 )
 
 
+@extend_schema(
+    tags=["Login"],
+)
+class CustomTokenObtainPairView(TokenObtainPairView):
+    pass
+
+@extend_schema(
+    tags=["Login"],
+)
+class CustomTokenRefreshView(TokenRefreshView):
+    pass
+
+
+@extend_schema(
+        tags=["Register"],
+)
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
 
 @extend_schema(
+        tags=["Register"],
         request=PhoneRequestSerializer,
         responses={
             200: OpenApiResponse(description="User activated")
@@ -54,6 +72,18 @@ class ConfirmView(views.APIView):
 
 
 @extend_schema(
+        tags=["Login"],
+)
+class UserDetailView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+@extend_schema(
+        tags=["Password Reset"],
         request=PhoneResetSerializer,
         responses={
             200: OpenApiResponse(description="Created. New resource in response"),
@@ -80,15 +110,10 @@ class ResendView(views.APIView):
 
         return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
 
-
-class UserDetailView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
     
-
+@extend_schema(
+        tags=["Password Reset"],
+)
 class PasswordResetTokenView(generics.GenericAPIView):
     serializer_class = PhoneRequestSerializer
 
@@ -114,6 +139,7 @@ class PasswordResetTokenView(generics.GenericAPIView):
 
 
 @extend_schema(
+        tags=["Password Reset"],
         request=ResetPasswordSerializer,
         responses={
             200: OpenApiResponse(description="Password reset complete"),
