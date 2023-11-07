@@ -211,8 +211,8 @@ REST_FRAMEWORK = {
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "My Site Project API",
-    "DESCRIPTION": "My site with shop app and custom auth",
+    "TITLE": "iModels API",
+    "DESCRIPTION": "iModels shop",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
