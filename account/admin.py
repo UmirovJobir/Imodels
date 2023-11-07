@@ -1,5 +1,8 @@
+from datetime import datetime, timedelta
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+
+from rangefilter.filters import DateRangeQuickSelectListFilterBuilder
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import User, AuthSms
@@ -18,19 +21,43 @@ class UserAdmin(UserAdmin):
     readonly_fields = ["created_at"]
     list_display_links = ["id", "phone"]
     list_display = ["id", "phone", "first_name", "is_staff", "is_active"]
-    list_filter = ["phone", "first_name", "is_staff", "is_active"]
-    fieldsets = (
-        (None, {"fields": ("phone", "password", "first_name", "last_name", "created_at")}),
-        ("Permissions", {"fields": ("is_staff", "is_active", "groups", "user_permissions")}),
-    )
-    add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": (
-                "phone", "password1", "password2", "first_name", "last_name", "is_staff",
-                "is_active", "groups", "user_permissions"
-            )}
-        ),
-    )
     search_fields = ["phone"]
     ordering = ["phone"]
+    list_filter = (
+        ('is_staff'),
+        ('is_active'),
+        ("created_at", DateRangeQuickSelectListFilterBuilder(
+            title="Kun bo'yichas salarash",
+            default_start= datetime.now().replace(month=datetime.now().month - 1),
+            default_end=datetime.now()
+        )),
+    )
+    fieldsets = (
+        (None, {
+            "fields": [
+                "phone",
+                "password",
+                "first_name",
+                "last_name",
+                "created_at"
+            ]
+        }),
+        ("Permissions", {
+            "fields": [
+                "is_staff",
+                "is_active",
+                "groups",
+                "user_permissions"
+            ]
+        }),
+    )
+    # add_fieldsets = (
+    #     (None, {
+    #         "classes": ("wide",),
+    #         "fields": (
+    #             "phone", "password1", "password2", "first_name", "last_name", "is_staff",
+    #             "is_active", "groups", "user_permissions"
+    #         )}
+    #     ),
+    # )
+

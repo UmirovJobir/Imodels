@@ -87,5 +87,6 @@ class ResetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("The reset token is invalid")
 
         user.set_password(password)
+        user.is_active=True
         user.save()
         return data
