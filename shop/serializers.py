@@ -412,7 +412,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
             request.data['quantity'] = obj.quantity
             request.data['price'] = {
                 "usd": obj.price_usd,
-                "uzd": obj.price,
+                "uzs": obj.price,
                 "eur": obj.price_eur,
             }
         return OrderProductDetailSerializer(
