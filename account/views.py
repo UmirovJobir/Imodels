@@ -12,7 +12,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from libs.telegram import telebot
+from libs.telegram import send_message
 from libs.sms import client
 
 from .utils import generate_code
@@ -104,8 +104,8 @@ class ResendView(views.APIView):
                 phone_number=user.phone,
                 message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
 
-        telebot.send_message(
-                type='chat_id_orders',
+        send_message(
+                type='auth',
                 text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
 
         return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)

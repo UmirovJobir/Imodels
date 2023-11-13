@@ -1,5 +1,71 @@
+import os
+import telebot
 import requests
 from django.conf import settings
+from telebot.util import quick_markup
+
+bot = telebot.TeleBot(settings.MYSERVICE.get('telebot').get('token'))
+
+
+
+def return_markup(id):
+    return quick_markup({
+                            'Admin': {'url': f'http://127.0.0.1:8000/backend/admin/shop/order/{id}/change/'},
+                        })
+
+
+def send_message(order=None, type="order", chat_id=5738824208, **kwargs):
+    if type == "order":
+        basket = ""
+
+        for product in order.order_products.all():
+            if len(product.product_name) > 37:
+                name = product.product_name[:37] + "..."
+            else:
+                name = product.product_name
+            
+            basket += f"{name} ✖️ {product.quantity}\n"
+
+        print(order.created_at)
+
+        text = f"""
+📄 Заказ: #{order.pk}
+📅 Дата: {order.created_at.strftime("%d.%m.%Y, %H:%M")}
+💳 Метод оплата: Наличными при получении
+💸 Финансовый статус: {order.status}
+🚛 Тип доставка: Deliver
+-----------------------
+👤 Клиент: {order.customer.first_name} {order.customer.last_name}
+📞 Номер телефона: {order.customer.phone}
+-----------------------
+{basket}
+-----------------------
+Итого: {order.total_price:,.2f} som
+"""
+        try:
+            bot.send_message(chat_id=chat_id, text=text, reply_markup=return_markup(order.pk))
+        except:
+            pass
+    
+    elif type == "auth":
+        try:
+            bot.send_message(chat_id=chat_id, text=kwargs.get('text'))
+        except:
+            pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class TeleBotClient:
@@ -27,6 +93,42 @@ class TeleBotClient:
         params = {
             'text': text,
             'chat_id': chat_id,
+            'parse_mode': self.PASE_MODE
+        }
+        
+        return requests.post(f'{self.main_url}{self.SEND_MESSAGE}', params)
+    
+    def send_order_message(self, order):
+        
+        basket = ""
+
+        for product in order.order_products.all():
+            if len(product.product_name) > 37:
+                name = product.product_name[:37] + "..."
+            else:
+                name = product.product_name
+            
+            basket += f"{name} ✖️ {product.quantity}\n"
+
+        text = f"""
+📄 Заказ: #{order.pk}
+📅 Дата: {order.created_at}
+💳 Метод оплата: Наличными при получении
+💸 Финансовый статус: {order.status}
+🚛 Тип доставка: Deliver
+-----------------------
+👤 Клиент: Jobir
+📞 Номер телефона: 998900426898
+-----------------------
+{basket}
+-----------------------
+Итого: {order.total_price} som
+"""
+        print(text)
+
+        params = {
+            'text': text,
+            'chat_id': self.chat_id.get(self.TYPE_ORDERS),
             'parse_mode': self.PASE_MODE
         }
         

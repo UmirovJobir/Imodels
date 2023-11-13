@@ -43,7 +43,7 @@ admin.site.register(Type)
 class ContactRequestAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'email', 'phone', 'message_short']
     list_display_links = ['id', 'name']
-    list_per_page = 10
+    list_per_page = 20
 
     def message_short(self, obj: ContactRequest) -> str:
         if obj.message:

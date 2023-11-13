@@ -11,7 +11,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     ListCreateAPIView,
 )
-from libs.telegram import telebot
+from libs.telegram import send_message
 from .cart import Cart
 from .pagination import CustomPageNumberPagination
 from .models import (
@@ -48,6 +48,7 @@ class CategoryView(ListAPIView):
     def get_queryset(self):
         queryset = Category.objects.filter(parent__isnull=True)
         return queryset
+
 
 @extend_schema(
     tags=["Category"],
@@ -126,6 +127,7 @@ class BlogView(ListAPIView):
     serializer_class = BlogListSerializer
     pagination_class = CustomPageNumberPagination
 
+
 @extend_schema(
     tags=["Blog"],
 )
@@ -151,21 +153,18 @@ class ContactRequestCreateView(CreateAPIView):
     serializer_class = ContactRequestSerializer
 
     def create(self, request, *args, **kwargs):
-        message = """
-📩 Yangi murojaat❗️\n
-<code>📞 +{}</code>\n
-👤 {}\n
-📧 {}\n
-📄 {}\n
-"""
-        telebot.send_message(
-                type="chat_id_orders",
-                text=message.format(
-                    request.data.get('phone'),
-                    request.data.get('name'),
-                    request.data.get('email'),
-                    request.data.get('message')                    
-                    ))
+        try:
+            message = "📩 Yangi murojaat❗️\n\n<code>📞 +{}</code>\n👤 {}\n📧 {}\n📄 {}\n"
+            telebot.send_message(
+                    type="chat_id_orders",
+                    text=message.format(
+                        request.data.get('phone'),
+                        request.data.get('name'),
+                        request.data.get('email'),
+                        request.data.get('message')                    
+                        ))
+        except:
+            pass
         return super().create(request, *args, **kwargs)
 
 
@@ -291,6 +290,10 @@ class OrderView(ListCreateAPIView):
                     price        = product['price']['uzs'] if product['price']!=None else None,
                     price_usd    = product['price']['usd'] if product['price']!=None else None,
                     price_eur    = product['price']['eur'] if product['price']!=None else None)
+        
+
+        send_message(order=order, type="order")
+        
             
         # serializer = OrderSerializer(order, context = {"request": request})
         # return Response(serializer.data, status=status.HTTP_200_OK)
