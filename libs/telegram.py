@@ -7,11 +7,10 @@ from telebot.util import quick_markup
 bot = telebot.TeleBot(settings.MYSERVICE.get('telebot').get('token'))
 
 
-
 def return_markup(id):
     return quick_markup({
-                            'Admin': {'url': f'http://127.0.0.1:8000/backend/admin/shop/order/{id}/change/'},
-                        })
+        f'Заказ: #{id}': {'url': f'http://127.0.0.1:8000/backend/admin/shop/order/{id}/change/'},
+        })
 
 
 def send_message(order=None, type="order", chat_id=5738824208, **kwargs):
@@ -19,28 +18,31 @@ def send_message(order=None, type="order", chat_id=5738824208, **kwargs):
         basket = ""
 
         for product in order.order_products.all():
-            if len(product.product_name) > 37:
-                name = product.product_name[:37] + "..."
+            if len(product.product_name) > 30:
+                name = product.product_name[:30] + "..."
             else:
                 name = product.product_name
-            
             basket += f"{name} ✖️ {product.quantity}\n"
 
-        print(order.created_at)
+        if order.status == "Kutish":
+            order_status = "🟡 " + order.status
+        elif order.status == "To'langan":
+            order_status = "🟢 " + order.status
+        elif order.status == "Rad etilgan":
+            order_status = "🔴 " + order.status
 
         text = f"""
 📄 Заказ: #{order.pk}
 📅 Дата: {order.created_at.strftime("%d.%m.%Y, %H:%M")}
 💳 Метод оплата: Наличными при получении
-💸 Финансовый статус: {order.status}
-🚛 Тип доставка: Deliver
+💸 Финансовый статус: {order_status}
 -----------------------
 👤 Клиент: {order.customer.first_name} {order.customer.last_name}
 📞 Номер телефона: {order.customer.phone}
 -----------------------
 {basket}
 -----------------------
-Итого: {order.total_price:,.2f} som
+Итого: {order.total_price:,.2f} so'm
 """
         try:
             bot.send_message(chat_id=chat_id, text=text, reply_markup=return_markup(order.pk))
