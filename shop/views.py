@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRequest
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.views import APIView
 from rest_framework import filters, status, permissions
 from rest_framework.response import Response
@@ -152,20 +152,20 @@ class ContactRequestCreateView(CreateAPIView):
     queryset = ContactRequest.objects.all()
     serializer_class = ContactRequestSerializer
 
-    def create(self, request, *args, **kwargs):
-        try:
-            message = "📩 Yangi murojaat❗️\n\n<code>📞 +{}</code>\n👤 {}\n📧 {}\n📄 {}\n"
-            telebot.send_message(
-                    type="chat_id_orders",
-                    text=message.format(
-                        request.data.get('phone'),
-                        request.data.get('name'),
-                        request.data.get('email'),
-                        request.data.get('message')                    
-                        ))
-        except:
-            pass
-        return super().create(request, *args, **kwargs)
+    # def create(self, request, *args, **kwargs):
+    #     try:
+    #         message = "📩 Yangi murojaat❗️\n\n<code>📞 +{}</code>\n👤 {}\n📧 {}\n📄 {}\n"
+    #         send_message(
+    #                 type="contact",
+    #                 text=message.format(
+    #                     request.data.get('phone'),
+    #                     request.data.get('name'),
+    #                     request.data.get('email'),
+    #                     request.data.get('message')                    
+    #                     ))
+    #     except:
+    #         pass
+    #     return super().create(request, *args, **kwargs)
 
 
 # View related to Cart
@@ -290,8 +290,7 @@ class OrderView(ListCreateAPIView):
                     price        = product['price']['uzs'] if product['price']!=None else None,
                     price_usd    = product['price']['usd'] if product['price']!=None else None,
                     price_eur    = product['price']['eur'] if product['price']!=None else None)
-        
-
+            
         send_message(order=order, type="order")
         
             

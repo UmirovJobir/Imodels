@@ -243,10 +243,10 @@ class OrderAdmin(NestedModelAdmin):
         }
     }
     list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
-    list_display_links = ['id', 'customer']
+    list_display_links = ['id', 'customer', 'order_status']
     readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
     inlines = [OrderProductInline]
-    list_per_page = 10
+    list_per_page = 15
     list_filter = (
         ('status'),
         ("created_at", DateRangeQuickSelectListFilterBuilder(

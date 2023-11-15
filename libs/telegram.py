@@ -1,28 +1,39 @@
-import os
 import telebot
 import requests
+
 from django.conf import settings
+
 from telebot.util import quick_markup
 
-bot = telebot.TeleBot(settings.MYSERVICE.get('telebot').get('token'))
+from libs.sms import client
 
+bot = telebot.TeleBot(settings.MYSERVICE.get('telebot').get('token'))
 
 def return_markup(id):
     return quick_markup({
         f'Заказ: #{id}': {'url': f'http://127.0.0.1:8000/backend/admin/shop/order/{id}/change/'},
         })
 
+#💳 Метод оплата: Наличными при получении
+#📅 Дата: {order.created_at.strftime("%d.%m.%Y, %H:%M")}
 
-def send_message(order=None, type="order", chat_id=5738824208, **kwargs):
+#settings.MYSERVICE.get('telebot').get('chat_id').get('chat_id_orders')
+
+
+def send_message(type=None, chat_id=-1001578600046, **kwargs):
     if type == "order":
+        order = kwargs.get('order')
+
         basket = ""
+        pk = 1
 
         for product in order.order_products.all():
-            if len(product.product_name) > 30:
-                name = product.product_name[:30] + "..."
+            if len(product.product_name) > 20:
+                name = product.product_name[:20] + "..."
             else:
                 name = product.product_name
-            basket += f"{name} ✖️ {product.quantity}\n"
+            basket += f"{pk}. {name} ✖️ {product.quantity}шт. {product.subtotal:,.2f}\n"
+            pk += 1
 
         if order.status == "Kutish":
             order_status = "🟡 " + order.status
@@ -31,27 +42,53 @@ def send_message(order=None, type="order", chat_id=5738824208, **kwargs):
         elif order.status == "Rad etilgan":
             order_status = "🔴 " + order.status
 
-        text = f"""
+        # print(order.created_at.strftime("%d.%m.%Y, %H:%M"))
+
+        telegram_message = f"""
 📄 Заказ: #{order.pk}
-📅 Дата: {order.created_at.strftime("%d.%m.%Y, %H:%M")}
-💳 Метод оплата: Наличными при получении
 💸 Финансовый статус: {order_status}
 -----------------------
 👤 Клиент: {order.customer.first_name} {order.customer.last_name}
-📞 Номер телефона: {order.customer.phone}
+📞 Номер телефона: <code>+{order.customer.phone}</code>
 -----------------------
-{basket}
------------------------
-Итого: {order.total_price:,.2f} so'm
+{basket}-----------------------
+Итого: {order.total_price:,.2f} UZS
 """
+        
+        sms_message = f"""📄 Ваш заказ: #{order.pk}
+💸 Финансовый статус:\n{order_status}
+-----------------------
+{basket}-----------------------
+Итого: {order.total_price:,.2f} UZS"""
+        
         try:
-            bot.send_message(chat_id=chat_id, text=text, reply_markup=return_markup(order.pk))
+            bot.send_message(chat_id=chat_id, text=telegram_message, reply_markup=return_markup(order.pk), parse_mode="HTML")
+            if settings.DEBUG==False:
+                client._send_sms(
+                    phone_number=order.customer.phone,
+                    message=sms_message)
         except:
             pass
     
     elif type == "auth":
         try:
-            bot.send_message(chat_id=chat_id, text=kwargs.get('text'))
+            bot.send_message(chat_id=chat_id, text=kwargs.get('text'), parse_mode="HTML")
+        except:
+            pass
+    
+    elif type == "contact":
+        obj = kwargs.get('obj')
+        
+        telegram_message = f"""
+📩 Yangi murojaat❗️\n
+👤 Mijoz: {obj.name}
+📧 Email: {obj.email}
+📞 Telefon raqam: <code>+{obj.phone}</code>
+📄 Xabar:  <code>{obj.message}</code>
+"""
+
+        try:
+            bot.send_message(chat_id=chat_id, text=telegram_message, parse_mode="HTML")
         except:
             pass
 
@@ -63,83 +100,76 @@ def send_message(order=None, type="order", chat_id=5738824208, **kwargs):
 
 
 
-
-
-
-
-
-
-
-class TeleBotClient:
-    PASE_MODE = "html"
-    SEND_MESSAGE = "/sendMessage"
+# class TeleBotClient:
+#     PASE_MODE = "html"
+#     SEND_MESSAGE = "/sendMessage"
     
-    TYPE_ORDERS = "chat_id_orders"
-    TYPE_WARNINGS = "chat_id_warnings"
+#     TYPE_ORDERS = "chat_id_orders"
+#     TYPE_WARNINGS = "chat_id_warnings"
     
 
-    def __init__(self, base_url: str, token: str, chat_id: str) -> None:
-        self.token = token
-        self.chat_id = chat_id
-        self.base_url = base_url
-        self.main_url = f'{self.base_url}{self.token}'
+#     def __init__(self, base_url: str, token: str, chat_id: str) -> None:
+#         self.token = token
+#         self.chat_id = chat_id
+#         self.base_url = base_url
+#         self.main_url = f'{self.base_url}{self.token}'
 
 
-    def send_message(self, text: str, type: str) -> dict:
-        if type == self.TYPE_ORDERS:
-            chat_id: str = self.chat_id.get(self.TYPE_ORDERS)
+#     def send_message(self, text: str, type: str) -> dict:
+#         if type == self.TYPE_ORDERS:
+#             chat_id: str = self.chat_id.get(self.TYPE_ORDERS)
             
-        if type == self.TYPE_WARNINGS:
-            chat_id: str = self.chat_id.get(self.TYPE_WARNINGS)
+#         if type == self.TYPE_WARNINGS:
+#             chat_id: str = self.chat_id.get(self.TYPE_WARNINGS)
         
-        params = {
-            'text': text,
-            'chat_id': chat_id,
-            'parse_mode': self.PASE_MODE
-        }
+#         params = {
+#             'text': text,
+#             'chat_id': chat_id,
+#             'parse_mode': self.PASE_MODE
+#         }
         
-        return requests.post(f'{self.main_url}{self.SEND_MESSAGE}', params)
+#         return requests.post(f'{self.main_url}{self.SEND_MESSAGE}', params)
     
-    def send_order_message(self, order):
+#     def send_order_message(self, order):
         
-        basket = ""
+#         basket = ""
 
-        for product in order.order_products.all():
-            if len(product.product_name) > 37:
-                name = product.product_name[:37] + "..."
-            else:
-                name = product.product_name
+#         for product in order.order_products.all():
+#             if len(product.product_name) > 37:
+#                 name = product.product_name[:37] + "..."
+#             else:
+#                 name = product.product_name
             
-            basket += f"{name} ✖️ {product.quantity}\n"
+#             basket += f"{name} ✖️ {product.quantity}\n"
 
-        text = f"""
-📄 Заказ: #{order.pk}
-📅 Дата: {order.created_at}
-💳 Метод оплата: Наличными при получении
-💸 Финансовый статус: {order.status}
-🚛 Тип доставка: Deliver
------------------------
-👤 Клиент: Jobir
-📞 Номер телефона: 998900426898
------------------------
-{basket}
------------------------
-Итого: {order.total_price} som
-"""
-        print(text)
+#         text = f"""
+# 📄 Заказ: #{order.pk}
+# 📅 Дата: {order.created_at}
+# 💳 Метод оплата: Наличными при получении
+# 💸 Финансовый статус: {order.status}
+# 🚛 Тип доставка: Deliver
+# -----------------------
+# 👤 Клиент: Jobir
+# 📞 Номер телефона: 998900426898
+# -----------------------
+# {basket}
+# -----------------------
+# Итого: {order.total_price} som
+# """
+#         print(text)
 
-        params = {
-            'text': text,
-            'chat_id': self.chat_id.get(self.TYPE_ORDERS),
-            'parse_mode': self.PASE_MODE
-        }
+#         params = {
+#             'text': text,
+#             'chat_id': self.chat_id.get(self.TYPE_ORDERS),
+#             'parse_mode': self.PASE_MODE
+#         }
         
-        return requests.post(f'{self.main_url}{self.SEND_MESSAGE}', params)
+#         return requests.post(f'{self.main_url}{self.SEND_MESSAGE}', params)
 
 
-telebot = TeleBotClient(
-    **settings.MYSERVICE.get('telebot')
-)
+# telebot = TeleBotClient(
+#     **settings.MYSERVICE.get('telebot')
+# )
 
 
 # import requests

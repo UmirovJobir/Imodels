@@ -99,15 +99,6 @@ class ResendView(views.APIView):
                     secure_code = generate_code(),
                     created_at = timezone.now())
 
-        if settings.DEBUG==False:
-            client._send_sms(
-                phone_number=user.phone,
-                message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
-
-        send_message(
-                type='auth',
-                text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
-
         return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
 
     
