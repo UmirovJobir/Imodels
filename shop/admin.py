@@ -264,8 +264,8 @@ class OrderAdmin(NestedModelAdmin):
         ("Order", {
             "fields": [
                 "order_status",
-                "customer",
                 "status",
+                "customer",
                 "phone",
                 "first_name",
                 "last_name",
