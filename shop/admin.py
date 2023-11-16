@@ -236,6 +236,10 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
 @admin.register(Order)
 class OrderAdmin(NestedModelAdmin):
     formfield_overrides = {
+        models.ForeignKey: {'widget': widgets.Input(attrs={
+                'style':  'width: 90px; border-radius: 5px;'
+            })
+        },
         models.BooleanField: {
             'widget': widgets.NullBooleanSelect(attrs={
                 'style':  'width: 100px; background-color: red;'  #'padding: 4px 8px; border-radius: 5px;'
@@ -244,8 +248,9 @@ class OrderAdmin(NestedModelAdmin):
     }
     list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
     list_display_links = ['id', 'customer', 'order_status']
-    readonly_fields = ['formatted_total_price', 'order_status', 'created_at']
+    readonly_fields = ['formatted_total_price', 'first_name', 'last_name', 'phone','order_status', 'created_at']
     inlines = [OrderProductInline]
+    raw_id_fields = ['customer']
     list_per_page = 15
     list_filter = (
         ('status'),
@@ -258,14 +263,28 @@ class OrderAdmin(NestedModelAdmin):
     fieldsets = [
         ("Order", {
             "fields": [
-                "customer",
                 "order_status",
+                "customer",
                 "status",
+                "phone",
+                "first_name",
+                "last_name",
+                "created_at",
                 "formatted_total_price",
-                "created_at"
             ],
         }),
     ]
+
+    def phone(self, obj):
+        return obj.customer.phone
+
+    def first_name(self, obj):
+        return obj.customer.first_name
+    # first_name.short_description = 'First Name'
+
+    def last_name(self, obj):
+        return obj.customer.last_name
+    # last_name.short_description = 'First Name'
     
     def formatted_total_price(self, obj):
         return "{:,.2f} So'm".format(obj.total_price)
@@ -300,8 +319,7 @@ class OrderAdmin(NestedModelAdmin):
                 background-color: {};
                 border-radius: 6px;
                 color: {};
-                cursor: pointer;
-                padding: 6px 16px;
+                padding: 6px 23px;
                 text-align: center;
                 ">{}
             </span>""",

@@ -291,7 +291,7 @@ class OrderView(ListCreateAPIView):
                     price_usd    = product['price']['usd'] if product['price']!=None else None,
                     price_eur    = product['price']['eur'] if product['price']!=None else None)
             
-        send_message(order=order, type="order")
+        send_message(order=order, request=request, type="order")
         
             
         # serializer = OrderSerializer(order, context = {"request": request})

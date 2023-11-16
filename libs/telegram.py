@@ -1,6 +1,7 @@
 import telebot
 import requests
 
+from django.urls import reverse
 from django.conf import settings
 
 from telebot.util import quick_markup
@@ -9,10 +10,13 @@ from libs.sms import client
 
 bot = telebot.TeleBot(settings.MYSERVICE.get('telebot').get('token'))
 
-def return_markup(id):
+
+def return_markup(id, request):
+    admin_url = reverse('admin:index')
+    full_admin_url = request.build_absolute_uri(admin_url)
     return quick_markup({
-        f'Заказ: #{id}': {'url': f'http://127.0.0.1:8000/backend/admin/shop/order/{id}/change/'},
-        })
+        f'Заказ: #{id}': {'url': f'{full_admin_url}shop/order/{id}/change/'},
+    })
 
 #💳 Метод оплата: Наличными при получении
 #📅 Дата: {order.created_at.strftime("%d.%m.%Y, %H:%M")}
@@ -23,6 +27,7 @@ def return_markup(id):
 def send_message(type=None, chat_id=-1001578600046, **kwargs):
     if type == "order":
         order = kwargs.get('order')
+        request = kwargs.get('request')
 
         basket = ""
         pk = 1
@@ -42,8 +47,6 @@ def send_message(type=None, chat_id=-1001578600046, **kwargs):
         elif order.status == "Rad etilgan":
             order_status = "🔴 " + order.status
 
-        # print(order.created_at.strftime("%d.%m.%Y, %H:%M"))
-
         telegram_message = f"""
 📄 Заказ: #{order.pk}
 💸 Финансовый статус: {order_status}
@@ -62,7 +65,7 @@ def send_message(type=None, chat_id=-1001578600046, **kwargs):
 Итого: {order.total_price:,.2f} UZS"""
         
         try:
-            bot.send_message(chat_id=chat_id, text=telegram_message, reply_markup=return_markup(order.pk), parse_mode="HTML")
+            bot.send_message(chat_id=chat_id, text=telegram_message, reply_markup=return_markup(id=order.pk, request=request), parse_mode="HTML")
             if settings.DEBUG==False:
                 client._send_sms(
                     phone_number=order.customer.phone,
