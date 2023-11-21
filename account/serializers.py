@@ -27,11 +27,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         if not is_valid_password(password):
             raise serializers.ValidationError(User.INVALID_PASSWORD)
 
+        
         user = User.objects.create_user(is_active=False, **validated_data)
 
         auth_sms = AuthSms.objects.create(user=user, secure_code=generate_code())
-        
-        return user
+    
+        return "dfsdf"
 
 
 class UserSerializer(serializers.ModelSerializer):  
