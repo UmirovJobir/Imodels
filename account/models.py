@@ -28,7 +28,7 @@ class User(AbstractUser):
 
 
 class AuthSms(models.Model):
-    AUTH_VERIFY_CODE_TEXT = "Imodels web sahifasi uchun tasdiqlash kodi:"
+    AUTH_VERIFY_CODE_TEXT = "Imodels web sahifasi uchun tasdiqlash kodi: {}"
     WRONG_SECURE_CODE = "Wrong security code"
     SECURE_CODE_EXPIRED = "Security code has expired"
     USER_ACTIVETED = "User activated"

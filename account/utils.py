@@ -7,10 +7,6 @@ def generate_code() -> str:
     password: str = ''
     numbers: tuple = ('1234567890')
     
-    if settings.DEBUG==False:
-        for _ in range(6):
-            password+=choice(choice(numbers))
-    else:
-        password = '111111'
+    password = '111111'
     
     return password
