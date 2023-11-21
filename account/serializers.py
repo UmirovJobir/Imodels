@@ -26,7 +26,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         auth_sms = AuthSms.objects.create(user=user, secure_code=generate_code())
     
-        return "dfsdf"
+        return user
 
 
 class UserSerializer(serializers.ModelSerializer):  
