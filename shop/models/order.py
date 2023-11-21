@@ -7,13 +7,17 @@ from .product import Product
 
 class Order(models.Model):
     STATUS_CHOICES = (
-        ("To'langan", "To'langan"),
         ("Kutish", "Kutish"),
+        ("To'langan", "To'langan"),
         ("Rad etilgan", "Rad etilgan"),
     )
-
+    PAYMENT_CHOICES = (
+        ("Naqd", "Naqd"),
+        ("Payme", "Payme"),
+    )
+    payment_type = models.CharField(max_length=50, choices=PAYMENT_CHOICES, default=PAYMENT_CHOICES[0][1])
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order')
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=STATUS_CHOICES[1][1])
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][1])
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

@@ -29,7 +29,7 @@ from .models import (
     ContactRequest,
     Type,
     Order,
-    Sale
+    Sale,
 )
 
 admin.site.site_header = "Imodels adminpanel"
@@ -52,6 +52,7 @@ class ContactRequestAdmin(admin.ModelAdmin):
             else:
                 return obj.message[:48] + "..."
         return None
+
 
 @admin.register(Blog)
 class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
@@ -219,10 +220,11 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     
     def first_image(self, obj):
         try:
-            first_image = obj.product_images.first().image.url
+            first_image = mark_safe('<img src="%s" width="100px"/>'%(obj.product_images.first().image.url))
         except AttributeError:
-            first_image = "/static/img/no-image.png"
-        return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
+            first_image = None #"/static/img/no-image.png"
+        return first_image
+        # return mark_safe('<img src="%s" width="100px"/>'%(first_image))
     first_image.short_description = "Rasm"
 
         
@@ -246,7 +248,7 @@ class OrderAdmin(NestedModelAdmin):
             })
         }
     }
-    list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
+    list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'payment_type', 'order_status']
     list_display_links = ['id', 'customer', 'order_status']
     readonly_fields = ['formatted_total_price', 'first_name', 'last_name', 'phone','order_status', 'created_at']
     inlines = [OrderProductInline]
@@ -266,6 +268,7 @@ class OrderAdmin(NestedModelAdmin):
                 "order_status",
                 "status",
                 "customer",
+                "payment_type",
                 "phone",
                 "first_name",
                 "last_name",

@@ -18,5 +18,5 @@ from .product import (
 )
 from .order import (
     Order,
-    OrderProduct
+    OrderProduct,
 )

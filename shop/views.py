@@ -273,30 +273,34 @@ class OrderView(ListCreateAPIView):
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        order = Order.objects.create(customer=request.user)
-        for product in request.data:
-            
-            if 'configurator' in product:
-                configurator_id = get_object_or_404(Product, pk=product['configurator']) if product['configurator']!=None else None,
-                configurator_id = list(configurator_id)[0]
-            else:
-                configurator_id = None
-
-            order_product = OrderProduct.objects.create(
-                    order=order,
-                    configurator = configurator_id,         #get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
-                    quantity     = product['quantity'],
-                    product      = get_object_or_404(Product, pk=product['product']),
-                    price        = product['price']['uzs'] if product['price']!=None else None,
-                    price_usd    = product['price']['usd'] if product['price']!=None else None,
-                    price_eur    = product['price']['eur'] if product['price']!=None else None)
-            
-        send_message(order=order, request=request, type="order")
+        order_products = request.data.get('order_products')
         
+        if order_products:
+            order = Order.objects.create(customer=request.user, payment_type=request.data.get('payment_type'))
+            for product in order_products:
+                
+                if 'configurator' in product:
+                    configurator_id = get_object_or_404(Product, pk=product['configurator']) if product['configurator']!=None else None,
+                    configurator_id = list(configurator_id)[0]
+                else:
+                    configurator_id = None
+
+                order_product = OrderProduct.objects.create(
+                        order=order,
+                        configurator = configurator_id,     #get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
+                        quantity     = product['quantity'],
+                        product      = get_object_or_404(Product, pk=product['product']),
+                        price        = product['price']['uzs'] if product['price']!=None else None,
+                        price_usd    = product['price']['usd'] if product['price']!=None else None,
+                        price_eur    = product['price']['eur'] if product['price']!=None else None)
             
-        # serializer = OrderSerializer(order, context = {"request": request})
-        # return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
+            send_message(order=order, request=request, type="order")
+        
+            # serializer = OrderSerializer(order, context = {"request": request})
+            # return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": f"Order not created"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(

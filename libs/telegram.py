@@ -50,6 +50,7 @@ def send_message(type=None, **kwargs):
 📩 Yangi buyurtma❗️\n
 📄 ID: #{order.pk}
 💸 Status: {order_status}
+💳 To'lov usuli: {order.payment_type}
 -----------------------
 👤 Mijoz:  {order.customer.first_name} {order.customer.last_name}
 📞 Raqam: <code>+{order.customer.phone}</code>
