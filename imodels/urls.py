@@ -19,6 +19,8 @@ from django.urls import path, include, re_path
 from django.views.static import serve
 from django.conf.urls.static import static
 
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 
@@ -30,6 +32,9 @@ urlpatterns = [
     path('backend/admin/', admin.site.urls),
     path('backend/account/', include('account.urls')),
     path('backend/shop/', include('shop.urls')),
+
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('backend/summernote/', include('django_summernote.urls')),
     path('backend/__debug__/', include('debug_toolbar.urls')),
