@@ -7,7 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 
-from libs.telegram import telebot
+from libs.telegram import send_message
 from libs.sms import client
 from .utils import generate_code
 from .models import User, AuthSms
@@ -30,15 +30,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(is_active=False, **validated_data)
 
         auth_sms = AuthSms.objects.create(user=user, secure_code=generate_code())
-
-        if settings.DEBUG==False:
-            client._send_sms(
-                phone_number=user.phone,
-                message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
-        
-        telebot.send_message(
-            type='chat_id_orders',
-            text=AuthSms.AUTH_VERIFY_CODE_TEXT.format(auth_sms.secure_code))
         
         return user
 

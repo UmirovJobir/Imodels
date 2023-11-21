@@ -252,7 +252,7 @@ MYSERVICE = {
         'token': env.str('TELEBOT_TOKEN'),
         'chat_id': {
             "chat_id_orders": env.str('TELEBOT_CHAT_ID_ORDERS'),
-            "chat_id_warnings": env.str('TELEBOT_CHAT_ID_WARNINGS'),
+            "chat_id_warnings": env.str('TELEBOT_CHAT_ID_CONTACTS'),
         }
     },
     'sms_service': {
