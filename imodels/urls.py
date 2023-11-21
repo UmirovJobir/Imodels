@@ -33,8 +33,8 @@ urlpatterns = [
     path('backend/account/', include('account.urls')),
     path('backend/shop/', include('shop.urls')),
 
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('backend/summernote/', include('django_summernote.urls')),
     path('backend/__debug__/', include('debug_toolbar.urls')),
