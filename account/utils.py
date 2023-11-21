@@ -7,6 +7,7 @@ def generate_code() -> str:
     password: str = ''
     numbers: tuple = ('1234567890')
     
-    password = '111111'
+    for _ in range(6):
+        password+=choice(choice(numbers))
     
     return password
