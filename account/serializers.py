@@ -22,7 +22,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     @transaction.atomic
     def create(self, validated_data):
-        return "sdfdfsdf"
         user = User.objects.create_user(is_active=False, **validated_data)
 
         auth_sms = AuthSms.objects.create(user=user, secure_code=generate_code())

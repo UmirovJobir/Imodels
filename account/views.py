@@ -43,6 +43,7 @@ class CustomTokenRefreshView(TokenRefreshView):
         tags=["Register"],
 )
 class RegisterView(generics.CreateAPIView):
+    exit
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
