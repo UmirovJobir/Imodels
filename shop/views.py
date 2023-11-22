@@ -70,13 +70,15 @@ class SubCategoryView(ListAPIView):
     ],
 )
 class ProductListAPIView(ListAPIView):
-    pagination_class = CustomPageNumberPagination
+    queryset = Product.objects.all()
     serializer_class = ProductListSerializer
+    pagination_class = CustomPageNumberPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        queryset = Product.objects.filter(status=True) \
+        queryset = super().get_queryset()
+        queryset = queryset.filter(status=True) \
             .order_by('order_by') \
             .prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
             .select_related('configurator', 'product_video', 'product_features', 'product_description', 'product_sale')
@@ -85,10 +87,10 @@ class ProductListAPIView(ListAPIView):
         if category_id:
             category = Category.objects.get(id=category_id)
             if category.products.all():
-                return category.products.all().order_by('order_by')
+                return category.products.all().order_by('order_by').filter(status=True)
             else:
                 if category.subcategories.all():
-                    queryset = queryset.filter(category__in=category.subcategories.all()).order_by('order_by')
+                    queryset = queryset.filter(category__in=category.subcategories.all(), status=True).order_by('order_by')
                 else:
                     queryset = Product.objects.none()
         return queryset
@@ -310,10 +312,9 @@ class SaleView(ListAPIView):
     serializer_class = SaleSerializer
 
     def get_queryset(self):
-        # queryset = Sale.objects.all().select_related('product')
-        queryset = Sale.get_sales_ordered_by_discount().select_related('product')
+        queryset = Sale.get_sales_ordered_by_discount().filter(product__status=True).select_related('product')
 
-        return queryset #.order_by("discount")
+        return queryset
         
 
     def get_serializer_context(self):

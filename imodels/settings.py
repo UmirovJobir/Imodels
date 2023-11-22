@@ -26,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get("DEBUG", False))
+DEBUG = env.bool('DEBUG')
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = env.str("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 INTERNAL_IPS = [
@@ -40,7 +40,7 @@ INTERNAL_IPS = [
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS").split(" ")
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
@@ -67,18 +67,20 @@ INSTALLED_APPS = [
     'shop',
 
     #packages
-    'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
-    'drf_spectacular',
-    'embed_video',
-    'django_summernote',
-    'nested_admin',
-    'debug_toolbar',
-    'django_filters',
+
     'django_cleanup',
-    'admin_reorder',
+    'django_filters',
+    'django_summernote',
+    
+    'embed_video',
+    'corsheaders',
     'rangefilter',
+    'nested_admin',
+    'admin_reorder',
+    'debug_toolbar',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -121,12 +123,12 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432"),
+        "ENGINE": env.str("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": env.str("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
+        "USER": env.str("SQL_USER", "user"),
+        "PASSWORD": env.str("SQL_PASSWORD", "password"),
+        "HOST": env.str("SQL_HOST", "localhost"),
+        "PORT": env.str("SQL_PORT", "5432"),
     }
 }
 
@@ -300,3 +302,35 @@ ADMIN_REORDER = (
         'django_summernote.Attachment',
     )},
 )
+
+
+LOGFILE_NAME = BASE_DIR / "log.txt"
+LOGFILE_SIZE = 2 * 1024 * 1024
+LOGFILE_COUNT = 1
+
+LOGGING = {
+    'version': 1,
+    "disable_existing_loggers":False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "logfile": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOGFILE_NAME,
+            "maxBytes": LOGFILE_SIZE,
+            "backupCount": LOGFILE_COUNT,
+            "formatter": "verbose",
+        },
+    },
+    "root":{
+        "handlers": ["console", "logfile"],
+        "level": "INFO",
+    },   
+}

@@ -16,6 +16,6 @@ def send_order_confirmation_message(sender, instance, created, **kwargs):
         
         if settings.DEBUG==False:
             client._send_sms(
-                phone_number=instance.user.phone,
-                message=AuthSms.AUTH_VERIFY_CODE_TEXT.format(instance.secure_code))
+                phone=instance.user.phone,
+                code=AuthSms.AUTH_VERIFY_CODE_TEXT.format(instance.secure_code))
 
