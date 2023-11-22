@@ -307,7 +307,7 @@ class SaleView(ListAPIView):
 
     def get_queryset(self):
         # queryset = Sale.objects.all().select_related('product')
-        queryset = Sale.get_sales_ordered_by_discount().select_related('product')
+        queryset = Sale.get_sales_ordered_by_discount().filter(product__status=True).select_related('product')
 
         return queryset #.order_by("discount")
         
