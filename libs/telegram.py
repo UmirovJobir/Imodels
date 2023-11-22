@@ -68,10 +68,10 @@ def send_message(type=None, **kwargs):
 
         try:
             bot.send_message(chat_id=chat_id, text=telegram_message, reply_markup=return_markup(id=order.pk, request=request), parse_mode="HTML")
-            if settings.DEBUG==False:
-                client._send_sms(
-                    phone_number=order.customer.phone,
-                    message=sms_message)
+            # if settings.DEBUG==False:
+            #     client._send_sms(
+            #         phone=order.customer.phone,
+            #         code=sms_message)
         except:
             pass
     
