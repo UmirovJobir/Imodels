@@ -86,8 +86,8 @@ class ProductListAPIView(ListAPIView):
         category_id = self.request.query_params.get('category_id')
         if category_id:
             category = Category.objects.get(id=category_id)
-            if category.products.all():
-                return category.products.all().order_by('order_by').filter(status=True)
+            if category.products.filter(status=True):
+                return category.products.filter(status=True).order_by('order_by')
             else:
                 if category.subcategories.all():
                     queryset = queryset.filter(category__in=category.subcategories.all(), status=True).order_by('order_by')

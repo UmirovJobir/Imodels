@@ -35,9 +35,9 @@ class SubCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'count']
     
     def get_product_count(self, obj):
-        count = obj.products.all().count()
+        count = obj.products.filter(status=True).count()
         if count==0:
-            products = [subcategory.products.all().count() for subcategory in obj.subcategories.all()]
+            products = [subcategory.products.filter(status=True).count() for subcategory in obj.subcategories.all()]
             count = sum(products)
         return count
 
