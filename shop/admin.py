@@ -3,9 +3,9 @@ from django.db import models
 from django.urls import reverse
 from django.forms import widgets
 from django.contrib import admin
-from django.utils.html import mark_safe
-from django.utils.html import format_html
 from datetime import datetime, timedelta
+from django.utils.html import format_html
+from django.templatetags.static import static
 from django_summernote.admin import SummernoteModelAdmin
 
 from nested_admin import NestedModelAdmin
@@ -59,16 +59,16 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
     }
 
-    list_display = ['id', 'title', 'description_short', 'popular']
+    list_display = ['id', 'title', 'description_short', 'popular', 'preview_image_tag']
     list_display_links = ['id', 'title']
     summernote_fields = ['text']
-    readonly_fields = ['image_tag']
+    readonly_fields = ['preview_image_tag']
     list_per_page = 10
     fieldsets = [
         (None, {
             "fields": [
                 "popular",
-                "image_tag",
+                "preview_image_tag",
                 "preview_image",
                 "title",
                 "description",
@@ -78,9 +78,10 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
         )
     ]
 
-    def image_tag(self, obj):
-        return mark_safe('<img src="%s" width="100px" />'%(obj.preview_image.url))
-    image_tag.short_description = 'Image'
+    def preview_image_tag(self, obj):
+        preview_image = obj.preview_image.url
+        return format_html('<img src="%s" width="100px"/>'%(preview_image))
+    preview_image_tag.short_description = "Rasm"
 
 
     def description_short(self, obj: Blog) -> str:
@@ -221,8 +222,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         try:
             first_image = obj.product_images.first().image.url
         except AttributeError:
-            first_image = "/static/img/no-image.png"
-        return mark_safe('<img src="%s" width="100px" height="100px" />'%(first_image))
+            first_image = static("img/no-image.png")
+        return format_html('<img src="%s" width="100px"/>'%(first_image))
     first_image.short_description = "Rasm"
 
         
@@ -394,10 +395,10 @@ class SaleAdmin(admin.ModelAdmin):
             try:
                 first_image = obj.product.product_images.first().image.url
             except AttributeError:
-                first_image = "/static/img/no-image.png"
+                first_image = static("img/no-image.png")
         else:
-            first_image = "/static/img/no-image.png"
-        return mark_safe('<img src="%s" width="100px" height="100px"/>'%(first_image))
+            first_image = static("img/no-image.png")
+        return format_html('<img src="%s" width="100px" height="100px"/>'%(first_image))
 
 
     # def images(self, obj):
