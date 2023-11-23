@@ -310,8 +310,6 @@ class SaleView(ListAPIView):
     serializer_class = SaleSerializer
 
     def get_queryset(self):
-
-        return "aaaaa"
         queryset = Sale.get_sales_ordered_by_discount().filter(product__status=True).select_related('product')
 
         return queryset
