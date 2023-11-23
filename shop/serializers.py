@@ -332,6 +332,7 @@ class BlogListSerializer(serializers.ModelSerializer):
         fields = ['id', 'preview_image', 'title', 'description', 'created_at']
 
     def get_title(self, obj):
+        print("Test: ",Product.objects.get(id=3))
         title = get_full_value(obj=obj, field='title')
         return title
     

@@ -79,7 +79,6 @@ class ProductListAPIView(ListAPIView):
     search_fields = ['title']
 
     def get_queryset(self, *args, **kwargs):
-        return "aaaa"
         queryset = super().get_queryset()
         queryset = queryset.filter(status=True) \
             .order_by('order_by') \
