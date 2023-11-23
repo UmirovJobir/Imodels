@@ -15,8 +15,6 @@ from .views import (
     BlogDetailesView
 )
 
-app_name = "shopapp"
-
 urlpatterns = [
     path('products/', ProductListAPIView.as_view(), name='products'),
     path('products/<int:pk>/', ProductRetrieveAPIView.as_view(), name='product'),
