@@ -321,12 +321,12 @@ class SaleView(ListAPIView):
         return context
 
 
-class BlogListView(ListView):
-    template_name = 'blog-list.html'
-    context_object_name = "blogs"
-    queryset = Blog.objects.all()
+# class BlogListView(ListView):
+#     template_name = 'blog-list.html'
+#     context_object_name = "blogs"
+#     queryset = Blog.objects.all()
 
-class BlogDetailesView(DetailView):
-    template_name = "blog-detail.html"
-    model = Blog
-    context_object_name = "blog"
+# class BlogDetailesView(DetailView):
+#     template_name = "blog-detail.html"
+#     model = Blog
+#     context_object_name = "blog"
