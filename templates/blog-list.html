@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Blogs list
+{% endblock %}
+
+{% block body %}
+    <h1>Products:</h1>
+    {% if blogs %}
+        <div>
+            {% for blog in blogs %}
+                <div>
+                    <h3>#ID: {{ blog.pk }}</h3>
+                    <p><img src="{{ blog.preview_image.url }}" alt="this is photo" width="200"> </p>
+                    <p><a href="{% url 'shopapp:blog_details' pk=blog.pk %}">Title: {{ blog.title }}</a></p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h3>No blogs yet</h3>
+    {% endif %}
+{% endblock %}

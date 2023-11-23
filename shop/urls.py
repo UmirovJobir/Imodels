@@ -11,9 +11,11 @@ from .views import (
     CartView,
     OrderView,
     SaleView,
-    index
+    BlogListView,
+    BlogDetailesView
 )
 
+app_name = "shopapp"
 
 urlpatterns = [
     path('products/', ProductListAPIView.as_view(), name='products'),
@@ -33,5 +35,6 @@ urlpatterns = [
 
     path('sale/', SaleView.as_view(), name='sale'),
 
-    path('index/', index, name='index'),
+    path('blog-list/', BlogListView.as_view(), name='blog_list'),
+    path('blog-list/<int:pk>/', BlogDetailesView.as_view(), name='blog_details'),
     ]

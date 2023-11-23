@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.views.generic import ListView, DetailView
+
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.views import APIView
 from rest_framework import filters, status, permissions
@@ -319,6 +321,12 @@ class SaleView(ListAPIView):
         return context
 
 
-def index(request):
-    blog = Blog.objects.get(id=2)
-    return render(request, 'blog.html', context={'blog':blog}) 
+class BlogListView(ListView):
+    template_name = 'blog-list.html'
+    context_object_name = "blogs"
+    queryset = Blog.objects.all()
+
+class BlogDetailesView(DetailView):
+    template_name = "blog-detail.html"
+    model = Blog
+    context_object_name = "blog"
