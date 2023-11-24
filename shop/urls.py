@@ -11,8 +11,8 @@ from .views import (
     CartView,
     OrderView,
     SaleView,
-    # BlogListView,
-    # BlogDetailesView
+    BlogListView,
+    BlogDetailesView
 )
 
 urlpatterns = [
@@ -33,6 +33,6 @@ urlpatterns = [
 
     path('sale/', SaleView.as_view(), name='sale'),
 
-    # path('blog-list/', BlogListView.as_view(), name='blog_list'),
-    # path('blog-list/<int:pk>/', BlogDetailesView.as_view(), name='blog_details'),
+    path('blog-list/', BlogListView.as_view(), name='blog_list'),
+    path('blog-list/<int:pk>/', BlogDetailesView.as_view(), name='blog_details'),
     ]
