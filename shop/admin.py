@@ -41,9 +41,14 @@ admin.site.register(Type)
 
 @admin.register(ContactRequest)
 class ContactRequestAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'email', 'phone', 'message_short']
+    list_display = ['id', 'name', 'email', 'phone', 'message_short', 'created_at', 'status']
     list_display_links = ['id', 'name']
     list_per_page = 20
+    readonly_fields = ['created_at']
+    list_filter = ['status']
+
+    def created_at(self, obj: ContactRequest) -> str:
+        return obj.created_at.strftime("%d.%m.%Y, %H:%M")
 
     def message_short(self, obj: ContactRequest) -> str:
         if obj.message:
@@ -301,13 +306,18 @@ class OrderAdmin(NestedModelAdmin):
             background_color = '#2ea44f'
             color = '#fff'
 
-        elif obj.status=="Kutish":
+        elif obj.status=="Yangi":
             background_color = '#fff000'
             color = '#000'
     
         elif obj.status=="Rad etilgan":
             background_color = '#ff0000'
             color = '#fff'
+
+        elif obj.status=="Yetkazib berildi":
+            background_color = '#808080'
+            color = '#fff'
+
         else:
             background_color = None
             color = None

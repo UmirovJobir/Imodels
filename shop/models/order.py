@@ -7,13 +7,14 @@ from .product import Product
 
 class Order(models.Model):
     STATUS_CHOICES = (
+        ("Yangi", "Yangi"),
         ("To'langan", "To'langan"),
-        ("Kutish", "Kutish"),
         ("Rad etilgan", "Rad etilgan"),
+        ("Yetkazib berildi", "Yetkazib berildi"),
     )
 
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order')
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=STATUS_CHOICES[1][1])
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0])
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

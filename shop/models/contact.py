@@ -3,6 +3,13 @@ from account.validators import phone_regex
 
 
 class ContactRequest(models.Model):
+    STATUS_CHOICES = (
+        ("new", "🆕"),
+        ("answered", "✅"),
+        ("rejected", "❌"),
+    )
+
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0])
     phone = models.CharField('Telefon raqam', validators=[phone_regex], max_length=17)
     name = models.CharField(max_length=100)
     email = models.EmailField(null=True, blank=True)

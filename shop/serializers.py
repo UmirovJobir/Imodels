@@ -426,7 +426,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     order_products = serializers.SerializerMethodField('get_order_products')
-    created_at = serializers.DateTimeField(required=False, format="%d-%m-%Y %H:%M:%S", input_formats=["%d-%m-%Y %H:%M:%S"])
+    created_at = serializers.DateTimeField(required=False, format="%d-%m-%Y %H:%M")
 
     class Meta:
         model = Order

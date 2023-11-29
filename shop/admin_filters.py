@@ -25,6 +25,7 @@ class ProductFilter(admin.SimpleListFilter):
         if self.value():
             return queryset.filter(category__name=self.value())
         
+        
     # def lookups(self, request, model_admin):
     #     return [(i.name, i.name) for i in Category.objects.all()] #.filter(parent__isnull=False)]
 
