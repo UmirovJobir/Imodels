@@ -174,7 +174,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         }),
         ("Konfigurator", {
             "fields": [
-                "configurator",
+                "configurator", 
                 "is_configurator",
             ]
         }),
@@ -201,26 +201,26 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     ]
 
     def price_table(self, obj):
-        if obj.price:
-            price = api.get_currency(obj_price=obj.price)
-            return format_html(f""" 
-                                <table>
-                                    <tr>
-                                        <th>USD</th>
-                                        <th>{int(price['usd']):,.2f}</th>
-                                    </tr>
-                                    <tr>
-                                        <th>EUR</th>
-                                        <th>{int(price['eur']):,.2f}</th>
-                                    </tr>
-                                    <tr>
-                                        <th>UZS</th>
-                                        <th>{int(price['uzs']):,.2f}</th>
-                                    </tr>
-                                </table>
-                                """
-                                )
-        else:
+        # if obj.price:
+        #     price = api.get_currency(obj_price=obj.price)
+        #     return format_html(f""" 
+        #                         <table>
+        #                             <tr>
+        #                                 <th>USD</th>
+        #                                 <th>{int(price['usd']):,.2f}</th>
+        #                             </tr>
+        #                             <tr>
+        #                                 <th>EUR</th>
+        #                                 <th>{int(price['eur']):,.2f}</th>
+        #                             </tr>
+        #                             <tr>
+        #                                 <th>UZS</th>
+        #                                 <th>{int(price['uzs']):,.2f}</th>
+        #                             </tr>
+        #                         </table>
+        #                         """
+        #                         )
+        # else:
             return "-"
     price_table.short_description = "Narx jadvali"
 
