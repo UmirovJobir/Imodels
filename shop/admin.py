@@ -11,7 +11,7 @@ from django_summernote.admin import SummernoteModelAdmin
 from nested_admin import NestedModelAdmin
 from rangefilter.filters import DateRangeQuickSelectListFilterBuilder
 from modeltranslation.admin import TranslationAdmin
-from . import api
+from libs.currency import get_currency
 from .admin_filters import CategoryFilter, ProductFilter
 from .admin_inlines import (
     ProductImageInline,
@@ -201,26 +201,26 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     ]
 
     def price_table(self, obj):
-        # if obj.price:
-        #     price = api.get_currency(obj_price=obj.price)
-        #     return format_html(f""" 
-        #                         <table>
-        #                             <tr>
-        #                                 <th>USD</th>
-        #                                 <th>{int(price['usd']):,.2f}</th>
-        #                             </tr>
-        #                             <tr>
-        #                                 <th>EUR</th>
-        #                                 <th>{int(price['eur']):,.2f}</th>
-        #                             </tr>
-        #                             <tr>
-        #                                 <th>UZS</th>
-        #                                 <th>{int(price['uzs']):,.2f}</th>
-        #                             </tr>
-        #                         </table>
-        #                         """
-        #                         )
-        # else:
+        if obj.price:
+            price = get_currency(obj_price=obj.price)
+            return format_html(f""" 
+                                <table>
+                                    <tr>
+                                        <th>USD</th>
+                                        <th>{int(price['usd']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>EUR</th>
+                                        <th>{int(price['eur']):,.2f}</th>
+                                    </tr>
+                                    <tr>
+                                        <th>UZS</th>
+                                        <th>{int(price['uzs']):,.2f}</th>
+                                    </tr>
+                                </table>
+                                """
+                                )
+        else:
             return "-"
     price_table.short_description = "Narx jadvali"
 
@@ -250,7 +250,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
-            .select_related('configurator', 'product_video', 'product_features') #, 'product_description')
+            .select_related('configurator', 'product_video', 'product_features', 'description')
         return queryset
 
 
@@ -367,7 +367,7 @@ class SaleAdmin(admin.ModelAdmin):
 
     def new(self, obj):
         if obj.new_price:
-            price = api.get_currency(obj_price=obj.new_price)
+            price = get_currency(obj_price=obj.new_price)
             return format_html(f"""  
                                 <table>
                                     <tr>
@@ -388,7 +388,7 @@ class SaleAdmin(admin.ModelAdmin):
     new.short_description = format_html('<i class="fa-solid fa-tags"></i>Discount price')
 
     def old_price(self, obj):
-        price = api.get_currency(obj_price=obj.product.price)
+        price = get_currency(obj_price=obj.product.price)
         return format_html(f""" 
                             <table>
                                 <tr>

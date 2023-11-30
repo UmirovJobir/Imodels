@@ -3,7 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from .translation import get_full_value
 # from account.serializers import UserSerializer
-from . import api
+from libs.currency import get_currency
 # from .cart import Cart
 from .models import (
     Category,
@@ -302,7 +302,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     def get_new_price(self, obj):
         try:
-            new_price = api.get_currency(obj.product_sale.new_price)
+            new_price = get_currency(obj.product_sale.new_price)
         except Sale.DoesNotExist:
             new_price = None
         return new_price
@@ -312,7 +312,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     def get_price(self, obj):
         if obj.price:
-            price = api.get_currency(obj_price=obj.price)
+            price = get_currency(obj_price=obj.price)
         else:
             price = obj.price
         return price
