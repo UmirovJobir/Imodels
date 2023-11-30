@@ -20,11 +20,13 @@ from .admin_inlines import (
     ProductGalleryInline,
     ItemInline,
     OrderProductInline,
-    DescriptionInline
+    DescriptionInline,
+    DescriptionPointInline
 )
 from .models import (
     Category,
     Product,
+    Description,
     Blog,
     ContactRequest,
     Type,
@@ -122,6 +124,20 @@ class CategoryAdmin(TranslationAdmin):
         return queryset
 
 
+@admin.register(Description)
+class DescriptionAdmin(TranslationAdmin):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 200})},
+    }
+    list_display = ['id', 'title_uz']
+    list_display_links = ['id', 'title_uz']
+    inlines = [DescriptionPointInline]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.prefetch_related('description_points')
+        return queryset
+
 @admin.register(Product)
 class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     formfield_overrides = {
@@ -135,19 +151,17 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
 
     summernote_fields = ['information']
 
-    list_per_page = 20
+    list_per_page = 10
     list_display = ['first_image', 'id', 'title', 'order_by', 'category_name', 'price_table', 'status']
     list_display_links = ['id', 'title']
     readonly_fields = ['id', 'price_table', 'first_image']
-    raw_id_fields = ['category', 'configurator']
+    raw_id_fields = ["category", "configurator", "description"]
     list_filter = [ProductFilter]
-    list_per_page = 10
     inlines = [
         ProductImageInline,
         ProductVideoInline,
-        ProductFeatureInline,
         ProductGalleryInline,
-        DescriptionInline,
+        ProductFeatureInline,
         ItemInline,
     ]
     fieldsets = [
@@ -155,7 +169,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
             "fields": [
                 "id",
                 "price_table",
-                "first_image"
+                "first_image",
             ]
         }),
         ("Konfigurator", {
@@ -170,6 +184,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
                 "order_by",
                 "category",
                 "price",
+                "description",
             ],
             "classes": ["wide"],
         }),
@@ -235,7 +250,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
-            .select_related('configurator', 'product_video', 'product_features', 'product_description')
+            .select_related('configurator', 'product_video', 'product_features') #, 'product_description')
         return queryset
 
 

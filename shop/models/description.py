@@ -1,7 +1,6 @@
 from django.db import models
-from django.utils.html import mark_safe
 
-from .product import Product
+# from .product import Product
 
 def product_extradesc_image_directory_path(instance: "Description", filename: str) -> str:
     return "product_description/product_{pk}__{filename}".format(
@@ -11,8 +10,7 @@ def product_extradesc_image_directory_path(instance: "Description", filename: st
 
 
 class Description(models.Model):
-    title = models.CharField(max_length=500)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_description')
+    title = models.CharField(max_length=500, null=True, blank=True, verbose_name="Tavsif sarlavhasi")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

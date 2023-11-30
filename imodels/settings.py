@@ -287,6 +287,7 @@ ADMIN_REORDER = (
      'models': (
         {'model': 'shop.Category', 'label': 'Kategoriyalar'},
         {'model': 'shop.Product', 'label': 'Mahsulotlar'},
+        {'model': 'shop.Description', 'label': 'Tavsiflar'},
         {'model': 'shop.Sale', 'label': 'Chegirma Mahsulotlar'},
     )},
 
