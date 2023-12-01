@@ -94,7 +94,7 @@ class ProductListAPIView(ListAPIView):
                     return queryset.filter(category__in=category.subcategories.all(), status=True).order_by('order_by')
                 else:
                     return Product.objects.none()
-        return queryset.order_by('created_at')
+        return queryset.order_by('-created_at')
 
     def get_serializer(self, *args, **kwargs):
         serializer = super().get_serializer(*args, **kwargs)
