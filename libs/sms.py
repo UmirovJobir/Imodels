@@ -30,10 +30,15 @@ class SMSClient:
 
     def _send_sms(phone: str, code: str):
         url = env.str('SMS_URL') + "message/sms/send"
+
+        token = None
         
         with open('libs/eskiz_auth_token.txt', 'r') as file:
             for line in file:
                 token = line
+
+        if token is None:
+            token = client.auth_token()
 
         files=[]
         headers = {'Authorization': 'Bearer ' + token}

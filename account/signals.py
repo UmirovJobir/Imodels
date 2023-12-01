@@ -19,3 +19,4 @@ def send_order_confirmation_message(sender, instance, created, **kwargs):
                 phone=instance.user.phone,
                 code=AuthSms.AUTH_VERIFY_CODE_TEXT.format(instance.secure_code))
 
+    
