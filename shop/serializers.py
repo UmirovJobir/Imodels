@@ -84,7 +84,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 
     def get_new_price(self, obj):
         try:
-            new_price = api.get_currency(obj.product_sale.new_price)
+            new_price = get_currency(obj.product_sale.new_price)
         except Sale.DoesNotExist:
             new_price = None
         return new_price
@@ -103,7 +103,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
 
     def get_price(self, obj):
         if obj.price:
-            price = api.get_currency(obj_price=obj.price)
+            price = get_currency(obj_price=obj.price)
         else:
             price = obj.price
         return price
@@ -206,7 +206,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_video = ProductVideoSerializer()
     product_features = ProductFeatureSerializer()
     product_galleries = ProductGallerySerializer(many=True)
-    product_description = DescriptionSerializer()
+    description = DescriptionSerializer()
 
     main_item = serializers.SerializerMethodField('get_main_item')
     items = serializers.SerializerMethodField('get_items')
@@ -220,7 +220,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'category', 'is_configurator', 'configurator', 'price', 'new_price', 'discount',
                   'title', 'information', 'main_item','items', 'product_images', 'product_video', 
-                  'product_galleries', 'product_description', 'product_features'
+                  'product_galleries', 'description', 'product_features'
                 ]
 
     def get_discount(self, obj):
@@ -232,14 +232,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     def get_new_price(self, obj):
         try:
-            new_price = api.get_currency(obj.product_sale.new_price)
+            new_price = get_currency(obj.product_sale.new_price)
         except Sale.DoesNotExist:
             new_price = None
         return new_price
 
     def get_price(self, obj):
         if obj.price:
-            price = api.get_currency(obj_price=obj.price)
+            price = get_currency(obj_price=obj.price)
         else:
             price = obj.price
         return price
@@ -495,7 +495,7 @@ class SaleSerializer(serializers.ModelSerializer):
         price = data['product']['price']['usd']
         # discount = round((price - instance.new_price) / price * 100)
                 
-        data['product']['new_price'] = api.get_currency(instance.new_price)
+        data['product']['new_price'] = get_currency(instance.new_price)
         data['product']['discount'] = instance.discount
         
         return data['product']
