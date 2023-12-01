@@ -113,7 +113,7 @@ class ProductRetrieveAPIView(RetrieveAPIView):
         queryset = Product.objects.all() \
             .order_by('order_by') \
             .prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
-            .select_related('configurator', 'product_video', 'product_features', 'product_description')
+            .select_related('configurator', 'product_video', 'product_features', 'description')
         return queryset
 
     def get_serializer(self, *args, **kwargs):
