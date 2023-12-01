@@ -81,7 +81,6 @@ class ProductListAPIView(ListAPIView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset()
         queryset = queryset.filter(status=True) \
-            .order_by('order_by') \
             .prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
             .select_related('configurator', 'product_video', 'product_features', 'description', 'product_sale')
 
@@ -92,10 +91,10 @@ class ProductListAPIView(ListAPIView):
                 return category.products.filter(status=True).order_by('order_by')
             else:
                 if category.subcategories.all():
-                    queryset = queryset.filter(category__in=category.subcategories.all(), status=True).order_by('order_by')
+                    return queryset.filter(category__in=category.subcategories.all(), status=True).order_by('order_by')
                 else:
-                    queryset = Product.objects.none()
-        return queryset
+                    return Product.objects.none()
+        return queryset.order_by('created_at')
 
     def get_serializer(self, *args, **kwargs):
         serializer = super().get_serializer(*args, **kwargs)
