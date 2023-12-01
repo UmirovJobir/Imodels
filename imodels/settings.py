@@ -335,10 +335,3 @@ LOGGING = {
         "level": "INFO",
     },   
 }
-
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "D:\Jobir\Django\Project\Imodels"
-    }
-}
