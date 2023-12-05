@@ -157,6 +157,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     readonly_fields = ['id', 'price_table', 'first_image']
     raw_id_fields = ["category", "configurator", "description"]
     list_filter = [ProductFilter]
+    search_fields = ['title']
     inlines = [
         ProductImageInline,
         ProductVideoInline,
