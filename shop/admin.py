@@ -170,13 +170,14 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
     list_display = ['first_image', 'id', 'title', 'order_by', 'category_name', 'price_table', 'status']
     list_display_links = ['id', 'title']
     readonly_fields = ['id', 'price_table', 'first_image']
-    raw_id_fields = ["category", "configurator", "description"]
+    raw_id_fields = ["category", "configurator"]
     list_filter = [ProductFilter]
     search_fields = ['title_uz', 'title_ru', 'title_en']
     inlines = [
         ProductImageInline,
         ProductVideoInline,
         ProductGalleryInline,
+        DescriptionInline,
         ProductFeatureInline,
         ItemInline,
     ]
@@ -200,7 +201,6 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
                 "order_by",
                 "category",
                 "price",
-                "description",
             ],
             "classes": ["wide"],
         }),
@@ -265,8 +265,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
-            .select_related('configurator', 'product_video', 'product_features', 'description')
+        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries', 'product_description') \
+            .select_related('configurator', 'product_video', 'product_features')
         return queryset
 
 

@@ -3,7 +3,6 @@ from django.utils.html import mark_safe
 
 from embed_video.fields import EmbedVideoField
 
-from .description import Description
 from .category import Category
 
 
@@ -58,7 +57,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    description = models.ForeignKey(Description, on_delete=models.CASCADE, related_name='description', null=True, blank=True)
+    # description = models.ForeignKey(Description, on_delete=models.CASCADE, related_name='description', null=True, blank=True)
     
     class Meta:
         verbose_name = 'Mahsulot'

@@ -1,6 +1,6 @@
 from django.db import models
 
-# from .product import Product
+from .product import Product
 
 def product_extradesc_image_directory_path(instance: "Description", filename: str) -> str:
     return "product_description/product_{pk}__{filename}".format(
@@ -11,6 +11,7 @@ def product_extradesc_image_directory_path(instance: "Description", filename: st
 
 class Description(models.Model):
     title = models.CharField(max_length=500, null=True, blank=True, verbose_name="Tavsif sarlavhasi")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_description')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

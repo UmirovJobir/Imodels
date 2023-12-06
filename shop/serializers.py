@@ -146,7 +146,7 @@ class DescriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Description
-        fields = ['id', 'title', 'description_points',]
+        fields = ['id', 'title', 'description_points']
 
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
@@ -206,7 +206,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_video = ProductVideoSerializer()
     product_features = ProductFeatureSerializer()
     product_galleries = ProductGallerySerializer(many=True)
-    description = DescriptionSerializer()
+    product_description = DescriptionSerializer(many=True)
 
     main_item = serializers.SerializerMethodField('get_main_item')
     items = serializers.SerializerMethodField('get_items')
@@ -220,7 +220,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'category', 'is_configurator', 'configurator', 'price', 'new_price', 'discount',
                   'title', 'information', 'main_item','items', 'product_images', 'product_video', 
-                  'product_galleries', 'description', 'product_features'
+                  'product_galleries', 'product_description', 'product_features'
                 ]
 
     def get_discount(self, obj):
