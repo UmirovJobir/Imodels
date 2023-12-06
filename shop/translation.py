@@ -8,7 +8,8 @@ from .models import (
     ProductFeaturePoint,
     Description,
     DescriptionPoint,
-    Blog
+    Blog,
+    Type
 )
 
 
@@ -59,3 +60,8 @@ class DescriptionPointTranslationOptions(TranslationOptions):
 @register(Blog)
 class BlogTranslationOptions(TranslationOptions):
     fields = ['title', 'description', 'text']
+
+
+@register(Type)
+class TypeTranslationOptions(TranslationOptions):
+    fields = ['name']

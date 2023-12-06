@@ -31,14 +31,29 @@ from .models import (
     ContactRequest,
     Type,
     Order,
-    Sale
+    Sale,
+    Item
 )
 
 admin.site.site_header = "Imodels adminpanel"
 admin.site.site_title = "Imodels adminpanel"
 admin.site.index_title = "Imodels"
 
-admin.site.register(Type)
+
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'type', 'product', 'item']
+    list_display_links = ['id', 'product']
+    search_fields = ['id', 'product__title']
+    list_per_page = 20
+
+
+@admin.register(Type)
+class TypeAdmin(TranslationAdmin):
+    list_display = ['id', 'name_uz', 'name_ru', 'name_en']
+    list_display_links = ['id', 'name_uz']
+    search_fields = ['id', 'name_uz', 'name_ru', 'name_en']
+    list_per_page = 20
 
 
 @admin.register(ContactRequest)
