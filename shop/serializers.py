@@ -206,7 +206,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_video = ProductVideoSerializer()
     product_features = ProductFeatureSerializer()
     product_galleries = ProductGallerySerializer(many=True)
-    product_description = DescriptionSerializer(many=True)
+    product_description = DescriptionSerializer()
 
     main_item = serializers.SerializerMethodField('get_main_item')
     items = serializers.SerializerMethodField('get_items')

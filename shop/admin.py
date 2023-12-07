@@ -265,8 +265,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries', 'product_description') \
-            .select_related('configurator', 'product_video', 'product_features')
+        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
+            .select_related('configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
 
