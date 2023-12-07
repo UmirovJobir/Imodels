@@ -21,7 +21,7 @@ from .admin_inlines import (
     ItemInline,
     OrderProductInline,
     DescriptionInline,
-    DescriptionPointInline
+    DescriptionPointInline,
 )
 from .models import (
     Category,
@@ -139,19 +139,19 @@ class CategoryAdmin(TranslationAdmin):
         return queryset
 
 
-@admin.register(Description)
-class DescriptionAdmin(TranslationAdmin):
-    formfield_overrides = {
-        models.CharField: {'widget': forms.TextInput(attrs={'size': 200})},
-    }
-    list_display = ['id', 'title_uz']
-    list_display_links = ['id', 'title_uz']
-    inlines = [DescriptionPointInline]
+# @admin.register(Description)
+# class DescriptionAdmin(TranslationAdmin):
+#     formfield_overrides = {
+#         models.CharField: {'widget': forms.Textarea(attrs={'cols': 70, 'rows': 10})},
+#     }
+#     list_display = ['id', 'title_uz']
+#     list_display_links = ['id', 'title_uz']
+#     inlines = [DescriptionPointInline]
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('description_points')
-        return queryset
+#     def get_queryset(self, request):
+#         queryset = super().get_queryset(request)
+#         queryset = queryset.prefetch_related('description_points')
+#         return queryset
 
 @admin.register(Product)
 class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):

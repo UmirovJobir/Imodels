@@ -73,8 +73,7 @@ INSTALLED_APPS = [
     'django_cleanup',
     'django_filters',
     'django_summernote',
-    
-    'embed_video',
+
     'corsheaders',
     'rangefilter',
     'nested_admin',

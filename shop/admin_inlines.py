@@ -2,7 +2,6 @@ from django import forms
 from django.db import models
 from django.forms import widgets
 from django.contrib import admin
-from django.utils.html import mark_safe
 from nested_admin import NestedStackedInline, NestedTabularInline
 from modeltranslation.admin import TranslationStackedInline, TranslationTabularInline
 
@@ -38,17 +37,17 @@ class CategoryInline(TranslationTabularInline):
 
 class ProductVideoInline(NestedStackedInline, TranslationStackedInline, SummernoteInlineModelAdmin):
     formfield_overrides = {
-        models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
+        models.CharField: {'widget': forms.Textarea(attrs={'cols': 70, 'rows': 10})},
     }
     extra = 0
     model = ProductVideo
     classes = ['collapse']
-    # readonly_fields = ['video_tag']
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         queryset = queryset.select_related('product')
         return queryset
+
 
 
 class ProductImageInline(NestedTabularInline):
@@ -101,7 +100,10 @@ class ProductGalleryInline(NestedTabularInline):
         return queryset
 
 
-class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, SummernoteInlineModelAdmin):
+class DescriptionPointInline(TranslationTabularInline, NestedTabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': forms.Textarea(attrs={'cols': 70, 'rows': 10})},
+    }
     extra = 0
     model = DescriptionPoint
 
@@ -111,9 +113,9 @@ class DescriptionPointInline(TranslationTabularInline, NestedTabularInline, Summ
         return queryset
 
 
-class DescriptionInline(NestedStackedInline, TranslationStackedInline):
+class DescriptionInline(NestedTabularInline, TranslationStackedInline):
     formfield_overrides = {
-        models.CharField: {'widget': forms.TextInput(attrs={'size': 200})},
+        models.CharField: {'widget': forms.Textarea(attrs={'cols': 70, 'rows': 10})},
     }
     extra = 0
     model = Description

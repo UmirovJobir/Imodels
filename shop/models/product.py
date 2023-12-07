@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils.html import mark_safe
 
-from embed_video.fields import EmbedVideoField
-
 from .category import Category
 
 
@@ -56,8 +54,6 @@ class Product(models.Model):
                                            verbose_name="Tartib raqam")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    # description = models.ForeignKey(Description, on_delete=models.CASCADE, related_name='description', null=True, blank=True)
     
     class Meta:
         verbose_name = 'Mahsulot'
@@ -82,9 +78,9 @@ class ProductImage(models.Model):
 
 
 class ProductVideo(models.Model):
+    video_link = models.URLField(null=True, blank=True)
     title = models.CharField(max_length=500, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
-    video_link = EmbedVideoField(null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
