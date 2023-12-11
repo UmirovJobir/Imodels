@@ -102,7 +102,7 @@ class ProductFeature(models.Model):
 
 
 class ProductFeaturePoint(models.Model):
-    feature = models.TextField()
+    feature = models.CharField(max_length=300)
     product = models.ForeignKey(ProductFeature, on_delete=models.CASCADE, related_name='features')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -42,6 +42,7 @@ class ProductVideoInline(NestedStackedInline, TranslationStackedInline, Summerno
     extra = 0
     model = ProductVideo
     classes = ['collapse']
+    summernote_fields = ['text']
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -115,7 +116,7 @@ class DescriptionPointInline(TranslationTabularInline, NestedTabularInline):
 
 class DescriptionInline(NestedTabularInline, TranslationStackedInline):
     formfield_overrides = {
-        models.CharField: {'widget': forms.Textarea(attrs={'cols': 70, 'rows': 10})},
+        models.TextField: {'widget': forms.Textarea(attrs={'cols': 70, 'rows': 10})},
     }
     extra = 0
     model = Description

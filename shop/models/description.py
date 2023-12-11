@@ -10,7 +10,7 @@ def product_extradesc_image_directory_path(instance: "Description", filename: st
 
 
 class Description(models.Model):
-    title = models.CharField(max_length=500, null=True, blank=True, verbose_name="Tavsif sarlavhasi")
+    title = models.TextField(null=True, blank=True, verbose_name="Tavsif sarlavhasi")
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_description')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
