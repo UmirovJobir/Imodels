@@ -263,16 +263,19 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     def get_items(self, obj):
         items = Item.objects.filter(item=obj, type__isnull=False).select_related('type')
-        type_names = items.values_list('type__name', flat=True).distinct()
+        type_ids = items.values_list('type__id', flat=True).distinct()
 
         request = self.context.get('request')
 
         type_data = []
-        for type_name in type_names:
-            type_items = items.filter(type__name=type_name)
+        for type_id in type_ids:
+            type_items = items.filter(type__id=type_id)
             item_serializer = ItemSerializer(type_items, many=True, context={'request': request})
+
+            type_json = get_full_value(obj=Type.objects.get(id=type_id), field='name')
+
             type_data.append({
-                'type': type_name,
+                'type': type_json,
                 'product': item_serializer.data
             })
         
@@ -280,6 +283,29 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             return type_data
         else:
             return None
+
+
+        # items = Item.objects.filter(item=obj, type__isnull=False).select_related('type')
+        # type_names = items.values_list('type__name', flat=True).distinct()
+
+        # request = self.context.get('request')
+
+        # type_data = []
+        # for type_name in type_names:
+        #     type_items = items.filter(type__name=type_name)
+        #     item_serializer = ItemSerializer(type_items, many=True, context={'request': request})
+
+        #     # a = get_full_value(obj=type_name, field='name     ')
+
+        #     type_data.append({
+        #         'type': type_name,
+        #         'product': item_serializer.data
+        #     })
+        
+        # if type_data:
+        #     return type_data
+        # else:
+        #     return None
 
 
 class ProductListSerializer(serializers.ModelSerializer):
