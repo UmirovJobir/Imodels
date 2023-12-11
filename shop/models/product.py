@@ -79,7 +79,7 @@ class ProductImage(models.Model):
 
 class ProductVideo(models.Model):
     video_link = models.URLField(null=True, blank=True)
-    title = models.CharField(max_length=500, null=True, blank=True)
+    title = models.TextField(null=True, blank=True)
     text = models.TextField(null=True, blank=True)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -102,7 +102,7 @@ class ProductFeature(models.Model):
 
 
 class ProductFeaturePoint(models.Model):
-    feature = models.CharField(max_length=300)
+    feature = models.TextField()
     product = models.ForeignKey(ProductFeature, on_delete=models.CASCADE, related_name='features')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
