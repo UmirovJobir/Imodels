@@ -88,10 +88,10 @@ class ProductListAPIView(ListAPIView):
         if category_id:
             category = Category.objects.get(id=category_id)
             if category.products.filter(status=True):
-                return category.products.filter(status=True).order_by('-order_by')
+                return category.products.filter(status=True).order_by('-created_at') #-order_by')
             else:
                 if category.subcategories.all():
-                    return queryset.filter(category__in=category.subcategories.all(), status=True).order_by('-order_by')
+                    return queryset.filter(category__in=category.subcategories.all(), status=True).order_by('-created_at') #-order_by')
                 else:
                     return Product.objects.none()
         return queryset.order_by('-created_at')
