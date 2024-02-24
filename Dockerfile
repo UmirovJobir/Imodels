@@ -13,6 +13,9 @@ RUN pip install --upgrade pip
 # COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
+# Copy the mediafiles folder into the container
+COPY mediafiles /app/mediafiles
+
 # COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint.sh
