@@ -25,10 +25,11 @@ services:
       - "5431:5432"
     env_file:
       - .env
-    # environment:
-    #   POSTGRES_DB: Imodels_prod
-    #   POSTGRES_USER: imodels_user
-    #   POSTGRES_PASSWORD: Imodels_db_2023.!
+    environment:
+      POSTGRES_DB: iModels
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Imodels_db_2023.!
+
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
   
