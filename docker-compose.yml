@@ -26,9 +26,9 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_DB: iModels
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Imodels_db_2023.!
+      - POSTGRES_DB: iModels
+      - POSTGRES_USER: postgres
+      - POSTGRES_PASSWORD: Imodels_db_2023.!
 
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
