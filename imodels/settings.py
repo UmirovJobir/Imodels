@@ -49,7 +49,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://imodes.uz",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://makhmudov-kay.github.io/"
+    "https://makhmudov-kay.github.io"
 ]
 
 
