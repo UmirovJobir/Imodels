@@ -45,6 +45,8 @@ CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS").split(" ")
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 CORS_ALLOWED_ORIGINS = [
+    "http://jobir.uz",
+    "https://jobir.uz",
     "http://imodes.uz",
     "https://imodes.uz",
     "http://localhost:8000",
