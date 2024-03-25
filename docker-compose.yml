@@ -18,10 +18,12 @@ services:
     container_name: db
     ports:
       - "5431:5432"
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+    # environment:
+    #   - POSTGRES_DB=postgres
+    #   - POSTGRES_USER=postgres
+    #   - POSTGRES_PASSWORD=postgres
+    env_file:
+      - .env
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
   
