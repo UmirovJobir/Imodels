@@ -126,8 +126,8 @@ DATABASES = {
     "default": {
         "ENGINE": env.str("SQL_ENGINE", "django.db.backends.sqlite3"),
         "NAME": env.str("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": env.str("SQL_USER", "user"),
-        "PASSWORD": env.str("SQL_PASSWORD", "password"),
+        "USER": "postgres", #env.str("SQL_USER", "user"),
+        "PASSWORD": 123, #env.str("SQL_PASSWORD", "password"),
         "HOST": env.str("SQL_HOST", "localhost"),
         "PORT": env.str("SQL_PORT", "5432"),
     }
@@ -175,7 +175,7 @@ STATIC_URL = 'backend/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-MEDIA_URL = 'media/'
+MEDIA_URL = 'backend/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
