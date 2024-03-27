@@ -40,9 +40,9 @@ INTERNAL_IPS = [
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS").split(" ")
-
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
+CSRF_TRUSTED_ORIGINS = env.str("CSRF_TRUSTED_ORIGINS").split(" ")
 
 CORS_ALLOWED_ORIGINS = [
     "http://jobir.uz",
@@ -51,7 +51,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://imodes.uz",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://makhmudov-kay.github.io"
 ]
 
 
