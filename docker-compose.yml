@@ -9,8 +9,8 @@ services:
       - db
     env_file:
       - .env
-    volumes:
-      - ./mediafiles:/usr/src/app/mediafiles
+    # volumes:
+    #   - ./mediafiles:/usr/src/app/mediafiles
 
   db:
     restart: always
@@ -32,7 +32,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./staticfiles:/usr/src/app/staticfiles
-      - ./mediafiles:/usr/src/app/mediafiles
+      # - ./mediafiles:/usr/src/app/mediafiles
     ports:
       - 8080:80
     depends_on:

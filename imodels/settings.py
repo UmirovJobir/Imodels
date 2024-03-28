@@ -174,19 +174,19 @@ USE_TZ = True
 
 USE_S3 = os.environ['USE_S3'] == 'TRUE'
 
-if USE_S3:
-    # aws settings
-    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_ENDPOINT_URL = f'https://s3.timeweb.cloud'
+# if USE_S3:
+    # timeweb S3 settings
+AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = f'https://s3.timeweb.cloud'
 
 
-    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
-    DEFAULT_FILE_STORAGE = 'imodels.storage_backends.PublicMediaStorage'
-else:
-    MEDIA_URL = 'backend/media/'
-    EDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
+DEFAULT_FILE_STORAGE = 'imodels.storage_backends.PublicMediaStorage'
+# else:
+#     MEDIA_URL = 'backend/media/'
+#     EDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 STATIC_URL = 'backend/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
