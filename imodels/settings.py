@@ -29,7 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG')
+# DEBUG = env.bool('DEBUG')
+DEBUG = os.environ['DEBUG_VALUE'] == 'TRUE'
 
 ALLOWED_HOSTS = env.str("DJANGO_ALLOWED_HOSTS").split(" ")
 
@@ -125,9 +126,9 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": env.str("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": env.str("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": env.str("SQL_USER", "user"),
-        "PASSWORD": env.str("SQL_PASSWORD", "password"),
+        "NAME": 'imod_1', #env.str("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
+        "USER": 'postgres', #env.str("SQL_USER", "user"),
+        "PASSWORD": 123 , #env.str("SQL_PASSWORD", "password"),
         "HOST": env.str("SQL_HOST", "localhost"),
         "PORT": env.str("SQL_PORT", "5432"),
     }
@@ -171,12 +172,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+USE_S3 = os.environ['USE_S3'] == 'TRUE'
+
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_ENDPOINT_URL = f'https://s3.timeweb.cloud'
+
+
+    MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/'
+    DEFAULT_FILE_STORAGE = 'imodels.storage_backends.PublicMediaStorage'
+else:
+    MEDIA_URL = 'backend/media/'
+    EDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+
 STATIC_URL = 'backend/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-MEDIA_URL = 'backend/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
 

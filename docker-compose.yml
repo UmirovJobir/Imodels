@@ -20,8 +20,8 @@ services:
       - "5431:5432"
     environment:
       - POSTGRES_DB=imodels
-      - POSTGRES_USER=imodels_user
-      - POSTGRES_PASSWORD=qiyin_parol_2024
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
   
