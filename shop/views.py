@@ -50,11 +50,18 @@ def model_form_view(request):
 
     return render(request, 'form_view.html', context)
 
+
+@extend_schema(
+    tags=["QuillPost"]
+)
 class QuillPostListAPIView(ListAPIView):
     serializer_class = QuillPostSerializer
     queryset = QuillPost.objects.all()
 
 
+@extend_schema(
+    tags=["QuillPost"]
+)
 class QuillPostRetrieveAPIView(RetrieveAPIView):
     serializer_class = QuillPostSerializer
     queryset = QuillPost.objects.all()
