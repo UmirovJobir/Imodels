@@ -12,10 +12,18 @@ from .views import (
     OrderView,
     SaleView,
     BlogListView,
-    BlogDetailesView
+    BlogDetailesView,
+    QuillPostListAPIView,
+    QuillPostRetrieveAPIView,
+    model_form_view
 )
 
 urlpatterns = [
+    path('html/', model_form_view),
+
+    path('quillpost/', QuillPostListAPIView.as_view(), name='quillposts'),
+    path('quillpost/<int:pk>/', QuillPostRetrieveAPIView.as_view(), name='quillpost'),
+
     path('products/', ProductListAPIView.as_view(), name='products'),
     path('products/<int:pk>/', ProductRetrieveAPIView.as_view(), name='product'),
 

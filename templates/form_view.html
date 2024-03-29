@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Blogs list
+{% endblock %}
+
+{% block body %}
+    <h1>QuillPost:</h1>
+    {% if quillposts %}
+        <div>
+            {% for quillpost in quillposts %}
+                <div>
+                    <h3>#ID: {{ quillpost.pk }}</h3>
+                    <div class="quill-editor-container">
+                        {{ quillpost.content.html|safe  }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h3>No blogs yet</h3>
+    {% endif %}
+{% endblock %}

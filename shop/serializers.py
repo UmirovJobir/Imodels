@@ -21,8 +21,20 @@ from .models import (
     Item,
     Order,
     OrderProduct,
-    Sale
+    Sale,
+    QuillPost
 )
+
+
+class QuillPostSerializer(serializers.ModelSerializer):
+    content = serializers.SerializerMethodField()
+
+    def get_content(self, instance):
+        return str(instance.content.html)
+    class Meta:
+        model = QuillPost
+        fields = ['id', 'title', 'content', 'count']
+
 
 
 # Serializers related to Category
@@ -33,7 +45,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'count']
-    
+
     def get_product_count(self, obj):
         count = obj.products.filter(status=True).count()
         if count==0:
@@ -53,11 +65,11 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'subcategories']
-    
+
     def get_subcategories(self, obj):
         serializer = SubCategorySerializer(obj.subcategories.all(), many=True)
         return serializer.data
-    
+
     def get_name(self, obj):
         name = get_full_value(obj=obj, field='name')
         return name
@@ -74,7 +86,7 @@ class ItemDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'title', 'price', 'new_price', 'discount', 'image']
-    
+
     def get_discount(self, obj):
         try:
             discount = obj.product_sale.discount
@@ -121,7 +133,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ['product']
-        
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return data['product']
@@ -164,7 +176,7 @@ class ProductFeaturePointSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductFeaturePoint
         fields = ['id', 'feature']
-    
+
     def get_feature(self, obj):
         feature = get_full_value(obj=obj, field='feature')
         return feature
@@ -189,7 +201,7 @@ class ProductVideoSerializer(serializers.ModelSerializer):
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
-    
+
     def get_text(self, obj):
         text = get_full_value(obj=obj, field='text')
         return text
@@ -219,7 +231,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'category', 'is_configurator', 'configurator', 'price', 'new_price', 'discount',
-                  'title', 'information', 'main_item','items', 'product_images', 'product_video', 
+                  'title', 'information', 'main_item','items', 'product_images', 'product_video',
                   'product_galleries', 'product_description', 'product_features'
                 ]
 
@@ -251,7 +263,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_information(self, obj):
         description = get_full_value(obj=obj, field='information')
         return description
-    
+
     def get_main_item(self, obj):
         request = self.context.get('request')
         item = Item.objects.filter(item=obj, type__isnull=True).select_related('type').first()
@@ -278,7 +290,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
                 'type': type_json,
                 'product': item_serializer.data
             })
-        
+
         if type_data:
             return type_data
         else:
@@ -301,7 +313,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         #         'type': type_name,
         #         'product': item_serializer.data
         #     })
-        
+
         # if type_data:
         #     return type_data
         # else:
@@ -360,11 +372,11 @@ class BlogListSerializer(serializers.ModelSerializer):
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
-    
+
     def get_description(self, obj):
         description = get_full_value(obj=obj, field='description')
         return description
-    
+
 
 class BlogDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField('get_title')
@@ -378,11 +390,11 @@ class BlogDetailSerializer(serializers.ModelSerializer):
     def get_title(self, obj):
         title = get_full_value(obj=obj, field='title')
         return title
-    
+
     def get_description(self, obj):
         description = get_full_value(obj=obj, field='description')
         return description
-    
+
     def get_text(self, obj):
         text = get_full_value(obj=obj, field='text')
         return text
@@ -418,7 +430,7 @@ class OrderProductDetailSerializer(serializers.ModelSerializer):
 
     def get_price(self, obj):
         return self.context.get('request').data['price']
-    
+
     def get_configurator(self, obj):
         return self.context.get('request').data['configurator']
 
@@ -430,7 +442,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderProduct
         fields = ['product']
-    
+
     def get_product(self, obj):
         request = self.context.get('request')
         if request and request.method == 'GET':
@@ -447,7 +459,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        return data['product']    
+        return data['product']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -483,7 +495,7 @@ class OrderRequest(serializers.Serializer):
 
     class Meta:
         fields = ['configurator', 'product', 'quantity', 'price']
-    
+
 
 # Serializers related to Cart
 class CartItemRequest(serializers.Serializer):
@@ -517,11 +529,11 @@ class SaleSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        
+
         price = data['product']['price']['usd']
         # discount = round((price - instance.new_price) / price * 100)
-                
+
         data['product']['new_price'] = get_currency(instance.new_price)
         data['product']['discount'] = instance.discount
-        
+
         return data['product']

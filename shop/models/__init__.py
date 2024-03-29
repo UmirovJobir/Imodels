@@ -14,7 +14,8 @@ from .product import (
     ProductGallery,
     Type,
     Item,
-    Sale
+    Sale,
+    QuillPost
 )
 from .order import (
     Order,

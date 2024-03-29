@@ -23,7 +23,8 @@ from .models import (
     ContactRequest,
     Order,
     OrderProduct,
-    Sale
+    Sale,
+    QuillPost
 )
 from .serializers import (
     CategorySerializer,
@@ -36,8 +37,27 @@ from .serializers import (
     OrderSerializer,
     OrderRequest,
     CartProductRequest,
-    SaleSerializer
+    SaleSerializer,
+    QuillPostSerializer
 )
+from django.shortcuts import render
+
+
+def model_form_view(request):
+    context = {
+        "quillposts": QuillPost.objects.all(),
+    }
+
+    return render(request, 'form_view.html', context)
+
+class QuillPostListAPIView(ListAPIView):
+    serializer_class = QuillPostSerializer
+    queryset = QuillPost.objects.all()
+
+
+class QuillPostRetrieveAPIView(RetrieveAPIView):
+    serializer_class = QuillPostSerializer
+    queryset = QuillPost.objects.all()
 
 
 # View related to Category
@@ -88,10 +108,11 @@ class ProductListAPIView(ListAPIView):
         if category_id:
             category = Category.objects.get(id=category_id)
             if category.products.filter(status=True):
-                return category.products.filter(status=True).order_by('-created_at') #-order_by')
+                return category.products.filter(status=True).order_by('-created_at')  # -order_by')
             else:
                 if category.subcategories.all():
-                    return queryset.filter(category__in=category.subcategories.all(), status=True).order_by('-created_at') #-order_by')
+                    return queryset.filter(category__in=category.subcategories.all(), status=True).order_by(
+                        '-created_at')  # -order_by')
                 else:
                     return Product.objects.none()
         return queryset.order_by('-created_at')
@@ -184,27 +205,25 @@ class CartView(APIView):
         cart = Cart(request)
         data = list(cart.__iter__(request))
         return Response({
-            "data": data, 
+            "data": data,
             "cart_total_price": cart.get_total_price(data)
-            }, status=status.HTTP_200_OK)
-
+        }, status=status.HTTP_200_OK)
 
     @extend_schema(
-            tags=["Cart"],
-            request=CartProductRequest,
-            responses=CartProductRequest,
+        tags=["Cart"],
+        request=CartProductRequest,
+        responses=CartProductRequest,
     )
     def post(self, request, *args, **kwargs):
         cart = Cart(request)
         product = request.data
         cart.add(
-                product=product["product"],
-                quantity=product["quantity"],
-                items = product['items'] if 'items' in product else [],
-                overide_quantity=product["overide_quantity"] if "overide_quantity" in product else False
-            )
+            product=product["product"],
+            quantity=product["quantity"],
+            items=product['items'] if 'items' in product else [],
+            overide_quantity=product["overide_quantity"] if "overide_quantity" in product else False
+        )
         return Response({"detail": "cart updated"}, status=status.HTTP_202_ACCEPTED)
-
 
     @extend_schema(
         tags=["Cart"],
@@ -226,14 +245,14 @@ class CartView(APIView):
     )
     def delete(self, request):
         cart = Cart(request)
-        
+
         product = request.GET.get("product")
         quantity = request.GET.get("quantity")
 
-        if product==None:
+        if product == None:
             return Response({"error": "product is not given"})
 
-        if quantity==None:
+        if quantity == None:
             cart.remove(product)
             return Response({"detail": "product removed"}, status=status.HTTP_202_ACCEPTED)
 
@@ -243,8 +262,8 @@ class CartView(APIView):
             return Response({"error": "product not found"}, status=status.HTTP_404_NOT_FOUND)
 
         for cart_product, value in cart.cart.items():
-            if cart_product==str(product):
-                if value['quantity']==quantity or value['quantity'] <= 1:
+            if cart_product == str(product):
+                if value['quantity'] == quantity or value['quantity'] <= 1:
                     keys_to_remove.append(str(product))
                 else:
                     value['quantity'] -= 1
@@ -269,34 +288,35 @@ class OrderView(ListCreateAPIView):
         context = super().get_serializer_context()
         context['customer'] = self.request.user
         return context
-    
+
     def get_queryset(self):
         user = self.request.user
         return Order.objects.filter(customer=user).order_by("-created_at")
-    
+
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         order = Order.objects.create(customer=request.user)
         for product in request.data:
-            
+
             if 'configurator' in product:
-                configurator_id = get_object_or_404(Product, pk=product['configurator']) if product['configurator']!=None else None,
+                configurator_id = get_object_or_404(Product, pk=product['configurator']) if product[
+                                                                                                'configurator'] != None else None,
                 configurator_id = list(configurator_id)[0]
             else:
                 configurator_id = None
 
             order_product = OrderProduct.objects.create(
-                    order=order,
-                    configurator = configurator_id,         #get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
-                    quantity     = product['quantity'],
-                    product      = get_object_or_404(Product, pk=product['product']),
-                    price        = product['price']['uzs'] if product['price']!=None else None,
-                    price_usd    = product['price']['usd'] if product['price']!=None else None,
-                    price_eur    = product['price']['eur'] if product['price']!=None else None)
-            
+                order=order,
+                configurator=configurator_id,
+                # get_object_or_404(Product, pk=product['configurator']) if 'configurator' in product else None,
+                quantity=product['quantity'],
+                product=get_object_or_404(Product, pk=product['product']),
+                price=product['price']['uzs'] if product['price'] != None else None,
+                price_usd=product['price']['usd'] if product['price'] != None else None,
+                price_eur=product['price']['eur'] if product['price'] != None else None)
+
         send_message(order=order, request=request, type="order")
-        
-            
+
         # serializer = OrderSerializer(order, context = {"request": request})
         # return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
@@ -312,7 +332,6 @@ class SaleView(ListAPIView):
         queryset = Sale.get_sales_ordered_by_discount().filter(product__status=True).select_related('product')
 
         return queryset
-        
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -324,6 +343,7 @@ class BlogListView(ListView):
     template_name = 'blog-list.html'
     context_object_name = "blogs"
     queryset = Blog.objects.all()
+
 
 class BlogDetailesView(DetailView):
     template_name = "blog-detail.html"

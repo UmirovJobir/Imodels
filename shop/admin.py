@@ -32,8 +32,15 @@ from .models import (
     Type,
     Order,
     Sale,
-    Item
+    Item,
+    QuillPost
 )
+
+
+@admin.register(QuillPost)
+class QuillPostAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.site_header = "Imodels adminpanel"
 admin.site.site_title = "Imodels adminpanel"
@@ -75,6 +82,7 @@ class ContactRequestAdmin(admin.ModelAdmin):
                 return obj.message[:48] + "..."
         return None
 
+
 @admin.register(Blog)
 class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
     formfield_overrides = {
@@ -97,14 +105,14 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
                 "text",
             ]
         }
-        )
+         )
     ]
 
     def preview_image_tag(self, obj):
         preview_image = obj.preview_image.url
-        return format_html('<img src="%s" width="100px"/>'%(preview_image))
-    preview_image_tag.short_description = "Rasm"
+        return format_html('<img src="%s" width="100px"/>' % (preview_image))
 
+    preview_image_tag.short_description = "Rasm"
 
     def description_short(self, obj: Blog) -> str:
         if obj.description:
@@ -125,11 +133,11 @@ class CategoryAdmin(TranslationAdmin):
     fieldsets = [
         ("КАТЕГОРИЯ", {
             "fields": ("parent", "name"),
-            "classes":("collapse"),
-            "description":"Родительская категория",
+            "classes": ("collapse"),
+            "description": "Родительская категория",
         }),
     ]
-    
+
     def parent_name(self, obj):
         return obj.parent.name_uz if obj.parent else None
 
@@ -159,8 +167,8 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         models.CharField: {'widget': forms.TextInput(attrs={'size': 193})},
         models.IntegerField: {'widget': forms.TextInput(attrs={'size': 10})},
         models.BooleanField: {'widget': widgets.NullBooleanSelect(attrs={
-                'style': 'padding: 4px 8px; border-radius: 5px; width: 100px'
-            })
+            'style': 'padding: 4px 8px; border-radius: 5px; width: 100px'
+        })
         },
     }
 
@@ -191,7 +199,7 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
         }),
         ("Konfigurator", {
             "fields": [
-                "configurator", 
+                "configurator",
                 "is_configurator",
             ]
         }),
@@ -235,17 +243,18 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
                                     </tr>
                                 </table>
                                 """
-                                )
+                               )
         else:
             return "-"
+
     price_table.short_description = "Narx jadvali"
 
-    
     def category_name(self, obj: Product) -> str:
         category_tags = ''.join([
             '<a href="{}">{}</a><br>'.format(reverse('admin:shop_category_change', args=[category.pk]), category.name)
             for category in obj.category.all()])
         return format_html(category_tags)
+
     category_name.short_description = "Kategoriya nomi"
 
     def description_short(self, obj: Product) -> str:
@@ -253,19 +262,20 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
             return obj.description
         else:
             return obj.description[:48] + "..."
-    
+
     def first_image(self, obj):
         try:
             first_image = obj.product_images.first().image.url
         except AttributeError:
             first_image = static("img/no-image.png")
-        return format_html('<img src="%s" width="100px"/>'%(first_image))
+        return format_html('<img src="%s" width="100px"/>' % (first_image))
+
     first_image.short_description = "Rasm"
 
-        
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category', 'product_galleries') \
+        queryset = queryset.prefetch_related('product_images', 'items', 'item', 'item__type', 'category',
+                                             'product_galleries') \
             .select_related('configurator', 'product_video', 'product_features', 'product_description')
         return queryset
 
@@ -274,18 +284,18 @@ class ProductAdmin(TranslationAdmin, NestedModelAdmin, SummernoteModelAdmin):
 class OrderAdmin(NestedModelAdmin):
     formfield_overrides = {
         models.ForeignKey: {'widget': widgets.Input(attrs={
-                'style':  'width: 90px; border-radius: 5px;'
-            })
+            'style': 'width: 90px; border-radius: 5px;'
+        })
         },
         models.BooleanField: {
             'widget': widgets.NullBooleanSelect(attrs={
-                'style':  'width: 100px; background-color: red;'  #'padding: 4px 8px; border-radius: 5px;'
+                'style': 'width: 100px; background-color: red;'  # 'padding: 4px 8px; border-radius: 5px;'
             })
         }
     }
     list_display = ['id', 'customer', 'formatted_total_price', 'created_at', 'order_status']
     list_display_links = ['id', 'customer', 'order_status']
-    readonly_fields = ['formatted_total_price', 'first_name', 'last_name', 'phone','order_status', 'created_at']
+    readonly_fields = ['formatted_total_price', 'first_name', 'last_name', 'phone', 'order_status', 'created_at']
     inlines = [OrderProductInline]
     raw_id_fields = ['customer']
     list_per_page = 15
@@ -293,7 +303,7 @@ class OrderAdmin(NestedModelAdmin):
         ('status'),
         ("created_at", DateRangeQuickSelectListFilterBuilder(
             title="Kun bo'yichas salarash",
-            default_start=datetime.now(), # - timedelta(days=1),
+            default_start=datetime.now(),  # - timedelta(days=1),
             default_end=datetime.now()
         )),
     )
@@ -317,42 +327,45 @@ class OrderAdmin(NestedModelAdmin):
 
     def first_name(self, obj):
         return obj.customer.first_name
+
     # first_name.short_description = 'First Name'
 
     def last_name(self, obj):
         return obj.customer.last_name
+
     # last_name.short_description = 'First Name'
-    
+
     def formatted_total_price(self, obj):
         return "{:,.2f} So'm".format(obj.total_price)
+
     formatted_total_price.short_description = 'Total Price'
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         queryset = queryset.select_related('customer').prefetch_related('order_products')
         return queryset
-    
+
     def order_status(self, obj):
-        if obj.status=="To'langan":
+        if obj.status == "To'langan":
             background_color = '#2ea44f'
             color = '#fff'
 
-        elif obj.status=="Yangi":
+        elif obj.status == "Yangi":
             background_color = '#fff000'
             color = '#000'
-    
-        elif obj.status=="Rad etilgan":
+
+        elif obj.status == "Rad etilgan":
             background_color = '#ff0000'
             color = '#fff'
 
-        elif obj.status=="Yetkazib berildi":
+        elif obj.status == "Yetkazib berildi":
             background_color = '#808080'
             color = '#fff'
 
         else:
             background_color = None
             color = None
- 
+
         return format_html(
             """<span 
                 style="
@@ -365,7 +378,7 @@ class OrderAdmin(NestedModelAdmin):
                 text-align: center;
                 ">{}
             </span>""",
-                background_color, color, obj.status)
+            background_color, color, obj.status)
 
 
 @admin.register(Sale)
@@ -400,7 +413,8 @@ class SaleAdmin(admin.ModelAdmin):
                                     </tr>
                                 </table>
                                 """
-                                )
+                               )
+
     new.short_description = format_html('<i class="fa-solid fa-tags"></i>Discount price')
 
     def old_price(self, obj):
@@ -421,8 +435,7 @@ class SaleAdmin(admin.ModelAdmin):
                                 </tr>
                             </table>
                             """
-                            )
-                            
+                           )
 
     def discount(self, obj):
         if obj.new_price:
@@ -439,8 +452,7 @@ class SaleAdmin(admin.ModelAdmin):
                 first_image = static("img/no-image.png")
         else:
             first_image = static("img/no-image.png")
-        return format_html('<img src="%s" width="100px" height="100px"/>'%(first_image))
-
+        return format_html('<img src="%s" width="100px" height="100px"/>' % (first_image))
 
     # def images(self, obj):
     #     try:

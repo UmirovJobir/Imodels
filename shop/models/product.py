@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.html import mark_safe
+from django_quill.fields import QuillField
 
 from .category import Category
 
@@ -9,15 +10,23 @@ def product_image_directory_path(instance: "ProductImage", filename: str) -> str
         pk=instance.product.pk,
         filename=filename)
 
+
 def product_feature_image_directory_path(instance: "ProductFeature", filename: str) -> str:
     return "product_feature/product_{pk}__{filename}".format(
         pk=instance.product.pk,
         filename=filename)
 
+
 def product_gallery_directory_path(instance: "ProductGallery", filename: str) -> str:
     return "product_gallery/product_{pk}__{filename}".format(
         pk=instance.product.pk,
         filename=filename)
+
+
+class QuillPost(models.Model):
+    title = models.CharField(max_length=225)
+    content = QuillField()
+    count = models.IntegerField()
 
 
 class Product(models.Model):
@@ -28,7 +37,7 @@ class Product(models.Model):
     is_configurator = models.BooleanField(default=False,
                                           verbose_name="Ushbu mahsulot kanfiguratormi?",
                                           help_text="Agar kanfigurator yaratayotgan bo'lsangir `Ha` ni belgilang")
-    configurator = models.ForeignKey('self', 
+    configurator = models.ForeignKey('self',
                                      null=True,
                                      blank=True,
                                      on_delete=models.CASCADE,
@@ -54,26 +63,27 @@ class Product(models.Model):
                                            verbose_name="Tartib raqam")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         verbose_name = 'Mahsulot'
         verbose_name_plural = 'Mahsulotlar'
-    
+
     def __str__(self) -> str:
         return self.title
 
 
 class ProductImage(models.Model):
-    image   = models.ImageField(upload_to=product_image_directory_path, verbose_name="Rasm")
+    image = models.ImageField(upload_to=product_image_directory_path, verbose_name="Rasm")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return self.product.title
-    
+
     def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+        return mark_safe('<img src="%s" width="100px" />' % (self.image.url))
+
     image_tag.short_description = 'Image'
 
 
@@ -84,20 +94,21 @@ class ProductVideo(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_video')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     # def video_tag(self):
     #     return f'<iframe width="560" height="315" src="{self.video_link}" frameborder="0" allowfullscreen></iframe>'
     # video_tag.short_description = 'Video'
 
 
 class ProductFeature(models.Model):
-    image   = models.ImageField(upload_to=product_feature_image_directory_path)
+    image = models.ImageField(upload_to=product_feature_image_directory_path)
     product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='product_features')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+        return mark_safe('<img src="%s" width="100px" />' % (self.image.url))
+
     image_tag.short_description = 'Image'
 
 
@@ -115,7 +126,8 @@ class ProductGallery(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.image.url))
+        return mark_safe('<img src="%s" width="100px" />' % (self.image.url))
+
     image_tag.short_description = 'Image'
 
 
@@ -130,14 +142,14 @@ class Item(models.Model):
     type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='products', null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='item')
     item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='items')
-    
+
     class Meta:
         unique_together = ('product', 'item')
 
     def image_tag(self):
-        return mark_safe('<img src="%s" width="100px" />'%(self.product.product_images.first().image.url))
-    image_tag.short_description = 'Image'
+        return mark_safe('<img src="%s" width="100px" />' % (self.product.product_images.first().image.url))
 
+    image_tag.short_description = 'Image'
 
     def price(self):
         return self.product.price

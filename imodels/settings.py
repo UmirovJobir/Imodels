@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'django_cleanup',
     'django_filters',
     'django_summernote',
+    'django_quill',
 
     'corsheaders',
     'rangefilter',
@@ -306,6 +307,7 @@ ADMIN_REORDER = (
         {'model': 'shop.Description', 'label': 'Tavsiflar'},
         {'model': 'shop.Sale', 'label': 'Chegirma Mahsulotlar'},
         {'model': 'shop.Type', 'label': 'Modullar turlari'},
+        {'model': 'shop.QuillPost', 'label': 'QuillPost'},
     )},
 
     {'app': 'shop', 'label': 'Order and Contact',
