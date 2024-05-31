@@ -5,7 +5,11 @@ from django.contrib.auth.admin import UserAdmin
 from rangefilter.filters import DateRangeQuickSelectListFilterBuilder
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import User, AuthSms
+from .models import User, AuthSms, NewPhone
+
+@admin.register(NewPhone)
+class NewPhoneAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "phone", "secure_code", "created_at"]
 
 
 @admin.register(AuthSms)
@@ -28,7 +32,7 @@ class UserAdmin(UserAdmin):
         ('is_active'),
         ("created_at", DateRangeQuickSelectListFilterBuilder(
             title="Kun bo'yichas salarash",
-            default_start= datetime.now().replace(month=datetime.now().month - 1),
+            default_start= datetime.now().replace(month=datetime.now().month),
             default_end=datetime.now()
         )),
     )

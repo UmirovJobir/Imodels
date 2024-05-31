@@ -2,7 +2,9 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     RegisterView, 
-    UserDetailView, 
+    UserDetailView,
+    UserUpdateView,
+    UpdatePhoneView,
     ConfirmView, 
     ResendView, 
     PasswordResetTokenView,
@@ -23,6 +25,8 @@ urlpatterns = [
     path("password-reset/<str:encoded_pk>/<str:token>/", ResetPasswordView.as_view(), name="password-reset"),
 
     path('user-detail/', UserDetailView.as_view(), name='user-detail'),
+    path('user-update/', UserUpdateView.as_view(), name='user-update'),
+    path('user-update-phone/', UpdatePhoneView.as_view(), name='update_phone'),
     
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),

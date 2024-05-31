@@ -81,6 +81,7 @@ def send_message(type=None, **kwargs):
             pass
     
     elif type == "auth":
+        chat_id = settings.MYSERVICE.get('telebot').get('chat_id').get('chat_id_orders')
         try:
             bot.send_message(chat_id=chat_id, text=kwargs.get('text'), parse_mode="HTML")
         except:

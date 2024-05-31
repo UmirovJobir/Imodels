@@ -294,6 +294,7 @@ ADMIN_REORDER = (
     {'app': 'account', 'label': 'Yuborilgan SMS lar',
      'models': (
         {'model': 'account.AuthSms', 'label': 'Tasdiqlash kodlar'},
+        {'model': 'account.NewPhone', 'label': 'Tasdiqlash kodlar Yangi raqam uchun'},
     )},
 
     {'app': 'shop', 'label': "Blog",
