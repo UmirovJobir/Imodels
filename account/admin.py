@@ -43,7 +43,10 @@ class UserAdmin(UserAdmin):
                 "password",
                 "first_name",
                 "last_name",
-                "created_at"
+                "created_at",
+                "secure_code",
+                "expiration_time",
+                "new_phone_temp",
             ]
         }),
         ("Permissions", {
