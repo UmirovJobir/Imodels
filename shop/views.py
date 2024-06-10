@@ -304,7 +304,7 @@ class OrderView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         order = Order.objects.create(customer=request.user)
         for product in request.data:
-
+            
             if 'configurator' in product:
                 configurator_id = get_object_or_404(Product, pk=product['configurator']) if product[
                                                                                                 'configurator'] != None else None,

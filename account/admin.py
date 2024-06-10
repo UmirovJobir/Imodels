@@ -5,16 +5,16 @@ from django.contrib.auth.admin import UserAdmin
 from rangefilter.filters import DateRangeQuickSelectListFilterBuilder
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import User, AuthSms, NewPhone
+from .models import User
 
-@admin.register(NewPhone)
-class NewPhoneAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "phone", "secure_code", "created_at"]
+# @admin.register(NewPhone)
+# class NewPhoneAdmin(admin.ModelAdmin):
+#     list_display = ["id", "user", "phone", "secure_code", "created_at"]
 
 
-@admin.register(AuthSms)
-class SmsAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "secure_code", "created_at"]
+# @admin.register(AuthSms)
+# class SmsAdmin(admin.ModelAdmin):
+#     list_display = ["id", "user", "secure_code", "created_at"]
 
 
 @admin.register(User)
@@ -25,7 +25,7 @@ class UserAdmin(UserAdmin):
     readonly_fields = ["created_at"]
     list_display_links = ["id", "phone"]
     list_display = ["id", "phone", "first_name", "is_staff", "is_active"]
-    search_fields = ["phone"]
+    search_fields = ["phone", "first_name"]
     ordering = ["phone"]
     list_filter = (
         ('is_staff'),

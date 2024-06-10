@@ -17,10 +17,13 @@ from libs.telegram import send_message
 from libs.sms import client
 
 from .utils import generate_code
-from .models import User, AuthSms, NewPhone
+from .models import User
 from .serializers import (
     RegisterSerializer,
+    ConfirmSerializer,
+    ResendSecureCodeSerializer,
     UserSerializer,
+    ConfirmPhoneSerializer,
     PhoneResetSerializer,
     PhoneRequestSerializer,
     ResetPasswordSerializer,
@@ -55,92 +58,66 @@ class RegisterView(generics.CreateAPIView):
             200: OpenApiResponse(description="User activated")
         },
 )
-class ConfirmView(views.APIView):
-    def post(self, request):
-        user = get_object_or_404(User, phone=request.data.get('phone'))
-        last_auth_sms = user.authsms.last()
-
-        if last_auth_sms.secure_code != request.data.get('secure_code'):
-            return Response({"error": AuthSms.INVALID_SECURE_CODE}, status=status.HTTP_400_BAD_REQUEST)
-
-        time_difference = timezone.now() - last_auth_sms.created_at
-        if time_difference.total_seconds() > 120:
-            return Response({"error": AuthSms.SECURE_CODE_EXPIRED}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            user.is_active=True
-            user.save()
-            return Response({"detail": AuthSms.USER_ACTIVETED}, status=status.HTTP_202_ACCEPTED)
+class RegisterConfirmView(generics.CreateAPIView):
+    serializer_class = ConfirmSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "detail": User.USER_ACTIVETED,
+        }, status=status.HTTP_200_OK)
 
 
 @extend_schema(
         tags=["User"],
-        responses={
-            200: UserSerializer
+        request = UserSerializer,
+         responses={
+            200: OpenApiResponse(description=f"(Phone number updated successfully, {User.SECURE_CODE_RESENT})"),
         }
+        
 )
-class UserDetailView(generics.RetrieveAPIView):
+class UserDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        if serializer.context.get('secure_code_sent'):
+            return Response({"detail": User.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
+
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 @extend_schema(
         tags=["User"],
-        request=UserSerializer,
+        request=ConfirmPhoneSerializer,
         responses={
-            200: UserSerializer,
-            400: OpenApiResponse(description=f"{AuthSms.INVALID_SECURE_CODE, AuthSms.SECURE_CODE_EXPIRED}"),
+            200: OpenApiResponse(description=f"Phone number updated successfully"),
+            400: OpenApiResponse(description=f"{User.INVALID_SECURE_CODE, User.SECURE_CODE_EXPIRED}"),
         },
 )
-class UserUpdateView(generics.GenericAPIView):
-    serializer_class = UserSerializer
+class ConfirmUpdateView(generics.GenericAPIView):
+    serializer_class = ConfirmPhoneSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        return self.request.user
-
-    def patch(self, request, *args, **kwargs):
-        return self.update_user(request, partial=True)
-
-    
-    def update_user(self, request, partial):
-        user = self.get_object()
-        serializer = self.get_serializer(user, data=request.data, partial=partial)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user = serializer.save()
+        return Response({
+            "message": "Phone number updated successfully.",
+        }, status=status.HTTP_200_OK)
 
-
-@extend_schema(
-        tags=["User"],
-        request=PhoneResetSerializer,
-)
-class UpdatePhoneView(views.APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def post(self, request):
-        new_phone = request.data.get('phone')
-        
-        if not new_phone:
-            return Response({"phone": "This field is required for phone number update."}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = request.user
-
-        secure_code = generate_code()
-
-        # Check if there is an existing NewPhone instance for this user and new phone number
-        new_auth_sms, created = NewPhone.objects.update_or_create(
-            user=user,
-            phone=new_phone,
-            defaults={
-                'secure_code': secure_code,
-                'created_at': timezone.now()
-            }
-        )
-
-        return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
 
 
 @extend_schema(
@@ -151,43 +128,32 @@ class UpdatePhoneView(views.APIView):
             404: OpenApiResponse(description="Not found"),
         },
 )
-class ResendView(views.APIView):
-    def post(self, request):  
-        user = get_object_or_404(User, phone=request.data.get('phone'))
-        
-        auth_sms = AuthSms.objects.create(
-                    user=user,
-                    secure_code = generate_code(),
-                    created_at = timezone.now())
-
-        return Response({"detail": AuthSms.SECURE_CODE_RESENT}, status=status.HTTP_200_OK)
+class ResendSecureCodeView(generics.GenericAPIView):
+    serializer_class = ResendSecureCodeSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "detail": User.SECURE_CODE_RESENT
+        }, status=status.HTTP_200_OK)
 
     
 @extend_schema(
         tags=["Password Reset"],
 )
 class PasswordResetTokenView(generics.GenericAPIView):
-    serializer_class = PhoneRequestSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+    serializer_class = ConfirmSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
-        user = get_object_or_404(User, phone=serializer.data["phone"])
-        auth_sms = user.authsms.last()
-
-        if auth_sms.secure_code == serializer.data['secure_code']:
-            time_difference = timezone.now() - auth_sms.created_at
-            if time_difference.total_seconds() > 120:
-                return Response({"error": AuthSms.SECURE_CODE_EXPIRED}, status=status.HTTP_400_BAD_REQUEST)
-        else: 
-            return Response({"error": AuthSms.WRONG_SECURE_CODE}, status=status.HTTP_400_BAD_REQUEST)
-        
-
+        user = serializer.save()
         encoded_pk = urlsafe_base64_encode(force_bytes(user.pk))
         token = PasswordResetTokenGenerator().make_token(user)
-
         return Response({"token": f"{encoded_pk}/{token}"}, status=status.HTTP_200_OK)
+
 
 
 @extend_schema(

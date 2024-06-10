@@ -127,7 +127,7 @@ WSGI_APPLICATION = 'imodels.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": env.str("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": env.str("SQL_DATABASE", 'imodels'),
+        "NAME": "imodels", #env.str("SQL_DATABASE", 'imodels'),
         "USER": env.str("SQL_USER", "postgres"),
         "PASSWORD": env.str("SQL_PASSWORD", "123"),
         "HOST": env.str("SQL_HOST", "localhost"),
