@@ -20,7 +20,7 @@ urlpatterns = [
     path('resend/', ResendSecureCodeView.as_view(), name='resend'),
 
     path("password-reset/", ResendSecureCodeView.as_view(), name="password-reset"),
-    path("password-reset/confirm/", PasswordResetTokenView.as_view(), name="password-reset-confirm"),
+    path("confirm/", PasswordResetTokenView.as_view(), name="password-reset-confirm"),
     path("password-reset/<str:encoded_pk>/<str:token>/", ResetPasswordView.as_view(), name="password-reset"),
 
     path('user-detail/', UserDetailView.as_view(), name='user-detail'),
