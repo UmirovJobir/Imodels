@@ -1,4 +1,4 @@
-from .blog import Blog, News
+from .blog import Blog
 from .category import Category
 from .contact import ContactRequest
 from .description import (
@@ -15,7 +15,6 @@ from .product import (
     Type,
     Item,
     Sale,
-    # QuillPost
 )
 from .order import (
     Order,

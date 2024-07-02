@@ -13,9 +13,6 @@ from .views import (
     SaleView,
     BlogListView,
     BlogDetailesView,
-    NewsView,
-    PopularNewsView,
-    NewsDetailView
 )
 
 urlpatterns = [
@@ -38,7 +35,4 @@ urlpatterns = [
 
     path('blog-list/', BlogListView.as_view(), name='blog_list'),
     path('blog-list/<int:pk>/', BlogDetailesView.as_view(), name='blog_details'),
-    
-    path('news-list/', NewsView.as_view(), name='news_list'),
-    path('news-list/<int:pk>/', NewsDetailView.as_view(), name='news_details'),
 ]

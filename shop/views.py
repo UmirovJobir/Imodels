@@ -24,7 +24,6 @@ from .models import (
     Order,
     OrderProduct,
     Sale,
-    News
 )
 from .serializers import (
     CategorySerializer,
@@ -38,8 +37,6 @@ from .serializers import (
     OrderRequest,
     CartProductRequest,
     SaleSerializer,
-    NewsListSerializer,
-    NewsDetailSerializer
 )
 from django.shortcuts import render
 
@@ -176,30 +173,6 @@ class PopularBlogView(ListAPIView):
 class BlogDetailView(RetrieveAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogDetailSerializer
-
-@extend_schema(
-    tags=["News"],
-)
-class NewsView(ListAPIView):
-    queryset = News.objects.all().order_by("-created_at")
-    serializer_class = NewsListSerializer
-    pagination_class = CustomPageNumberPagination
-
-@extend_schema(
-    tags=["News"],
-)
-class PopularNewsView(ListAPIView):
-    queryset = News.objects.filter(popular=True).order_by("-created_at")
-    serializer_class = NewsListSerializer
-    pagination_class = CustomPageNumberPagination
-
-@extend_schema(
-    tags=["News"],
-    responses=BlogDetailSerializer
-)
-class NewsDetailView(RetrieveAPIView):
-    queryset = News.objects.all()
-    serializer_class = NewsDetailSerializer
 
 
 # View related to ContactRequest

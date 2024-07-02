@@ -9,7 +9,6 @@ from .models import (
     Description,
     DescriptionPoint,
     Blog,
-    News,
     Type
 )
 
@@ -60,10 +59,6 @@ class DescriptionPointTranslationOptions(TranslationOptions):
 
 @register(Blog)
 class BlogTranslationOptions(TranslationOptions):
-    fields = ['title', 'description', 'text']
-    
-@register(News)
-class NewsTranslationOptions(TranslationOptions):
     fields = ['title', 'description', 'text']
 
 
