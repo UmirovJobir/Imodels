@@ -23,10 +23,10 @@ def product_gallery_directory_path(instance: "ProductGallery", filename: str) ->
         filename=filename)
 
 
-class QuillPost(models.Model):
-    title = models.CharField(max_length=225)
-    content = QuillField()
-    count = models.IntegerField()
+# class QuillPost(models.Model):
+#     title = models.CharField(max_length=225)
+#     content = QuillField()
+#     count = models.IntegerField()
 
 
 class Product(models.Model):

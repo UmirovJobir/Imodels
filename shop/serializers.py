@@ -22,18 +22,18 @@ from .models import (
     Order,
     OrderProduct,
     Sale,
-    QuillPost
+    News
 )
 
 
-class QuillPostSerializer(serializers.ModelSerializer):
-    content = serializers.SerializerMethodField()
+# class QuillPostSerializer(serializers.ModelSerializer):
+#     content = serializers.SerializerMethodField()
 
-    def get_content(self, instance):
-        return str(instance.content.html)
-    class Meta:
-        model = QuillPost
-        fields = ['id', 'title', 'content', 'count']
+#     def get_content(self, instance):
+#         return str(instance.content.html)
+#     class Meta:
+#         model = QuillPost
+#         fields = ['id', 'title', 'content', 'count']
 
 
 
@@ -385,6 +385,45 @@ class BlogDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
+        fields = ['id', 'preview_image', 'title', 'description', 'text', 'created_at']
+
+    def get_title(self, obj):
+        title = get_full_value(obj=obj, field='title')
+        return title
+
+    def get_description(self, obj):
+        description = get_full_value(obj=obj, field='description')
+        return description
+
+    def get_text(self, obj):
+        text = get_full_value(obj=obj, field='text')
+        return text
+
+
+class NewsListSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField('get_title')
+    description = serializers.SerializerMethodField('get_description')
+
+    class Meta:
+        model = News
+        fields = ['id', 'preview_image', 'title', 'description', 'created_at']
+
+    def get_title(self, obj):
+        title = get_full_value(obj=obj, field='title')
+        return title
+
+    def get_description(self, obj):
+        description = get_full_value(obj=obj, field='description')
+        return description
+
+
+class NewsDetailSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField('get_title')
+    description = serializers.SerializerMethodField('get_description')
+    text = serializers.SerializerMethodField('get_text')
+
+    class Meta:
+        model = News
         fields = ['id', 'preview_image', 'title', 'description', 'text', 'created_at']
 
     def get_title(self, obj):

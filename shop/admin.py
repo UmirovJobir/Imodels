@@ -33,13 +33,13 @@ from .models import (
     Order,
     Sale,
     Item,
-    QuillPost
+    News
 )
 
 
-@admin.register(QuillPost)
-class QuillPostAdmin(admin.ModelAdmin):
-    pass
+# @admin.register(QuillPost)
+# class QuillPostAdmin(admin.ModelAdmin):
+#     pass
 
 
 admin.site.site_header = "Imodels adminpanel"
@@ -122,6 +122,46 @@ class BlogAdmin(TranslationAdmin, SummernoteModelAdmin):
                 return obj.description[:48] + "..."
         else:
             return obj.description
+
+@admin.register(News)
+class NewsAdmin(TranslationAdmin, SummernoteModelAdmin):
+    formfield_overrides = {
+        models.CharField: {'widget': forms.TextInput(attrs={'size': 170})},
+    }
+
+    list_display = ['id', 'title', 'popular', 'preview_image_tag'] #'description_short',
+    list_display_links = ['id', 'title']
+    summernote_fields = ['text']
+    readonly_fields = ['preview_image_tag']
+    list_per_page = 10
+    fieldsets = [
+        (None, {
+            "fields": [
+                "popular",
+                "preview_image_tag",
+                "preview_image",
+                "title",
+                "description",
+                "text",
+            ]
+        }
+         )
+    ]
+
+    def preview_image_tag(self, obj):
+        preview_image = obj.preview_image.url
+        return format_html('<img src="%s" width="100px"/>' % (preview_image))
+
+    preview_image_tag.short_description = "Rasm"
+
+    # def description_short(self, obj: Blog) -> str:
+        # if obj.description:
+        #     if len(obj.description) < 48:
+                # return obj.description
+            # else:
+                # return obj.description[:48] + "..."
+        # else:
+        #     return obj.description
 
 
 @admin.register(Category)

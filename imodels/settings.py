@@ -298,9 +298,10 @@ ADMIN_REORDER = (
     )},
 
     {'app': 'shop', 'label': "Blog",
-     'models': ('shop.Blog',)
-    },
-
+     'models': (
+        {'model': 'shop.Blog', 'label': 'Blog'},
+        {'model': 'shop.News', 'label': 'Yangiliklar'},
+    )},
     {'app': 'shop', 'label': "Product",
      'models': (
         {'model': 'shop.Category', 'label': 'Kategoriyalar'},
