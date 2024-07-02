@@ -35,12 +35,6 @@ from .models import (
     Item,
 )
 
-
-# @admin.register(QuillPost)
-# class QuillPostAdmin(admin.ModelAdmin):
-#     pass
-
-
 admin.site.site_header = "Imodels adminpanel"
 admin.site.site_title = "Imodels adminpanel"
 admin.site.index_title = "Imodels"

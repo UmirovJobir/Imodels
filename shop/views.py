@@ -41,34 +41,8 @@ from .serializers import (
 from django.shortcuts import render
 
 
-# def model_form_view(request):
-#     context = {
-#         "quillposts": QuillPost.objects.all(),
-#     }
-
-#     return render(request, 'form_view.html', context)
-
-
-# @extend_schema(
-#     tags=["QuillPost"]
-# )
-# class QuillPostListAPIView(ListAPIView):
-#     serializer_class = QuillPostSerializer
-#     queryset = QuillPost.objects.all()
-
-
-# @extend_schema(
-#     tags=["QuillPost"]
-# )
-# class QuillPostRetrieveAPIView(RetrieveAPIView):
-#     serializer_class = QuillPostSerializer
-#     queryset = QuillPost.objects.all()
-
-
 # View related to Category
-@extend_schema(
-    tags=["Category"]
-)
+@extend_schema(tags=["Category"])
 class CategoryView(ListAPIView):
     serializer_class = CategorySerializer
 
@@ -77,9 +51,7 @@ class CategoryView(ListAPIView):
         return queryset
 
 
-@extend_schema(
-    tags=["Category"],
-)
+@extend_schema(tags=["Category"])
 class SubCategoryView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = SubCategorySerializer
@@ -94,8 +66,7 @@ class SubCategoryView(ListAPIView):
             type=int,
             location=OpenApiParameter.QUERY,
         ),
-    ],
-)
+    ],)
 class ProductListAPIView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
@@ -128,9 +99,7 @@ class ProductListAPIView(ListAPIView):
         return serializer
 
 
-@extend_schema(
-    tags=["Product"],
-)
+@extend_schema(tags=["Product"])
 class ProductRetrieveAPIView(RetrieveAPIView):
     serializer_class = ProductDetailSerializer
 
@@ -148,18 +117,14 @@ class ProductRetrieveAPIView(RetrieveAPIView):
 
 
 # View related to Blog
-@extend_schema(
-    tags=["Blog"],
-)
+@extend_schema(tags=["Blog"])
 class BlogView(ListAPIView):
     queryset = Blog.objects.all().order_by("-created_at")
     serializer_class = BlogListSerializer
     pagination_class = CustomPageNumberPagination
 
 
-@extend_schema(
-    tags=["Blog"],
-)
+@extend_schema(tags=["Blog"])
 class PopularBlogView(ListAPIView):
     queryset = Blog.objects.filter(popular=True).order_by("-created_at")
     serializer_class = BlogListSerializer
@@ -168,8 +133,7 @@ class PopularBlogView(ListAPIView):
 
 @extend_schema(
     tags=["Blog"],
-    responses=BlogDetailSerializer
-)
+    responses=BlogDetailSerializer)
 class BlogDetailView(RetrieveAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogDetailSerializer
@@ -198,9 +162,7 @@ class ContactRequestCreateView(CreateAPIView):
 
 
 # View related to Cart
-@extend_schema(
-    tags=["Cart"]
-)
+@extend_schema(tags=["Cart"])
 class CartView(APIView):
     @extend_schema(
         tags=["Cart"],
@@ -283,8 +245,7 @@ class CartView(APIView):
 @extend_schema(
     tags=["Order"],
     request=OrderRequest(many=True),
-    responses=OrderSerializer,
-)
+    responses=OrderSerializer,)
 class OrderView(ListCreateAPIView):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -327,9 +288,7 @@ class OrderView(ListCreateAPIView):
         return Response({"detail": f"Order created, #ID={order.pk}"}, status=status.HTTP_200_OK)
 
 
-@extend_schema(
-    tags=["Sale"],
-)
+@extend_schema(tags=["Sale"])
 class SaleView(ListAPIView):
     serializer_class = SaleSerializer
 
