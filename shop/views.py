@@ -262,11 +262,13 @@ class OrderView(ListCreateAPIView):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         order = Order.objects.create(customer=request.user)
+        
+        if isinstance(request.data, list) and not request.data:
+            return Response({"detail": "Order is empty"}, status=status.HTTP_400_BAD_REQUEST)
+        
         for product in request.data:
-            
             if 'configurator' in product:
-                configurator_id = get_object_or_404(Product, pk=product['configurator']) if product[
-                                                                                                'configurator'] != None else None,
+                configurator_id = get_object_or_404(Product, pk=product['configurator']) if product['configurator'] != None else None,
                 configurator_id = list(configurator_id)[0]
             else:
                 configurator_id = None
@@ -313,3 +315,4 @@ class BlogDetailesView(DetailView):
     template_name = "blog-detail.html"
     model = Blog
     context_object_name = "blog"
+
